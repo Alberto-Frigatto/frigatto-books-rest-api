@@ -1,7 +1,8 @@
 from flask import Blueprint, Response
-from flask_restful import Api, Resource
+from flask_jwt_extended import jwt_required
+from flask_restful import Api
 
-from api import api
+from api import BaseResource, api
 from controllers import BookKindsController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
@@ -13,10 +14,10 @@ book_kinds_api = Api(book_kinds_bp)
 controller = BookKindsController()
 
 
-class BookKindsView(Resource):
+class BookKindsView(BaseResource):
     def get(self, id: int) -> Response:
         try:
-            book_kind = controller.get_book_kind(id)
+            book_kind = controller.get_book_kind_by_id(id)
         except CustomError as e:
             return ResponseError(api.errors.get(e.error_name)).json()
         else:
@@ -24,17 +25,35 @@ class BookKindsView(Resource):
 
             return ResponseSuccess(data).json()
 
-    def options(self, id: int) -> Response:
-        return ResponseSuccess().json()
+    @jwt_required()
+    def delete(self, id: int) -> Response:
+        try:
+            controller.delete_book_kind(id)
+        except CustomError as e:
+            return ResponseError(api.errors.get(e.error_name)).json()
+        else:
+            return ResponseSuccess().json()
+
+    @jwt_required()
+    def patch(self, id: int) -> Response:
+        try:
+            updated_book_kind = controller.update_book_kind(id)
+        except CustomError as e:
+            return ResponseError(api.errors.get(e.error_name)).json()
+        else:
+            data = book_kinds_schema.dump(updated_book_kind)
+
+            return ResponseSuccess(data).json()
 
 
-class BookKindsListView(Resource):
+class BookKindsListView(BaseResource):
     def get(self) -> Response:
         book_kinds = controller.get_all_book_kinds()
         data = book_kinds_schema.dump(book_kinds, many=True)
 
         return ResponseSuccess(data).json()
 
+    @jwt_required()
     def post(self) -> Response:
         try:
             new_book_kind = controller.create_book_kind()
@@ -45,9 +64,6 @@ class BookKindsListView(Resource):
 
             return ResponseSuccess(data, 201).json()
 
-    def options(self) -> Response:
-        return ResponseSuccess().json()
 
-
-book_kinds_api.add_resource(BookKindsListView, '')
 book_kinds_api.add_resource(BookKindsView, '/<int:id>', '/<string:id>')
+book_kinds_api.add_resource(BookKindsListView, '')
