@@ -22,7 +22,7 @@ class BookKindsController:
 
         return book_kind
 
-    def create_book_kind(self):
+    def create_book_kind(self) -> BookKind:
         if not self._are_there_data():
             raise CustomError('NoDataSent')
 
