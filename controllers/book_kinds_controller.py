@@ -14,7 +14,7 @@ class BookKindsController:
 
         return book_kinds
 
-    def get_book_kind(self, id: int) -> BookKind:
+    def get_book_kind_by_id(self, id: int) -> BookKind:
         book_kind = db.session.execute(select(BookKind).filter_by(id=id)).scalar()
 
         if book_kind is None:
