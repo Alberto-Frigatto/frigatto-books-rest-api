@@ -38,10 +38,9 @@ def check_http_method():
     route = request.path
 
     adapter = app.url_map.bind('')
-    endpoint, _ = adapter.match(route)
-    view_function = app.view_functions.get(endpoint)
-
-    if view_function and method not in view_function.methods:
+    try:
+        adapter.match(route, method)
+    except Exception:
         return ResponseError(api.errors.get('MethodNotAllowed')).json()
 
 
