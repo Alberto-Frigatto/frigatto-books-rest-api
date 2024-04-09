@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Any, Sequence
 
 from flask import request
 from sqlalchemy import select
@@ -26,12 +26,15 @@ class BookKindsController:
         if not self._are_there_data():
             raise CustomError('NoDataSent')
 
-        book_kind = request.json['kind'].lower()
+        data = request.json
 
-        if self._book_kind_already_exists(book_kind):
+        if not self._is_data_valid(data):
+            raise CustomError('InvalidDataSent')
+
+        new_book_kind = BookKind(data['kind'])
+
+        if self._book_kind_already_exists(new_book_kind):
             raise CustomError('BookKindAlreadyExists')
-
-        new_book_kind = BookKind(book_kind)
 
         db.session.add(new_book_kind)
         db.session.commit()
@@ -41,5 +44,30 @@ class BookKindsController:
     def _are_there_data(self) -> bool:
         return request.content_length
 
-    def _book_kind_already_exists(self, book_kind) -> bool:
-        return bool(db.session.execute(select(BookKind).filter_by(kind=book_kind)).scalar())
+    def _is_data_valid(self, data: Any) -> bool:
+        return isinstance(data, dict) and 'kind' in data.keys() and isinstance(data['kind'], str)
+
+    def _book_kind_already_exists(self, book_kind: BookKind) -> bool:
+        return bool(db.session.execute(select(BookKind).filter_by(kind=book_kind.kind)).scalar())
+
+    def delete_book_kind(self, id: int) -> None:
+        book_kind = self.get_book_kind_by_id(id)
+
+        db.session.delete(book_kind)
+        db.session.commit()
+
+    def update_book_kind(self, id: int) -> None:
+        book_kind = self.get_book_kind_by_id(id)
+
+        if not self._are_there_data():
+            raise CustomError('NoDataSent')
+
+        data = request.json
+
+        if not self._is_data_valid(data):
+            raise CustomError('InvalidDataSent')
+
+        book_kind.kind = data['kind'].lower()
+        db.session.commit()
+
+        return book_kind
