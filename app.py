@@ -1,9 +1,11 @@
 from flask import Flask, request
+from flask_cors import CORS
 from sqlalchemy import text
 
 from api import api
 from db import db
 from handle_errors import import_error_messages
+from json_web_token import jwt
 from response import ResponseError
 from routes import add_routes
 from schemas import ma
@@ -11,7 +13,9 @@ from schemas import ma
 app = Flask(__name__)
 app.config.from_pyfile('./config.py')
 
+CORS(app)
 
+jwt.init_app(app)
 api.init_app(app)
 db.init_app(app)
 ma.init_app(app)
