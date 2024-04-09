@@ -11,4 +11,28 @@ errors = {
         'message': 'Cabeçalho Content-Type inválido. Deve ser application/json',
         'status': 415,
     },
+    'NoDataSent': {
+        'message': 'Não foi enviado nenhum dado',
+        'status': 400,
+    },
+    'InvalidDataSent': {
+        'message': 'Os dados enviados são inválidos',
+        'status': 400,
+    },
+    'InvalidJWT': {
+        'message': 'Token JWT inválido',
+        'status': 401,
+    },
+    'MissingJWT': {
+        'message': 'O token JWT não foi enviado',
+        'status': 401,
+    },
+    'MissingCSFR': {
+        'message': 'O token CSFR não foi enviado',
+        'status': 400,
+    },
+    'InvalidCSFR': {
+        'message': 'Token CSFR inválido',
+        'status': 400,
+    },
 }
