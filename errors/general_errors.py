@@ -35,4 +35,8 @@ errors = {
         'message': 'Token CSFR inválido',
         'status': 400,
     },
+    'InvalidFilename': {
+        'message': 'Nome do arquivo inválido',
+        'status': 400,
+    },
 }
