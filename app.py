@@ -45,10 +45,13 @@ def check_http_method():
 
 
 @app.before_request
-def check_content_type_for_contents_sent():
-    allowed_content_type = 'application/json'
+def check_content_type():
+    allowed_content_types = 'multipart/form-data', 'application/json'
 
-    if request.content_length and request.content_type != allowed_content_type:
+    if request.content_length and all(
+        allowed_content_type not in request.content_type
+        for allowed_content_type in allowed_content_types
+    ):
         return ResponseError(api.errors.get('InvalidContentType')).json()
 
 
