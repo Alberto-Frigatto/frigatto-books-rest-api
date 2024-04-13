@@ -1,4 +1,4 @@
-from flask import Blueprint, Response
+from flask import Blueprint, Response, send_file
 from flask_jwt_extended import jwt_required, set_access_cookies, unset_jwt_cookies
 from flask_restful import Api
 
@@ -71,6 +71,17 @@ class UsersLogoutView(BaseResource):
         return response
 
 
+class UsersPhotosView(BaseResource):
+    def get(self, filename: str) -> Response:
+        try:
+            file_path, mimetype = controller.get_user_photo(filename)
+        except CustomError as e:
+            return ResponseError(api.errors.get(e.error_name)).json()
+        else:
+            return send_file(file_path, mimetype)
+
+
 users_api.add_resource(UsersView, '')
 users_api.add_resource(UsersLoginView, '/login')
 users_api.add_resource(UsersLogoutView, '/logout')
+users_api.add_resource(UsersPhotosView, '/photos/<string:filename>')
