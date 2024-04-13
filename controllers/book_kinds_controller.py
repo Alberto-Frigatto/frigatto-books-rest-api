@@ -56,7 +56,7 @@ class BookKindsController:
         db.session.delete(book_kind)
         db.session.commit()
 
-    def update_book_kind(self, id: int) -> None:
+    def update_book_kind(self, id: int) -> BookKind:
         book_kind = self.get_book_kind_by_id(id)
 
         if not self._are_there_data():
