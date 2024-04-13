@@ -9,6 +9,7 @@ class UsersSchema(ma.SQLAlchemySchema):
 
     id = ma.auto_field()
     username = ma.auto_field()
+    img_url = ma.auto_field()
 
 
 users_schema = UsersSchema()
