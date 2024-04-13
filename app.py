@@ -13,7 +13,7 @@ from schemas import ma
 app = Flask(__name__)
 app.config.from_pyfile('./config.py')
 
-CORS(app)
+CORS(app, supports_credentials=True)
 
 jwt.init_app(app)
 api.init_app(app)
