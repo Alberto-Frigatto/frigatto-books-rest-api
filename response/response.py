@@ -11,11 +11,13 @@ class Response(metaclass=ABCMeta):
         pass
 
     def _make_response(self, response: Any, status: int) -> flask.Response:
+        from app import app
+
         out_response = jsonify(response)
 
-        out_response.headers.add('Content-Type', 'application/json;charset=utf-8')
-        out_response.headers.add('Access-Control-Allow-Origin', '*')
-        out_response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        for header, value in app.config['RESPONSE_HEADERS']:
+            out_response.headers.add(header, value)
+
         out_response.status = status
 
         return out_response
