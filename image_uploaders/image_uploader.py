@@ -26,7 +26,7 @@ class ImageUploader(metaclass=ABCMeta):
     def _generate_random_filename(self) -> str:
         return str(uuid.uuid4()).replace('-', '') + '.jpg'
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def delete(cls, img_url: str) -> None:
         pass
