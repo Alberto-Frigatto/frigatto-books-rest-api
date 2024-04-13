@@ -70,7 +70,7 @@ class UsersController:
 
         data = request.json
 
-        if not self._is_data_valid(data):
+        if not self._is_data_valid_for_login(data):
             raise CustomError('InvalidDataSent')
 
         user = db.session.execute(
@@ -83,6 +83,9 @@ class UsersController:
         access_token = create_access_token(user)
 
         return user, access_token
+
+    def _is_data_valid_for_login(self, data: Any) -> bool:
+        return isinstance(data, dict) and 'username' in data.keys() and 'password' in data.keys()
 
     def get_current_user(self) -> User:
         return current_user
