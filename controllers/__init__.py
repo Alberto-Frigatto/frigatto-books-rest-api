@@ -1,2 +1,3 @@
+from .book_genres_controller import BookGenresController
 from .book_kinds_controller import BookKindsController
 from .users_controller import UsersController
