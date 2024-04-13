@@ -11,4 +11,8 @@ errors = {
         'message': 'Usuário já logado',
         'status': 400,
     },
+    'InvalidUserPhoto': {
+        'message': 'Foto enviada inválida',
+        'status': 400,
+    },
 }
