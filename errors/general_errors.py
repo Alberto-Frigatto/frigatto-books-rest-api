@@ -8,7 +8,7 @@ errors = {
         'status': 405,
     },
     'InvalidContentType': {
-        'message': 'Cabeçalho Content-Type inválido. Deve ser application/json',
+        'message': 'Cabeçalho Content-Type inválido.',
         'status': 415,
     },
     'NoDataSent': {
