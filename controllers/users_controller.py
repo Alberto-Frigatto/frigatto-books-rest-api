@@ -103,3 +103,57 @@ class UsersController:
             and isfile(f'uploads/users_photos/{filename}')
         )
 
+    def update_user(self) -> User:
+        if not self._are_there_data():
+            raise CustomError('NoDataSent')
+
+        form_data = request.form.to_dict()
+        files_data = request.files.to_dict()
+
+        if not self._is_data_valid_for_update(form_data, files_data):
+            raise CustomError('InvalidDataSent')
+
+        if self._are_there_username_in_request(form_data) and self._user_already_exists(
+            form_data['username']
+        ):
+            raise CustomError('UserAlreadyExists')
+
+        for key, value in list(form_data.items()):
+            try:
+                getattr(current_user, f'update_{key}')(value)
+            except AttributeError:
+                continue
+
+        if self._are_there_image_in_request(files_data):
+            self._replace_image_and_img_url(files_data)
+
+        db.session.commit()
+
+        return current_user
+
+    def _is_data_valid_for_update(self, form_data: Any, files_data) -> bool:
+        return (
+            isinstance(form_data, dict)
+            and isinstance(files_data, dict)
+            and 'img_url' not in files_data.keys()
+            and (
+                'username' in form_data.keys()
+                or 'password' in form_data.keys()
+                or 'img' in files_data.keys()
+            )
+        )
+
+    def _replace_image_and_img_url(self, files_data: dict) -> None:
+        image_uploader = UsersPhotoImageUploader(files_data['img'])
+
+        UsersPhotoImageUploader.delete(current_user.img_url)
+
+        current_user.update_img_url(image_uploader.get_url())
+
+        image_uploader.save()
+
+    def _are_there_image_in_request(self, files_data: dict) -> bool:
+        return 'img' in files_data.keys()
+
+    def _are_there_username_in_request(self, form_data: dict) -> bool:
+        return 'username' in form_data.keys()
