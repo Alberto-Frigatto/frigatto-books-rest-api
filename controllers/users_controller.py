@@ -89,3 +89,17 @@ class UsersController:
 
     def get_current_user(self) -> User:
         return current_user
+
+    def get_user_photo(self, filename: str) -> tuple[file_path, mimetype]:
+        if not self._is_file_name_valid(filename):
+            raise CustomError('InvalidFilename')
+
+        return f'uploads/users_photos/{filename}', 'image/jpeg'
+
+    def _is_file_name_valid(self, filename: str) -> bool:
+        return (
+            isinstance(filename, str)
+            and filename.endswith('.jpg')
+            and isfile(f'uploads/users_photos/{filename}')
+        )
+
