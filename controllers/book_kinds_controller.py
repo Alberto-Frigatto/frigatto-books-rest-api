@@ -67,7 +67,7 @@ class BookKindsController:
         if not self._is_data_valid(data):
             raise CustomError('InvalidDataSent')
 
-        book_kind.kind = data['kind'].lower()
+        book_kind.update_kind(data['kind'])
         db.session.commit()
 
         return book_kind
