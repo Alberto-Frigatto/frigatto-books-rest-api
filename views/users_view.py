@@ -33,6 +33,16 @@ class UsersView(BaseResource):
 
             return ResponseSuccess(data, 201).json()
 
+    @jwt_required()
+    def patch(self) -> Response:
+        try:
+            updated_user = controller.update_user()
+        except CustomError as e:
+            return ResponseError(api.errors.get(e.error_name)).json()
+        else:
+            data = users_schema.dump(updated_user)
+            return ResponseSuccess(data).json()
+
 
 class UsersLoginView(BaseResource):
     @jwt_required(optional=True)
