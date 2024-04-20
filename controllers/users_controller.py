@@ -135,16 +135,11 @@ class UsersController:
 
         return current_user
 
-    def _is_data_valid_for_update(self, form_data: Any, files_data) -> bool:
-        return (
-            isinstance(form_data, dict)
-            and isinstance(files_data, dict)
-            and 'img_url' not in files_data.keys()
-            and (
-                'username' in form_data.keys()
-                or 'password' in form_data.keys()
-                or 'img' in files_data.keys()
-            )
+    def _is_data_valid_for_update(self, form_data: dict, files_data: dict) -> bool:
+        files_keys = files_data.keys()
+
+        return 'img_url' not in files_keys and (
+            any(key in form_data.keys() for key in ('username', 'password')) or 'img' in files_keys
         )
 
     def _replace_image_and_img_url(self, files_data: dict) -> None:
