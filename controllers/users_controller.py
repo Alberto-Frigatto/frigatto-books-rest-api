@@ -126,10 +126,7 @@ class UsersController:
             raise CustomError('UserAlreadyExists')
 
         for key, value in list(form_data.items()):
-            try:
-                getattr(current_user, f'update_{key}')(value)
-            except AttributeError:
-                continue
+            getattr(current_user, f'update_{key.strip()}')(value)
 
         if self._are_there_image_in_request(files_data):
             self._replace_image_and_img_url(files_data)
