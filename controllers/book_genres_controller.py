@@ -49,10 +49,16 @@ class BookGenresController:
     def _is_data_valid(self, data: Any) -> bool:
         return isinstance(data, dict) and 'genre' in data.keys()
 
-    def _book_genre_already_exists(self, book_genre: BookGenre) -> bool:
-        return bool(
-            db.session.execute(select(BookGenre).filter_by(genre=book_genre.genre)).scalar()
+    def _book_genre_already_exists(self, book_genre: BookGenre | str) -> bool:
+        query = select(BookGenre).filter_by(
+            genre=(
+                book_genre.genre
+                if isinstance(book_genre, BookGenre)
+                else (book_genre.strip().lower() if isinstance(book_genre, str) else book_genre)
+            )
         )
+
+        return bool(db.session.execute(query).scalar())
 
     def delete_book_genre(self, id: int) -> None:
         book_genre = self.get_book_genre_by_id(id)
