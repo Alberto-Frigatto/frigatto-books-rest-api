@@ -19,7 +19,7 @@ class BookKindsView(BaseResource):
         try:
             book_kind = controller.get_book_kind_by_id(id)
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = book_kinds_schema.dump(book_kind)
 
@@ -30,7 +30,7 @@ class BookKindsView(BaseResource):
         try:
             controller.delete_book_kind(id)
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             return ResponseSuccess().json()
 
@@ -39,7 +39,7 @@ class BookKindsView(BaseResource):
         try:
             updated_book_kind = controller.update_book_kind(id)
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = book_kinds_schema.dump(updated_book_kind)
 
@@ -58,7 +58,7 @@ class BookKindsListView(BaseResource):
         try:
             new_book_kind = controller.create_book_kind()
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = book_kinds_schema.dump(new_book_kind)
 

@@ -19,7 +19,7 @@ class BookGenresView(BaseResource):
         try:
             book_genre = controller.get_book_genre_by_id(id)
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = book_genres_schema.dump(book_genre)
 
@@ -30,7 +30,7 @@ class BookGenresView(BaseResource):
         try:
             controller.delete_book_genre(id)
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             return ResponseSuccess().json()
 
@@ -39,7 +39,7 @@ class BookGenresView(BaseResource):
         try:
             updated_book_genre = controller.update_book_genre(id)
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = book_genres_schema.dump(updated_book_genre)
 
@@ -58,7 +58,7 @@ class BookGenresListView(BaseResource):
         try:
             new_book_genre = controller.create_book_genre()
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = book_genres_schema.dump(new_book_genre)
 

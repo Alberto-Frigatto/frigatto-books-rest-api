@@ -27,7 +27,7 @@ class UsersView(BaseResource):
         try:
             new_user = controller.create_user()
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = users_schema.dump(new_user)
 
@@ -38,7 +38,7 @@ class UsersView(BaseResource):
         try:
             updated_user = controller.update_user()
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = users_schema.dump(updated_user)
             return ResponseSuccess(data).json()
@@ -50,7 +50,7 @@ class UsersLoginView(BaseResource):
         try:
             user, access_token = controller.login()
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             data = users_schema.dump(user)
 
@@ -76,7 +76,7 @@ class UsersPhotosView(BaseResource):
         try:
             file_path, mimetype = controller.get_user_photo(filename)
         except CustomError as e:
-            return ResponseError(api.errors.get(e.error_name)).json()
+            return ResponseError(e).json()
         else:
             return send_file(file_path, mimetype)
 
