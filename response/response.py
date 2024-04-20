@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Any
 
 import flask
-from flask import jsonify
+from flask import current_app, jsonify
 
 
 class Response(metaclass=ABCMeta):
@@ -10,12 +10,10 @@ class Response(metaclass=ABCMeta):
     def json(self) -> flask.Response:
         pass
 
-    def _make_response(self, response: Any, status: int) -> flask.Response:
-        from app import app
-
+    def _make_response(self, response: dict, status: int) -> flask.Response:
         out_response = jsonify(response)
 
-        for header, value in app.config['RESPONSE_HEADERS']:
+        for header, value in current_app.config['RESPONSE_HEADERS']:
             out_response.headers.add(header, value)
 
         out_response.status = status
