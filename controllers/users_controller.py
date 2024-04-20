@@ -74,9 +74,7 @@ class UsersController:
         if not self._is_data_valid_for_login(data):
             raise CustomError('InvalidDataSent')
 
-        user = db.session.execute(
-            select(User).filter_by(username=data['username'])
-        ).scalar_one_or_none()
+        user = self._get_user_by_username(data['username'])
 
         if user is None or not user.check_password(data['password']):
             raise CustomError('InvalidLogin')
