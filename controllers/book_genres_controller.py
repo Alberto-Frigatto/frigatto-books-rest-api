@@ -77,6 +77,9 @@ class BookGenresController:
         if not self._is_data_valid(data):
             raise CustomError('InvalidDataSent')
 
+        if self._book_genre_already_exists(data['genre']):
+            raise CustomError('BookGenreAlreadyExists')
+
         book_genre.update_genre(data['genre'])
         db.session.commit()
 
