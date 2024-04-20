@@ -90,6 +90,11 @@ class UsersController:
             key in data.keys() for key in ('username', 'password')
         )
 
+    def _get_user_by_username(self, username: Any) -> User | None:
+        query = select(User).filter_by(username=username)
+
+        return db.session.execute(query).scalar()
+
     def get_current_user(self) -> User:
         return current_user
 
