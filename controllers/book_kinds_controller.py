@@ -76,6 +76,9 @@ class BookKindsController:
         if not self._is_data_valid(data):
             raise CustomError('InvalidDataSent')
 
+        if self._book_kind_already_exists(data['kind']):
+            raise CustomError('BookKindAlreadyExists')
+
         book_kind.update_kind(data['kind'])
         db.session.commit()
 
