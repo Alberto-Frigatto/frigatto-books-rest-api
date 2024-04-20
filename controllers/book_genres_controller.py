@@ -10,12 +10,14 @@ from models import BookGenre
 
 class BookGenresController:
     def get_all_book_genres(self) -> Sequence[BookGenre]:
-        book_genres = db.session.execute(select(BookGenre).order_by(BookGenre.id)).scalars().all()
+        query = select(BookGenre).order_by(BookGenre.id)
+        book_genres = db.session.execute(query).scalars().all()
 
         return book_genres
 
     def get_book_genre_by_id(self, id: int) -> BookGenre:
-        book_genre = db.session.execute(select(BookGenre).filter_by(id=id)).scalar()
+        query = select(BookGenre).filter_by(id=id)
+        book_genre = db.session.execute(query).scalar()
 
         if book_genre is None:
             raise CustomError('BookGenreDoesntExists')
@@ -45,7 +47,7 @@ class BookGenresController:
         return request.content_length
 
     def _is_data_valid(self, data: Any) -> bool:
-        return isinstance(data, dict) and 'genre' in data.keys() and isinstance(data['genre'], str)
+        return isinstance(data, dict) and 'genre' in data.keys()
 
     def _book_genre_already_exists(self, book_genre: BookGenre) -> bool:
         return bool(
