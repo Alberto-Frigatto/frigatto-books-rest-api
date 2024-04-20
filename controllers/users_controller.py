@@ -107,7 +107,7 @@ class UsersController:
         return (
             isinstance(filename, str)
             and filename.endswith('.jpg')
-            and isfile(f'uploads/users_photos/{filename}')
+            and isfile(os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename))
         )
 
     def update_user(self) -> User:
