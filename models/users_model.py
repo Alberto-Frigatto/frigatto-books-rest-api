@@ -33,10 +33,14 @@ class User(db.Model):
     def _is_username_valid(self, username: Any) -> bool:
         min_length, max_length = 5, 50
 
+        if not isinstance(username, str):
+            return False
+
+        username_length = len(username)
+
         return (
-            isinstance(username, str)
-            and len(username) >= min_length
-            and len(username) <= max_length
+            username_length >= min_length
+            and username_length <= max_length
             and re.match(r'^[a-zA-Z\d_-]+$', username)
         )
 
@@ -57,7 +61,7 @@ class User(db.Model):
         has_uppercase = any(char.isupper() for char in password)
         has_lowercase = any(char.islower() for char in password)
         has_digit = any(char.isdigit() for char in password)
-        has_special = any(char in "!@#$%&*()_+=\-,.:;?/\\|" for char in password)
+        has_special = any(char in "!@#$%&*()_+=-,.:;?/\\|" for char in password)
 
         return all((has_uppercase, has_lowercase, has_digit, has_special))
 
@@ -66,11 +70,14 @@ class User(db.Model):
             raise CustomError('InvalidDataSent')
 
     def _is_img_url_valid(self, img_url: Any) -> bool:
+        if not isinstance(img_url, str):
+            return False
+
+        img_url_length = len(img_url)
+
         min_length, max_length = 5, 255
 
-        return (
-            isinstance(img_url, str) and len(img_url) >= min_length and len(img_url) <= max_length
-        )
+        return img_url_length >= min_length and img_url_length <= max_length
 
     def _format_text(self, text: str) -> str:
         return text.strip()
