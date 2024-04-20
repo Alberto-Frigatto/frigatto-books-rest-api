@@ -49,12 +49,9 @@ class UsersController:
     def _are_there_data(self) -> bool:
         return request.content_length
 
-    def _is_data_valid_for_create(self, form_data: Any, files_data) -> bool:
+    def _is_data_valid_for_create(self, form_data: dict, files_data: dict) -> bool:
         return (
-            isinstance(form_data, dict)
-            and 'username' in form_data.keys()
-            and 'password' in form_data.keys()
-            and isinstance(files_data, dict)
+            all(key in form_data.keys() for key in ('username', 'password'))
             and 'img' in files_data.keys()
         )
 
