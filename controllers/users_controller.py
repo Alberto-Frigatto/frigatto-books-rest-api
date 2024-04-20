@@ -86,7 +86,9 @@ class UsersController:
         return user, access_token
 
     def _is_data_valid_for_login(self, data: Any) -> bool:
-        return isinstance(data, dict) and 'username' in data.keys() and 'password' in data.keys()
+        return isinstance(data, dict) and all(
+            key in data.keys() for key in ('username', 'password')
+        )
 
     def get_current_user(self) -> User:
         return current_user
