@@ -35,8 +35,8 @@ errors = {
         'message': 'Token CSFR inválido',
         'status': 400,
     },
-    'InvalidFilename': {
-        'message': 'Nome do arquivo inválido',
-        'status': 400,
+    'ImageNotFound': {
+        'message': 'Imagem não encontrada',
+        'status': 404,
     },
 }
