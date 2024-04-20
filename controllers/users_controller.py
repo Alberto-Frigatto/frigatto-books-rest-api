@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 from db import db
 from handle_errors import CustomError
-from image_uploaders import UsersPhotoImageUploader
+from image_uploaders import UsersImageUploader
 from models import User
 
 token = str
@@ -33,7 +33,7 @@ class UsersController:
         if self._user_already_exists(form_data['username']):
             raise CustomError('UserAlreadyExists')
 
-        image_uploader = UsersPhotoImageUploader(files_data['img'])
+        image_uploader = UsersImageUploader(files_data['img'])
 
         new_user = User(form_data['username'], form_data['password'], image_uploader.get_url())
 
@@ -143,9 +143,9 @@ class UsersController:
         )
 
     def _replace_image_and_img_url(self, files_data: dict) -> None:
-        image_uploader = UsersPhotoImageUploader(files_data['img'])
+        image_uploader = UsersImageUploader(files_data['img'])
 
-        UsersPhotoImageUploader.delete(current_user.img_url)
+        UsersImageUploader.delete(current_user.img_url)
 
         current_user.update_img_url(image_uploader.get_url())
 
