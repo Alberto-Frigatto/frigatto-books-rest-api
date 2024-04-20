@@ -1,1 +1,1 @@
-from .users_photo_image_uploader import UsersPhotoImageUploader
+from .users_image_uploader import UsersImageUploader
