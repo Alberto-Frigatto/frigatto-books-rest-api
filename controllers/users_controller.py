@@ -1,7 +1,8 @@
+import os
 from os.path import isfile
 from typing import Any
 
-from flask import request
+from flask import current_app, request
 from flask_jwt_extended import create_access_token, current_user
 from sqlalchemy import select
 
@@ -98,9 +99,9 @@ class UsersController:
 
     def get_user_photo(self, filename: str) -> tuple[file_path, mimetype]:
         if not self._is_file_name_valid(filename):
-            raise CustomError('InvalidFilename')
+            raise CustomError('ImageNotFound')
 
-        return f'uploads/users_photos/{filename}', 'image/jpeg'
+        return os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename), 'image/jpeg'
 
     def _is_file_name_valid(self, filename: str) -> bool:
         return (
