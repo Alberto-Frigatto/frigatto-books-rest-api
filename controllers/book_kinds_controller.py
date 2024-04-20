@@ -49,8 +49,15 @@ class BookKindsController:
     def _is_data_valid(self, data: Any) -> bool:
         return isinstance(data, dict) and 'kind' in data.keys()
 
-    def _book_kind_already_exists(self, book_kind: BookKind) -> bool:
-        return bool(db.session.execute(select(BookKind).filter_by(kind=book_kind.kind)).scalar())
+    def _book_kind_already_exists(self, book_kind: BookKind | str) -> bool:
+        query = select(BookKind).filter_by(
+            kind=(
+                book_kind.kind
+                if isinstance(book_kind, BookKind)
+                else (book_kind.strip().lower() if isinstance(book_kind, str) else book_kind)
+            )
+        )
+        return bool(db.session.execute(query).scalar())
 
     def delete_book_kind(self, id: int) -> None:
         book_kind = self.get_book_kind_by_id(id)
