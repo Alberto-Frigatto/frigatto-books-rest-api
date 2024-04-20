@@ -10,12 +10,14 @@ from models import BookKind
 
 class BookKindsController:
     def get_all_book_kinds(self) -> Sequence[BookKind]:
-        book_kinds = db.session.execute(select(BookKind).order_by(BookKind.id)).scalars().all()
+        query = select(BookKind).order_by(BookKind.id)
+        book_kinds = db.session.execute(query).scalars().all()
 
         return book_kinds
 
     def get_book_kind_by_id(self, id: int) -> BookKind:
-        book_kind = db.session.execute(select(BookKind).filter_by(id=id)).scalar()
+        query = select(BookKind).filter_by(id=id)
+        book_kind = db.session.execute(query).scalar()
 
         if book_kind is None:
             raise CustomError('BookKindDoesntExists')
@@ -45,7 +47,7 @@ class BookKindsController:
         return request.content_length
 
     def _is_data_valid(self, data: Any) -> bool:
-        return isinstance(data, dict) and 'kind' in data.keys() and isinstance(data['kind'], str)
+        return isinstance(data, dict) and 'kind' in data.keys()
 
     def _book_kind_already_exists(self, book_kind: BookKind) -> bool:
         return bool(db.session.execute(select(BookKind).filter_by(kind=book_kind.kind)).scalar())
