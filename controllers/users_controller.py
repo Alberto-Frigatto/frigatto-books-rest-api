@@ -55,8 +55,12 @@ class UsersController:
             and 'img' in files_data.keys()
         )
 
-    def _user_already_exists(self, username: str) -> bool:
-        return bool(db.session.execute(select(User).filter_by(username=username)).scalar())
+    def _user_already_exists(self, username: Any) -> bool:
+        query = select(User).where(
+            User.username.ilike(username.strip().lower() if isinstance(username, str) else username)
+        )
+
+        return bool(db.session.execute(query).scalar())
 
     def login(self) -> tuple[User, token]:
         if self._user_already_authenticated():
