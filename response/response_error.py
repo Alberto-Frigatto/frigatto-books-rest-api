@@ -17,6 +17,7 @@ class ResponseError(Response):
 
         response = {
             'error': True,
+            'error_name': self._error_name,
             'message': self._api_error['message'],
             'status': status,
         }
