@@ -12,6 +12,9 @@ class CustomError(Exception):
     def error_name(self) -> str:
         return self._error_name
 
+    def __str__(self) -> str:
+        return self._error_name
+
 
 def import_error_messages(api: Api):
     errors_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'errors'))
