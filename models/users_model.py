@@ -31,10 +31,10 @@ class User(db.Model):
             raise CustomError('InvalidDataSent')
 
     def _is_username_valid(self, username: Any) -> bool:
-        min_length, max_length = 5, 50
-
         if not isinstance(username, str):
             return False
+
+        min_length, max_length = 5, 50
 
         username_length = len(username)
 
