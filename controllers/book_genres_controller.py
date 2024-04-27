@@ -7,8 +7,10 @@ from db import db
 from handle_errors import CustomError
 from models import BookGenre
 
+from .controller import Controller
 
-class BookGenresController:
+
+class BookGenresController(Controller):
     def get_all_book_genres(self) -> Sequence[BookGenre]:
         query = select(BookGenre).order_by(BookGenre.id)
         book_genres = db.session.execute(query).scalars().all()
@@ -25,7 +27,7 @@ class BookGenresController:
         return book_genre
 
     def create_book_genre(self) -> BookGenre:
-        if not self._are_there_data():
+        if not super()._are_there_data():
             raise CustomError('NoDataSent')
 
         data = request.json
@@ -42,9 +44,6 @@ class BookGenresController:
         db.session.commit()
 
         return new_book_genre
-
-    def _are_there_data(self) -> bool:
-        return request.content_length
 
     def _is_data_valid(self, data: Any) -> bool:
         return isinstance(data, dict) and 'genre' in data.keys()
@@ -69,7 +68,7 @@ class BookGenresController:
     def update_book_genre(self, id: int) -> BookGenre:
         book_genre = self.get_book_genre_by_id(id)
 
-        if not self._are_there_data():
+        if not super()._are_there_data():
             raise CustomError('NoDataSent')
 
         data = request.json

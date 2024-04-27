@@ -1,5 +1,4 @@
 import os
-from os.path import isfile
 from typing import Any
 
 from flask import current_app, request
@@ -11,17 +10,19 @@ from handle_errors import CustomError
 from image_uploaders import UsersImageUploader
 from models import User
 
+from .controller import Controller
+
 token = str
 file_path = str
 mimetype = str
 
 
-class UsersController:
+class UsersController(Controller):
     def create_user(self) -> User:
         if self._user_already_authenticated():
             raise CustomError('UserAlreadyAuthenticated')
 
-        if not self._are_there_data():
+        if not super()._are_there_data():
             raise CustomError('NoDataSent')
 
         form_data = request.form.to_dict()
@@ -47,9 +48,6 @@ class UsersController:
     def _user_already_authenticated(self) -> bool:
         return bool(current_user)
 
-    def _are_there_data(self) -> bool:
-        return request.content_length
-
     def _is_data_valid_for_create(self, form_data: dict, files_data: dict) -> bool:
         return (
             all(key in form_data.keys() for key in ('username', 'password'))
@@ -67,7 +65,7 @@ class UsersController:
         if self._user_already_authenticated():
             raise CustomError('UserAlreadyAuthenticated')
 
-        if not self._are_there_data():
+        if not super()._are_there_data():
             raise CustomError('NoDataSent')
 
         data = request.json
@@ -107,11 +105,11 @@ class UsersController:
         return (
             isinstance(filename, str)
             and filename.endswith('.jpg')
-            and isfile(os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename))
+            and os.path.isfile(os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename))
         )
 
     def update_user(self) -> User:
-        if not self._are_there_data():
+        if not super()._are_there_data():
             raise CustomError('NoDataSent')
 
         form_data = request.form.to_dict()
@@ -138,8 +136,10 @@ class UsersController:
     def _is_data_valid_for_update(self, form_data: dict, files_data: dict) -> bool:
         files_keys = files_data.keys()
 
+        allowed_keys = ('username', 'password')
+
         return 'img_url' not in files_keys and (
-            any(key in form_data.keys() for key in ('username', 'password')) or 'img' in files_keys
+            all(key in allowed_keys for key in form_data.keys()) or 'img' in files_keys
         )
 
     def _replace_image_and_img_url(self, files_data: dict) -> None:

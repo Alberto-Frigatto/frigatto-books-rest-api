@@ -7,8 +7,10 @@ from db import db
 from handle_errors import CustomError
 from models import BookKind
 
+from .controller import Controller
 
-class BookKindsController:
+
+class BookKindsController(Controller):
     def get_all_book_kinds(self) -> Sequence[BookKind]:
         query = select(BookKind).order_by(BookKind.id)
         book_kinds = db.session.execute(query).scalars().all()
@@ -25,7 +27,7 @@ class BookKindsController:
         return book_kind
 
     def create_book_kind(self) -> BookKind:
-        if not self._are_there_data():
+        if not super()._are_there_data():
             raise CustomError('NoDataSent')
 
         data = request.json
@@ -42,9 +44,6 @@ class BookKindsController:
         db.session.commit()
 
         return new_book_kind
-
-    def _are_there_data(self) -> bool:
-        return request.content_length
 
     def _is_data_valid(self, data: Any) -> bool:
         return isinstance(data, dict) and 'kind' in data.keys()
@@ -68,7 +67,7 @@ class BookKindsController:
     def update_book_kind(self, id: int) -> BookKind:
         book_kind = self.get_book_kind_by_id(id)
 
-        if not self._are_there_data():
+        if not super()._are_there_data():
             raise CustomError('NoDataSent')
 
         data = request.json
