@@ -2,7 +2,7 @@ from flask import Blueprint, Response, send_file
 from flask_jwt_extended import jwt_required, set_access_cookies, unset_jwt_cookies
 from flask_restful import Api
 
-from api import BaseResource, api
+from api import BaseResource
 from controllers import UsersController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess

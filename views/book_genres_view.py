@@ -2,7 +2,7 @@ from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
 from flask_restful import Api
 
-from api import BaseResource, api
+from api import BaseResource
 from controllers import BookGenresController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
