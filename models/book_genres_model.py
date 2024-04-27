@@ -23,10 +23,15 @@ class BookGenre(db.Model):
             raise CustomError('InvalidDataSent')
 
     def _is_genre_name_valid(self, genre: Any) -> bool:
+        if not isinstance(genre, str):
+            return False
+
+        min_length, max_length = 3, 30
+        genre_length = len(genre)
+
         return (
-            isinstance(genre, str)
-            and genre
-            and len(genre) <= 30
+            genre_length >= min_length
+            and genre_length <= max_length
             and re.match(r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s]+$', genre)
         )
 
