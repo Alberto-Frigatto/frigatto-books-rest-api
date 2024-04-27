@@ -23,10 +23,15 @@ class BookKind(db.Model):
             raise CustomError('InvalidDataSent')
 
     def _is_kind_name_valid(self, kind: Any) -> bool:
+        if not isinstance(kind, str):
+            return False
+
+        min_length, max_length = 3, 30
+        kind_length = len(kind)
+
         return (
-            isinstance(kind, str)
-            and kind
-            and len(kind) <= 30
+            kind_length >= min_length
+            and kind_length <= max_length
             and re.match(r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s]+$', kind)
         )
 
