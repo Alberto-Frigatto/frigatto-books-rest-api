@@ -425,12 +425,26 @@ def test_get_user_information(client: FlaskClient, access_token: str):
     assert response.status_code == 200
 
 
-def test_when_try_to_get_user_information_without_login_returns_error_response(client: FlaskClient):
+def test_when_try_to_get_user_information_without_auth_returns_error_response(client: FlaskClient):
     response = client.get(f'/users')
     response_data = json.loads(response.data)
 
     assert response_data['error']
     assert response_data['error_name'] == 'MissingJWT'
+    assert response_data['status'] == 401
+    assert response.status_code == 401
+
+
+def test_when_try_to_get_user_information_with_invalid_auth_returns_error_response(
+    client: FlaskClient,
+):
+    headers = {'Authorization': f'Bearer 123'}
+
+    response = client.get(f'/users', headers=headers)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidJWT'
     assert response_data['status'] == 401
     assert response.status_code == 401
 
@@ -447,12 +461,24 @@ def test_logout(client: FlaskClient, access_token: str):
     assert response.status_code == 200
 
 
-def test_when_try_to_logout_without_login_returns_error_response(client: FlaskClient):
+def test_when_try_to_logout_without_auth_returns_error_response(client: FlaskClient):
     response = client.post(f'/users/logout')
     response_data = json.loads(response.data)
 
     assert response_data['error']
     assert response_data['error_name'] == 'MissingJWT'
+    assert response_data['status'] == 401
+    assert response.status_code == 401
+
+
+def test_when_try_to_logout_with_invalid_auth_returns_error_response(client: FlaskClient):
+    headers = {'Authorization': f'Bearer 123'}
+
+    response = client.post(f'/users/logout', headers=headers)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidJWT'
     assert response_data['status'] == 401
     assert response.status_code == 401
 
@@ -480,6 +506,37 @@ def test_update_username(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+
+def test_when_try_to_update_user_without_auth_returns_error_response(client: FlaskClient):
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    updates = {'username': 'andrade', 'password': 'Windows#1'}
+
+    response = client.patch('/users', headers=headers, data=updates)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'MissingJWT'
+    assert response_data['status'] == 401
+    assert response.status_code == 401
+
+
+def test_when_try_to_update_user_with_invalid_auth_returns_error_response(client: FlaskClient):
+    headers = {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': f'Bearer 123',
+    }
+
+    updates = {'username': 'andrade', 'password': 'Windows#1'}
+
+    response = client.patch('/users', headers=headers, data=updates)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidJWT'
+    assert response_data['status'] == 401
+    assert response.status_code == 401
 
 
 def test_when_try_to_update_username_with_invalid_data_returns_error_response(
@@ -685,16 +742,6 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
     assert response_data['status'] == 400
     assert response.status_code == 400
 
-    invalid_updates = {'imgs': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
-
-    response = client.patch('/users', headers=headers, data=invalid_updates)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidDataSent'
-    assert response_data['status'] == 400
-    assert response.status_code == 400
-
     invalid_updates = {'img': 456}
 
     response = client.patch('/users', headers=headers, data=invalid_updates)
@@ -725,7 +772,7 @@ def test_when_try_to_update_user_with_invalid_data_returns_errror_response(
     }
 
     updates = {
-        'usernames': 'andrade',
+        'username': 'andrade',
         'aa': 'aoihdwa',
         'imgs': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png'),
     }
@@ -751,3 +798,18 @@ def test_when_try_to_update_user_without_data_return_error_response(
     assert response_data['error_name'] == 'NoDataSent'
     assert response_data['status'] == 400
     assert response.status_code == 400
+
+
+def test_dump_User_coming_from_db(app: Flask):
+    with app.app_context():
+        user = db.session.get(User, 1)
+
+        dump_user = users_schema.dump(user)
+
+        expected_dump_book_genre = {
+            'id': 1,
+            'username': 'test',
+            'img_url': 'http://localhost:5000/users/photos/test.jpg',
+        }
+
+        assert dump_user == expected_dump_book_genre
