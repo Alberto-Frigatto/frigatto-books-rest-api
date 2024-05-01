@@ -7,4 +7,8 @@ errors = {
         'message': 'Essa imagem não pertence à esse livro',
         'status': 401,
     },
+    'BookMustHaveAtLeastOneImg': {
+        'message': 'O livro deve ter pelo menos uma imagem',
+        'status': 400,
+    },
 }
