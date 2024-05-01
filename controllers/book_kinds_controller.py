@@ -1,11 +1,10 @@
 from typing import Any, Sequence
 
-from flask import request
 from sqlalchemy import select
 
 from db import db
 from handle_errors import CustomError
-from models import BookKind
+from models import Book, BookKind
 
 from .controller import Controller
 
@@ -18,8 +17,7 @@ class BookKindsController(Controller):
         return book_kinds
 
     def get_book_kind_by_id(self, id: int) -> BookKind:
-        query = select(BookKind).filter_by(id=id)
-        book_kind = db.session.execute(query).scalar()
+        book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
             raise CustomError('BookKindDoesntExists')
@@ -27,10 +25,10 @@ class BookKindsController(Controller):
         return book_kind
 
     def create_book_kind(self) -> BookKind:
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
-        data = request.json
+        data = super().get_json_data()
 
         if not self._is_data_valid(data):
             raise CustomError('InvalidDataSent')
@@ -61,16 +59,23 @@ class BookKindsController(Controller):
     def delete_book_kind(self, id: int) -> None:
         book_kind = self.get_book_kind_by_id(id)
 
+        if self._are_there_linked_books(book_kind):
+            raise CustomError('ThereAreLinkedBooksWithThisBookKind')
+
         db.session.delete(book_kind)
         db.session.commit()
+
+    def _are_there_linked_books(self, book_kind: BookKind) -> bool:
+        query = select(Book).filter_by(id_kind=book_kind.id)
+        return bool(db.session.execute(query).scalars().all())
 
     def update_book_kind(self, id: int) -> BookKind:
         book_kind = self.get_book_kind_by_id(id)
 
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
-        data = request.json
+        data = super().get_json_data()
 
         if not self._is_data_valid(data):
             raise CustomError('InvalidDataSent')

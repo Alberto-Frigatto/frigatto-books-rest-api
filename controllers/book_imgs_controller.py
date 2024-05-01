@@ -1,12 +1,11 @@
 import os
 
 from flask import current_app, request
-from sqlalchemy import select
 
 from db import db
 from handle_errors import CustomError
 from image_uploaders import BooksImageUploader
-from models import BookImg
+from models import Book, BookImg
 
 from .controller import Controller
 
@@ -29,17 +28,32 @@ class BookImgsController(Controller):
         )
 
     def delete_book_img(self, id_book: int, id_img: int) -> None:
+        book = self._get_book_by_id(id_book)
+
         book_img = self._get_book_img_by_id(id_img)
 
-        if book_img.id_book != id_book:
+        if book_img.id_book != book.id:
             raise CustomError('BookDoesntOwnThisImg')
+
+        if self._does_book_have_one_img(book):
+            raise CustomError('BookMustHaveAtLeastOneImg')
 
         db.session.delete(book_img)
         db.session.commit()
 
-    def _get_book_img_by_id(self, id_img: int) -> BookImg:
-        query = select(BookImg).filter_by(id=id_img)
-        book_img = db.session.execute(query).scalar()
+    def _get_book_by_id(self, id: int) -> Book:
+        book = db.session.get(Book, id)
+
+        if book is None:
+            raise CustomError('BookDoesntExists')
+
+        return book
+
+    def _does_book_have_one_img(self, book: Book) -> bool:
+        return len(book.book_imgs) == 1
+
+    def _get_book_img_by_id(self, id: int) -> BookImg:
+        book_img = db.session.get(BookImg, id)
 
         if book_img is None:
             raise CustomError('BookImgDoesntExists')
@@ -47,17 +61,18 @@ class BookImgsController(Controller):
         return book_img
 
     def update_book_img(self, id_book: int, id_img: int) -> BookImg:
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
         files_data = request.files.to_dict()
 
-        if not self._is_data_valid_for_update(files_data):
+        if not self._is_data_valid(files_data):
             raise CustomError('InvalidDataSent')
 
+        book = self._get_book_by_id(id_book)
         book_img = self._get_book_img_by_id(id_img)
 
-        if book_img.id_book != id_book:
+        if book_img.id_book != book.id:
             raise CustomError('BookDoesntOwnThisImg')
 
         image_uploader = BooksImageUploader(files_data['img'])
@@ -72,5 +87,27 @@ class BookImgsController(Controller):
 
         return book_img
 
-    def _is_data_valid_for_update(self, files_data: dict) -> bool:
+    def _is_data_valid(self, files_data: dict) -> bool:
         return 'img' in files_data.keys()
+
+    def create_book_img(self, id_book: int) -> BookImg:
+        if not super().are_there_data():
+            raise CustomError('NoDataSent')
+
+        files_data = request.files.to_dict()
+
+        if not self._is_data_valid(files_data):
+            raise CustomError('InvalidDataSent')
+
+        image_uploader = BooksImageUploader(files_data['img'])
+
+        book = self._get_book_by_id(id_book)
+        book_img = BookImg(image_uploader.get_url())
+
+        book.book_imgs.append(book_img)
+
+        image_uploader.save()
+
+        db.session.commit()
+
+        return book_img

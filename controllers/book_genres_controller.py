@@ -1,11 +1,10 @@
 from typing import Any, Sequence
 
-from flask import request
 from sqlalchemy import select
 
 from db import db
 from handle_errors import CustomError
-from models import BookGenre
+from models import Book, BookGenre
 
 from .controller import Controller
 
@@ -18,8 +17,7 @@ class BookGenresController(Controller):
         return book_genres
 
     def get_book_genre_by_id(self, id: int) -> BookGenre:
-        query = select(BookGenre).filter_by(id=id)
-        book_genre = db.session.execute(query).scalar()
+        book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
             raise CustomError('BookGenreDoesntExists')
@@ -27,10 +25,10 @@ class BookGenresController(Controller):
         return book_genre
 
     def create_book_genre(self) -> BookGenre:
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
-        data = request.json
+        data = super().get_json_data()
 
         if not self._is_data_valid(data):
             raise CustomError('InvalidDataSent')
@@ -62,16 +60,23 @@ class BookGenresController(Controller):
     def delete_book_genre(self, id: int) -> None:
         book_genre = self.get_book_genre_by_id(id)
 
+        if self._are_there_linked_books(book_genre):
+            raise CustomError('ThereAreLinkedBooksWithThisBookGenre')
+
         db.session.delete(book_genre)
         db.session.commit()
+
+    def _are_there_linked_books(self, book_genre: BookGenre) -> bool:
+        query = select(Book).filter_by(id_genre=book_genre.id)
+        return bool(db.session.execute(query).scalars().all())
 
     def update_book_genre(self, id: int) -> BookGenre:
         book_genre = self.get_book_genre_by_id(id)
 
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
-        data = request.json
+        data = super().get_json_data()
 
         if not self._is_data_valid(data):
             raise CustomError('InvalidDataSent')

@@ -1,7 +1,7 @@
 import os
 from typing import Sequence
 
-from flask import current_app, request
+from flask import request
 from sqlalchemy import select
 from werkzeug.datastructures import ImmutableMultiDict
 
@@ -24,8 +24,7 @@ class BooksController(Controller):
         return books
 
     def get_book_by_id(self, id: int) -> Book:
-        query = select(Book).filter_by(id=id)
-        book = db.session.execute(query).scalar()
+        book = db.session.get(Book, id)
 
         if book is None:
             raise CustomError('BookDoesntExists')
@@ -33,7 +32,7 @@ class BooksController(Controller):
         return book
 
     def create_book(self) -> Book:
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
         form_data = request.form.to_dict()
@@ -100,8 +99,7 @@ class BooksController(Controller):
         return bool(db.session.execute(query).scalar())
 
     def _get_book_kind_by_id(self, id: int) -> BookKind:
-        query = select(BookKind).filter_by(id=id)
-        book_kind = db.session.execute(query).scalar()
+        book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
             raise CustomError('BookKindDoesntExists')
@@ -109,8 +107,7 @@ class BooksController(Controller):
         return book_kind
 
     def _get_book_genre_by_id(self, id: int) -> BookGenre:
-        query = select(BookGenre).filter_by(id=id)
-        book_genre = db.session.execute(query).scalar()
+        book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
             raise CustomError('BookGenreDoesntExists')
@@ -135,7 +132,7 @@ class BooksController(Controller):
         db.session.commit()
 
     def update_book(self, id: int) -> Book:
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
         form_data = request.form.to_dict()

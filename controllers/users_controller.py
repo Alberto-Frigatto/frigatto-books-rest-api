@@ -22,7 +22,7 @@ class UsersController(Controller):
         if self._user_already_authenticated():
             raise CustomError('UserAlreadyAuthenticated')
 
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
         form_data = request.form.to_dict()
@@ -65,10 +65,10 @@ class UsersController(Controller):
         if self._user_already_authenticated():
             raise CustomError('UserAlreadyAuthenticated')
 
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
-        data = request.json
+        data = super().get_json_data()
 
         if not self._is_data_valid_for_login(data):
             raise CustomError('InvalidDataSent')
@@ -109,7 +109,7 @@ class UsersController(Controller):
         )
 
     def update_user(self) -> User:
-        if not super()._are_there_data():
+        if not super().are_there_data():
             raise CustomError('NoDataSent')
 
         form_data = request.form.to_dict()
