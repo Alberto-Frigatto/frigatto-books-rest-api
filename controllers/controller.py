@@ -1,6 +1,9 @@
 from abc import ABCMeta
+from typing import Any
 
 from flask import request
+
+from handle_errors import CustomError
 
 
 class Controller(metaclass=ABCMeta):
@@ -12,3 +15,9 @@ class Controller(metaclass=ABCMeta):
                 request.get_json(silent=True),
             )
         )
+
+    def get_json_data(self) -> Any | None:
+        if not request.is_json:
+            raise CustomError('InvalidContentType')
+
+        return request.json
