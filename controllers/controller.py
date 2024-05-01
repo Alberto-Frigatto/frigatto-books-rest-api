@@ -4,7 +4,7 @@ from flask import request
 
 
 class Controller(metaclass=ABCMeta):
-    def _are_there_data(self) -> bool:
+    def are_there_data(self) -> bool:
         return any(
             (
                 request.form.to_dict(),
