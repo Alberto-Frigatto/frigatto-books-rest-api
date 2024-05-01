@@ -1390,7 +1390,7 @@ def test_when_try_to_delete_book_without_auth_returns_error_response(client: Fla
     assert response.status_code == 401
 
 
-def test_when_try_to_create_book_with_invalid_auth_returns_error_response(client: FlaskClient):
+def test_when_try_to_delete_book_with_invalid_auth_returns_error_response(client: FlaskClient):
     headers = {'Authorization': f'Bearer 123'}
 
     book_id = 2
