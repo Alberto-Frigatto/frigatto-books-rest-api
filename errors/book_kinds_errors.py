@@ -7,4 +7,8 @@ errors = {
         'message': 'Esse tipo de livro não existe',
         'status': 404,
     },
+    'ThereAreLinkedBooksWithThisBookKind': {
+        'message': 'Esse tipo de livro não pode ser apagado, pois há livros desse tipo',
+        'status': 409,
+    },
 }
