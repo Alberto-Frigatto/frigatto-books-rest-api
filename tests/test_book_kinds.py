@@ -140,6 +140,25 @@ def test_create_book_kind(client: FlaskClient, access_token: str):
     assert response.status_code == 201
 
 
+def test_when_try_to_create_book_kind_with_content_type_multipart_form_data_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    new_book_kind = {'kind': 'batman'}
+
+    response = client.post('/bookKinds', headers=headers, data=new_book_kind)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidContentType'
+    assert response_data['status'] == 415
+    assert response.status_code == 415
+
+
 def test_when_try_to_create_book_kind_already_exists_return_error_response(
     client: FlaskClient, access_token: str
 ):
@@ -256,6 +275,27 @@ def test_update_book_kind(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+
+def test_when_try_to_update_book_kind_with_content_type_multipart_form_data_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    updates = {'kind': 'flash'}
+
+    book_kind_id = 2
+
+    response = client.patch(f'/bookKinds/{book_kind_id}', headers=headers, data=updates)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidContentType'
+    assert response_data['status'] == 415
+    assert response.status_code == 415
 
 
 def test_when_try_to_update_book_kind_without_data_return_error_response(
@@ -386,6 +426,36 @@ def test_delete_book_kind(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+
+def test_when_try_to_delete_book_kind_have_linked_book_return_error_response(
+    client: FlaskClient, access_token: str, app: Flask
+):
+    with app.app_context():
+        db.session.execute(text("INSERT INTO book_genres (genre) VALUES ('fantasia')"))
+        db.session.execute(
+            text(
+                """
+                INSERT INTO books
+                            (name, price, author, release_year, id_kind, id_genre)
+                            VALUES
+                                ('O Pequeno Príncipe', 10.99, 'Antoine de Saint-Exupéry', 1943, 2, 1)
+            """
+            )
+        )
+        db.session.commit()
+
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    book_kind_id = 2
+
+    response = client.delete(f'/bookKinds/{book_kind_id}', headers=headers)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'ThereAreLinkedBooksWithThisBookKind'
+    assert response_data['status'] == 409
+    assert response.status_code == 409
 
 
 def test_when_try_to_delete_book_kind_does_not_exists_return_error_message(
