@@ -53,7 +53,8 @@ def app():
                     (img_url, id_book)
                     VALUES
                         ('http://localhost:5000/books/photos/test.jpg', 1),
-                        ('http://localhost:5000/books/photos/test2.jpg', 1)
+                        ('http://localhost:5000/books/photos/test2.jpg', 1),
+                        ('http://localhost:5000/books/photos/cat.jpg', 2)
                 """
             )
         )
@@ -159,6 +160,23 @@ def test_delete_book_img(client: FlaskClient, access_token: str):
     assert response.status_code == 200
 
 
+def test_when_try_to_delete_last_book_img_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    book_id = 2
+    img_id = 3
+
+    response = client.delete(f'/books/{book_id}/photos/{img_id}', headers=headers)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'BookMustHaveAtLeastOneImg'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
+
+
 def test_when_try_to_delete_book_img_does_not_exists_returns_error_response(
     client: FlaskClient, access_token: str
 ):
@@ -172,6 +190,23 @@ def test_when_try_to_delete_book_img_does_not_exists_returns_error_response(
 
     assert response_data['error']
     assert response_data['error_name'] == 'BookImgDoesntExists'
+    assert response_data['status'] == 404
+    assert response.status_code == 404
+
+
+def test_when_try_to_delete_book_img_from_book_does_not_exists_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    book_id = 100
+    img_id = 2
+
+    response = client.delete(f'/books/{book_id}/photos/{img_id}', headers=headers)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'BookDoesntExists'
     assert response_data['status'] == 404
     assert response.status_code == 404
 
@@ -241,6 +276,50 @@ def test_update_book_img(client: FlaskClient, access_token: str):
     assert response_data['data']['id'] == 2
     assert response_data['data']['img_url'] != 'http://localhost:5000/users/photos/test2.jpg'
     assert response.status_code == 200
+
+
+def test_when_try_to_update_book_img_does_not_exists_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    book_id = 1
+    img_id = 100
+
+    update = {'img': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
+
+    response = client.patch(f'/books/{book_id}/photos/{img_id}', headers=headers, data=update)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'BookImgDoesntExists'
+    assert response_data['status'] == 404
+    assert response.status_code == 404
+
+
+def test_when_try_to_update_book_img_from_book_does_not_exists_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    book_id = 100
+    img_id = 1
+
+    update = {'img': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
+
+    response = client.patch(f'/books/{book_id}/photos/{img_id}', headers=headers, data=update)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'BookDoesntExists'
+    assert response_data['status'] == 404
+    assert response.status_code == 404
 
 
 def test_when_try_to_update_book_img_without_data_returns_error_response(
@@ -361,6 +440,149 @@ def test_when_try_to_update_book_img_with_invalid_auth_returns_error_response(cl
     update = {'img': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
 
     response = client.patch(f'/books/{book_id}/photos/{img_id}', headers=headers, data=update)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidJWT'
+    assert response_data['status'] == 401
+    assert response.status_code == 401
+
+
+def test_add_book_img(client: FlaskClient, access_token: str):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    book_id = 1
+
+    data = {'img': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers, data=data)
+    response_data = json.loads(response.data)
+
+    assert not response_data['error']
+    assert response_data['status'] == 201
+    assert response_data['data']
+    assert response_data['data']['id'] == 4
+    assert response_data['data']['img_url'].startswith('http://localhost:5000/books/photos/')
+    assert response_data['data']['img_url'].endswith('.jpg')
+    assert response.status_code == 201
+
+
+def test_when_try_to_create_book_img_from_book_does_not_exists_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    book_id = 100
+
+    data = {'img': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers, data=data)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'BookDoesntExists'
+    assert response_data['status'] == 404
+    assert response.status_code == 404
+
+
+def test_when_try_to_create_book_img_without_data_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    book_id = 1
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'NoDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
+
+
+def test_when_try_to_create_book_img_with_invalid_data_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    book_id = 1
+
+    data = {'img': (open('tests/resources/img-11.3mb.png', 'rb'), 'image.png')}
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers, data=data)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
+
+    data = {'imgs': (open('tests/resources/img-11.3mb.png', 'rb'), 'image.png')}
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers, data=data)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
+
+    data = {'img': 'abc'}
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers, data=data)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
+
+    data = {'img': (open('tests/resources/pdf-2mb.pdf', 'rb'), 'pdf.pdf')}
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers, data=data)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
+
+
+def test_when_try_to_create_book_img_without_auth_returns_error_response(client: FlaskClient):
+    book_id = 1
+
+    data = {'img': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
+
+    response = client.post(f'/books/{book_id}/photos', data=data)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'MissingJWT'
+    assert response_data['status'] == 401
+    assert response.status_code == 401
+
+
+def test_when_try_to_create_book_img_with_invalid_auth_returns_error_response(client: FlaskClient):
+    headers = {'Authorization': f'Bearer 123'}
+
+    book_id = 1
+
+    data = {'img': (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png')}
+
+    response = client.post(f'/books/{book_id}/photos', headers=headers, data=data)
     response_data = json.loads(response.data)
 
     assert response_data['error']
