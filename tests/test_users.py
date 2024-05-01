@@ -149,6 +149,22 @@ def test_login_with_valid_credentials(client: FlaskClient):
     assert response.status_code == 200
 
 
+def test_when_try_to_login_with_content_type_multipart_form_data_returns_error_response(
+    client: FlaskClient,
+):
+    headers = {'Content-Type': 'multipart/form-data'}
+
+    credentials = {'username': 'test', 'password': 'Senha@123'}
+
+    response = client.post(f'/users/login', headers=headers, data=credentials)
+    response_data = json.loads(response.data)
+
+    assert response_data['error']
+    assert response_data['error_name'] == 'InvalidContentType'
+    assert response_data['status'] == 415
+    assert response.status_code == 415
+
+
 def test_when_try_to_login_with_already_authenticated_returns_error_response(
     client: FlaskClient, access_token: str
 ):
