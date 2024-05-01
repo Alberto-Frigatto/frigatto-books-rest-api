@@ -46,9 +46,27 @@ class EditBooksPhotosView(BaseResource):
             return ResponseSuccess(data).json()
 
 
+class AddBooksPhotosView(BaseResource):
+    @jwt_required()
+    def post(self, id_book: int) -> Response:
+        try:
+            new_book_img = controller.create_book_img(id_book)
+        except CustomError as e:
+            return ResponseError(e).json()
+        else:
+            data = book_imgs_schema.dump(new_book_img)
+
+            return ResponseSuccess(data, 201).json()
+
+
 book_imgs_api.add_resource(GetBooksPhotosView, '/photos/<string:filename>')
 book_imgs_api.add_resource(
     EditBooksPhotosView,
     '/<int:id_book>/photos/<int:id_img>',
     '/<string:id_book>/photos/<string:id_img>',
+)
+book_imgs_api.add_resource(
+    AddBooksPhotosView,
+    '/<int:id_book>/photos',
+    '/<string:id_book>/photos',
 )
