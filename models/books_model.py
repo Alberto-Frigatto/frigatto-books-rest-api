@@ -130,7 +130,7 @@ class Book(db.Model):
         except Exception:
             return False
 
-        min_year, max_year = 1900, datetime.datetime.now().year
+        min_year, max_year = 1000, datetime.datetime.now().year
 
         return int_release_year >= min_year and int_release_year <= max_year
 
