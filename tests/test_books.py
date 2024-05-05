@@ -115,7 +115,7 @@ def test_when_Book_receives_invalid_name_raises_CustomError():
         Book('', '49.99', 'Mario Puzo', '1969')
 
     with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
-        Book('123', '49.99', 'Mario Puzo', '1969')
+        Book('a', '49.99', 'Mario Puzo', '1969')
 
     with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
         Book('#@#$@#$!#@!@', '49.99', 'Mario Puzo', '1969')
@@ -351,7 +351,7 @@ def test_when_try_to_create_book_with_invalid_name_returns_error_response(
     assert response.status_code == 400
 
     invalid_data = {
-        'name': 'aaa',
+        'name': 'a',
         'price': 49.99,
         'author': 'Mario Puzo',
         'release_year': 1969,
@@ -373,7 +373,7 @@ def test_when_try_to_create_book_with_invalid_name_returns_error_response(
     assert response.status_code == 400
 
     invalid_data = {
-        'name': 456,
+        'name': 4,
         'price': 49.99,
         'author': 'Mario Puzo',
         'release_year': 1969,
@@ -1478,7 +1478,7 @@ def test_when_try_to_update_name_with_invalid_data_returns_error_response(
     assert response_data['status'] == 400
     assert response.status_code == 400
 
-    update = {'name': 'abc'}
+    update = {'name': 'a'}
 
     response = client.patch(f'/books/{book_id}', headers=headers, data=update)
     response_data = json.loads(response.data)
