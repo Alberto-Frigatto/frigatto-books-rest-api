@@ -18,13 +18,13 @@ class BookImgsController(Controller):
         if not self._is_file_name_valid(filename):
             raise CustomError('ImageNotFound')
 
-        return os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename), 'image/jpeg'
+        return os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], filename), 'image/jpeg'
 
     def _is_file_name_valid(self, filename: str) -> bool:
         return (
             isinstance(filename, str)
             and filename.endswith('.jpg')
-            and os.path.isfile(os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename))
+            and os.path.isfile(os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], filename))
         )
 
     def delete_book_img(self, id_book: int, id_img: int) -> None:
