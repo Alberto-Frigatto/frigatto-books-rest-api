@@ -191,7 +191,7 @@ def test_when_Book_receives_invalid_release_year_raises_CustomError():
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', None)
 
     with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
-        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '1899')
+        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '999')
 
     with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', datetime.datetime.now().year + 1)
@@ -1751,7 +1751,7 @@ def test_when_try_to_update_release_year_with_invalid_data_returns_error_respons
     assert response_data['status'] == 400
     assert response.status_code == 400
 
-    update = {'release_year': 1700}
+    update = {'release_year': 900}
 
     response = client.patch(f'/books/{book_id}', headers=headers, data=update)
     response_data = json.loads(response.data)
