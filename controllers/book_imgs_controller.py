@@ -38,6 +38,8 @@ class BookImgsController(Controller):
         if self._does_book_have_one_img(book):
             raise CustomError('BookMustHaveAtLeastOneImg')
 
+        BooksImageUploader.delete(book_img.img_url)
+
         db.session.delete(book_img)
         db.session.commit()
 
