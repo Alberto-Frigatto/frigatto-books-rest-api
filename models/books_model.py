@@ -53,7 +53,7 @@ class Book(db.Model):
         if not isinstance(name, str):
             return False
 
-        min_length, max_length = 10, 80
+        min_length, max_length = 2, 80
         name_length = len(name)
 
         return (
