@@ -1,8 +1,6 @@
 from flask import Response
 from flask_jwt_extended import JWTManager
-from sqlalchemy import select
 
-from api import api
 from db import db
 from handle_errors import CustomError
 from models import User
@@ -20,7 +18,7 @@ def user_identity_lookup(user: User) -> int:
 def user_lookup_callback(_jwt_header: dict, jwt_data: dict) -> User | None:
     identity = jwt_data["sub"]
 
-    return db.session.execute(select(User).filter_by(id=identity)).scalar()
+    return db.session.get(User, identity)
 
 
 @jwt.invalid_token_loader
