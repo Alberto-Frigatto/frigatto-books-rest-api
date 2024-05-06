@@ -8,7 +8,7 @@ from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
 from schemas import book_imgs_schema
 
-book_imgs_bp = Blueprint('books_bp', __name__)
+book_imgs_bp = Blueprint('books_imgs_bp', __name__)
 book_imgs_api = Api(book_imgs_bp)
 
 controller = BookImgsController()
