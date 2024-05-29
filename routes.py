@@ -7,6 +7,7 @@ from views import (
     book_kinds_bp,
     books_bp,
     saved_books_bp,
+    searches_bp,
     users_bp,
 )
 
@@ -19,3 +20,4 @@ def add_routes(app: Flask):
     app.register_blueprint(book_imgs_bp, url_prefix='/books', name='book_imgs')
     app.register_blueprint(book_keywords_bp, url_prefix='/books', name='book_keywords')
     app.register_blueprint(saved_books_bp, url_prefix='/books', name='saved_books')
+    app.register_blueprint(searches_bp, url_prefix='/search', name='searches')
