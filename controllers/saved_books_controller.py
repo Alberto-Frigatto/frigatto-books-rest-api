@@ -17,7 +17,7 @@ class SavedBooksController(Controller):
 
         return [saved_book.book for saved_book in saved_books]
 
-    def save_book(self, id: int) -> Book:
+    def save_book(self, id: str) -> Book:
         saved_books = self.get_all_saved_books()
         book = self._get_book_by_id(id)
 
@@ -31,22 +31,20 @@ class SavedBooksController(Controller):
 
         return book
 
-    def _get_book_by_id(self, id: int) -> Book:
-        book_kind = db.session.get(Book, id)
+    def _get_book_by_id(self, id: str) -> Book:
+        book = db.session.get(Book, id)
 
-        if book_kind is None:
+        if book is None:
             raise CustomError('BookDoesntExists')
 
-        return book_kind
+        return book
 
-    def delete_saved_book(self, id_book: int) -> None:
+    def delete_saved_book(self, id_book: str) -> None:
         saved_books = self.get_all_saved_books()
         book = self._get_book_by_id(id_book)
 
         if book not in saved_books:
             raise CustomError('BookArentSaved')
 
-        saved_book = [book for book in saved_books if book.id == id_book][0]
-
-        db.session.delete(saved_book)
+        db.session.delete(book)
         db.session.commit()
