@@ -17,7 +17,7 @@ file_path = str
 mimetype = str
 
 
-class UsersController(Controller):
+class UserController(Controller):
     def create_user(self) -> User:
         if self._user_already_authenticated():
             raise CustomError('UserAlreadyAuthenticated')

@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Api
 
 from api import BaseResource
-from controller import BookGenresController
+from controller import BookGenreController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
 from schema import book_genres_schema
@@ -11,7 +11,7 @@ from schema import book_genres_schema
 book_genres_bp = Blueprint('book_genres_bp', __name__)
 book_genres_api = Api(book_genres_bp)
 
-controller = BookGenresController()
+controller = BookGenreController()
 
 
 class BookGenresView(BaseResource):

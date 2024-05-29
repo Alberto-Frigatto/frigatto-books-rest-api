@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, set_access_cookies, unset_jwt_cooki
 from flask_restful import Api
 
 from api import BaseResource
-from controller import UsersController
+from controller import UserController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
 from schema import users_schema
@@ -11,7 +11,7 @@ from schema import users_schema
 users_bp = Blueprint('users_bp', __name__)
 users_api = Api(users_bp)
 
-controller = UsersController()
+controller = UserController()
 
 
 class UsersView(BaseResource):

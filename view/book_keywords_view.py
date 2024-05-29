@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Api
 
 from api import BaseResource
-from controller import BookKeywordsController
+from controller import BookKeywordController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
 from schema import book_keywords_schema
@@ -11,7 +11,7 @@ from schema import book_keywords_schema
 book_keywords_bp = Blueprint('book_keywords_bp', __name__)
 book_keywords_api = Api(book_keywords_bp)
 
-controller = BookKeywordsController()
+controller = BookKeywordController()
 
 
 class AddBookKeywordsView(BaseResource):

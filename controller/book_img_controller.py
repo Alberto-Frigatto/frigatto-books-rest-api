@@ -13,7 +13,7 @@ file_path = str
 mimetype = str
 
 
-class BookImgsController(Controller):
+class BookImgController(Controller):
     def get_book_photo(self, filename: str) -> tuple[file_path, mimetype]:
         if not self._is_file_name_valid(filename):
             raise CustomError('ImageNotFound')

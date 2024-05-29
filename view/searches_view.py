@@ -2,7 +2,7 @@ from flask import Blueprint, Response
 from flask_restful import Api
 
 from api import BaseResource
-from controller import SearchesController
+from controller import SearchController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
 from schema import books_schema
@@ -10,7 +10,7 @@ from schema import books_schema
 searches_bp = Blueprint('searches_bp', __name__)
 searches_api = Api(searches_bp)
 
-controller = SearchesController()
+controller = SearchController()
 
 
 class SearchersView(BaseResource):

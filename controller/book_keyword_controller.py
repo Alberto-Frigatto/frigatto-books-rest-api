@@ -7,7 +7,7 @@ from model import Book, BookKeyword
 from .controller import Controller
 
 
-class BookKeywordsController(Controller):
+class BookKeywordController(Controller):
     def create_book_keyword(self, id_book: str) -> BookKeyword:
         if not super().are_there_data():
             raise CustomError('NoDataSent')

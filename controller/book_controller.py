@@ -16,7 +16,7 @@ file_path = str
 mimetype = str
 
 
-class BooksController(Controller):
+class BookController(Controller):
     def get_all_books(self) -> Sequence[Book]:
         query = select(Book).order_by(Book.id)
         books = db.session.execute(query).scalars().all()

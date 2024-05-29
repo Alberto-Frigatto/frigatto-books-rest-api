@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Api
 
 from api import BaseResource
-from controller import BookKindsController
+from controller import BookKindController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
 from schema import book_kinds_schema
@@ -11,7 +11,7 @@ from schema import book_kinds_schema
 book_kinds_bp = Blueprint('book_kinds_bp', __name__)
 book_kinds_api = Api(book_kinds_bp)
 
-controller = BookKindsController()
+controller = BookKindController()
 
 
 class BookKindsView(BaseResource):

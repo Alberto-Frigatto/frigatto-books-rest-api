@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Api
 
 from api import BaseResource
-from controller import BookImgsController
+from controller import BookImgController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
 from schema import book_imgs_schema
@@ -11,7 +11,7 @@ from schema import book_imgs_schema
 book_imgs_bp = Blueprint('books_imgs_bp', __name__)
 book_imgs_api = Api(book_imgs_bp)
 
-controller = BookImgsController()
+controller = BookImgController()
 
 
 class GetBooksPhotosView(BaseResource):

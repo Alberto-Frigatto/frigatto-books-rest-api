@@ -9,7 +9,7 @@ from model import Book, BookGenre
 from .controller import Controller
 
 
-class BookGenresController(Controller):
+class BookGenreController(Controller):
     def get_all_book_genres(self) -> Sequence[BookGenre]:
         query = select(BookGenre).order_by(BookGenre.id)
         book_genres = db.session.execute(query).scalars().all()

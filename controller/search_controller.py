@@ -9,7 +9,7 @@ from model import Book, BookGenre, BookKind
 from .controller import Controller
 
 
-class SearchesController(Controller):
+class SearchController(Controller):
     def search_books(self) -> Sequence[Book]:
         if not super().are_there_data():
             raise CustomError('NoDataSent')
