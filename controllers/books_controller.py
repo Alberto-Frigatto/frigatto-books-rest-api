@@ -128,6 +128,9 @@ class BooksController(Controller):
     def delete_book(self, id: str) -> None:
         book = self.get_book_by_id(id)
 
+        for book_img in book.book_imgs:
+            BooksImageUploader.delete(book_img.img_url)
+
         db.session.delete(book)
         db.session.commit()
 
