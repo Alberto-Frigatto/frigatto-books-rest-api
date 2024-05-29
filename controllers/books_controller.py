@@ -23,7 +23,7 @@ class BooksController(Controller):
 
         return books
 
-    def get_book_by_id(self, id: int) -> Book:
+    def get_book_by_id(self, id: str) -> Book:
         book = db.session.get(Book, id)
 
         if book is None:
@@ -98,7 +98,7 @@ class BooksController(Controller):
 
         return bool(db.session.execute(query).scalar())
 
-    def _get_book_kind_by_id(self, id: int) -> BookKind:
+    def _get_book_kind_by_id(self, id: str) -> BookKind:
         book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
@@ -106,7 +106,7 @@ class BooksController(Controller):
 
         return book_kind
 
-    def _get_book_genre_by_id(self, id: int) -> BookGenre:
+    def _get_book_genre_by_id(self, id: str) -> BookGenre:
         book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
@@ -125,13 +125,13 @@ class BooksController(Controller):
     def _is_book_keywords_valid(self, keywords: str) -> bool:
         return isinstance(keywords, str) and keywords
 
-    def delete_book(self, id: int) -> None:
+    def delete_book(self, id: str) -> None:
         book = self.get_book_by_id(id)
 
         db.session.delete(book)
         db.session.commit()
 
-    def update_book(self, id: int) -> Book:
+    def update_book(self, id: str) -> Book:
         if not super().are_there_data():
             raise CustomError('NoDataSent')
 
