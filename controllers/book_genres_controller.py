@@ -16,7 +16,7 @@ class BookGenresController(Controller):
 
         return book_genres
 
-    def get_book_genre_by_id(self, id: int) -> BookGenre:
+    def get_book_genre_by_id(self, id: str) -> BookGenre:
         book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
@@ -57,7 +57,7 @@ class BookGenresController(Controller):
 
         return bool(db.session.execute(query).scalar())
 
-    def delete_book_genre(self, id: int) -> None:
+    def delete_book_genre(self, id: str) -> None:
         book_genre = self.get_book_genre_by_id(id)
 
         if self._are_there_linked_books(book_genre):
@@ -70,7 +70,7 @@ class BookGenresController(Controller):
         query = select(Book).filter_by(id_genre=book_genre.id)
         return bool(db.session.execute(query).scalars().all())
 
-    def update_book_genre(self, id: int) -> BookGenre:
+    def update_book_genre(self, id: str) -> BookGenre:
         book_genre = self.get_book_genre_by_id(id)
 
         if not super().are_there_data():
