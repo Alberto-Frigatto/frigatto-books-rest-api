@@ -8,7 +8,7 @@ from .controller import Controller
 
 
 class BookKeywordsController(Controller):
-    def create_book_keyword(self, id_book: int) -> BookKeyword:
+    def create_book_keyword(self, id_book: str) -> BookKeyword:
         if not super().are_there_data():
             raise CustomError('NoDataSent')
 
@@ -29,7 +29,7 @@ class BookKeywordsController(Controller):
     def _is_data_valid(self, data: Any) -> bool:
         return isinstance(data, dict) and 'keyword' in data.keys()
 
-    def _get_book_by_id(self, id: int) -> Book:
+    def _get_book_by_id(self, id: str) -> Book:
         book = db.session.get(Book, id)
 
         if book is None:
@@ -37,7 +37,7 @@ class BookKeywordsController(Controller):
 
         return book
 
-    def delete_book_keyword(self, id_book: int, id_keyword: int) -> None:
+    def delete_book_keyword(self, id_book: str, id_keyword: str) -> None:
         book = self._get_book_by_id(id_book)
 
         book_keyword = self._get_book_keyword_by_id(id_keyword)
@@ -51,7 +51,7 @@ class BookKeywordsController(Controller):
         db.session.delete(book_keyword)
         db.session.commit()
 
-    def _get_book_keyword_by_id(self, id: int) -> BookKeyword:
+    def _get_book_keyword_by_id(self, id: str) -> BookKeyword:
         book = db.session.get(BookKeyword, id)
 
         if book is None:
