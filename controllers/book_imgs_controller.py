@@ -27,7 +27,7 @@ class BookImgsController(Controller):
             and os.path.isfile(os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], filename))
         )
 
-    def delete_book_img(self, id_book: int, id_img: int) -> None:
+    def delete_book_img(self, id_book: str, id_img: str) -> None:
         book = self._get_book_by_id(id_book)
 
         book_img = self._get_book_img_by_id(id_img)
@@ -43,7 +43,7 @@ class BookImgsController(Controller):
         db.session.delete(book_img)
         db.session.commit()
 
-    def _get_book_by_id(self, id: int) -> Book:
+    def _get_book_by_id(self, id: str) -> Book:
         book = db.session.get(Book, id)
 
         if book is None:
@@ -54,7 +54,7 @@ class BookImgsController(Controller):
     def _does_book_have_one_img(self, book: Book) -> bool:
         return len(book.book_imgs) == 1
 
-    def _get_book_img_by_id(self, id: int) -> BookImg:
+    def _get_book_img_by_id(self, id: str) -> BookImg:
         book_img = db.session.get(BookImg, id)
 
         if book_img is None:
@@ -62,7 +62,7 @@ class BookImgsController(Controller):
 
         return book_img
 
-    def update_book_img(self, id_book: int, id_img: int) -> BookImg:
+    def update_book_img(self, id_book: str, id_img: str) -> BookImg:
         if not super().are_there_data():
             raise CustomError('NoDataSent')
 
@@ -92,7 +92,7 @@ class BookImgsController(Controller):
     def _is_data_valid(self, files_data: dict) -> bool:
         return 'img' in files_data.keys()
 
-    def create_book_img(self, id_book: int) -> BookImg:
+    def create_book_img(self, id_book: str) -> BookImg:
         if not super().are_there_data():
             raise CustomError('NoDataSent')
 
