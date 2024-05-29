@@ -2,7 +2,7 @@ from typing import Any
 
 from db import db
 from handle_errors import CustomError
-from models import Book, BookKeyword
+from model import Book, BookKeyword
 
 from .controller import Controller
 

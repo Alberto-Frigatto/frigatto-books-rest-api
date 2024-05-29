@@ -1,4 +1,4 @@
-from models import BookGenre
+from model import BookGenre
 
 from .marshmallow import ma
 

@@ -1,6 +1,6 @@
 from flask import Flask
 
-from views import (
+from view import (
     book_genres_bp,
     book_imgs_bp,
     book_keywords_bp,

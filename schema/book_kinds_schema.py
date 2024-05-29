@@ -1,4 +1,4 @@
-from models import BookKind
+from model import BookKind
 
 from .marshmallow import ma
 

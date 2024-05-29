@@ -1,4 +1,4 @@
-from models import User
+from model import User
 
 from .marshmallow import ma
 

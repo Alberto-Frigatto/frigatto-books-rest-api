@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required, set_access_cookies, unset_jwt_cooki
 from flask_restful import Api
 
 from api import BaseResource
-from controllers import UsersController
+from controller import UsersController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
-from schemas import users_schema
+from schema import users_schema
 
 users_bp = Blueprint('users_bp', __name__)
 users_api = Api(users_bp)

@@ -7,8 +7,8 @@ from werkzeug.datastructures import ImmutableMultiDict
 
 from db import db
 from handle_errors import CustomError
-from image_uploaders import BooksImageUploader
-from models import Book, BookGenre, BookImg, BookKeyword, BookKind
+from image_uploader import BooksImageUploader
+from model import Book, BookGenre, BookImg, BookKeyword, BookKind
 
 from .controller import Controller
 

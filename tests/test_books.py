@@ -13,8 +13,8 @@ from werkzeug.security import generate_password_hash
 from app import create_app
 from db import db
 from handle_errors import CustomError
-from models import Book, User
-from schemas import books_schema
+from model import Book, User
+from schema import books_schema
 
 
 @pytest.fixture()

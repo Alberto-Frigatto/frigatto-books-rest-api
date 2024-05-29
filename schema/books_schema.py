@@ -1,4 +1,4 @@
-from models import Book
+from model import Book
 
 from .book_genres_schema import BookGenresSchema
 from .book_imgs_schema import BookImgsSchema

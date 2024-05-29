@@ -17,16 +17,16 @@ class CustomError(Exception):
 
 
 def import_error_messages(api: Api):
-    errors_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'errors'))
+    exception_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'exception'))
 
-    for dirpath, _, filenames in os.walk(errors_dir):
+    for dirpath, _, filenames in os.walk(exception_dir):
         for filename in filenames:
             if f'_errors.py' in filename:
                 module_path = os.path.splitext(
-                    os.path.relpath(os.path.join(dirpath, filename), errors_dir)
+                    os.path.relpath(os.path.join(dirpath, filename), exception_dir)
                 )[0]
                 module_path = module_path.replace(os.path.sep, '.')
-                module_path = f'errors.{module_path}'
+                module_path = f'exception.{module_path}'
 
                 try:
                     module = importlib.import_module(module_path)

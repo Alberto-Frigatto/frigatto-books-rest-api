@@ -1,34 +1,34 @@
-from flask import Blueprint, Response, send_file
+from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
 from flask_restful import Api
 
 from api import BaseResource
-from controllers import BooksController
+from controller import BookGenresController
 from handle_errors import CustomError
 from response import ResponseError, ResponseSuccess
-from schemas import books_schema
+from schema import book_genres_schema
 
-books_bp = Blueprint('books_bp', __name__)
-books_api = Api(books_bp)
+book_genres_bp = Blueprint('book_genres_bp', __name__)
+book_genres_api = Api(book_genres_bp)
 
-controller = BooksController()
+controller = BookGenresController()
 
 
-class BooksView(BaseResource):
+class BookGenresView(BaseResource):
     def get(self, id: str) -> Response:
         try:
-            book = controller.get_book_by_id(id)
+            book_genre = controller.get_book_genre_by_id(id)
         except CustomError as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(book)
+            data = book_genres_schema.dump(book_genre)
 
             return ResponseSuccess(data).json()
 
     @jwt_required()
     def delete(self, id: str) -> Response:
         try:
-            controller.delete_book(id)
+            controller.delete_book_genre(id)
         except CustomError as e:
             return ResponseError(e).json()
         else:
@@ -37,33 +37,33 @@ class BooksView(BaseResource):
     @jwt_required()
     def patch(self, id: str) -> Response:
         try:
-            updated_book = controller.update_book(id)
+            updated_book_genre = controller.update_book_genre(id)
         except CustomError as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(updated_book)
+            data = book_genres_schema.dump(updated_book_genre)
 
             return ResponseSuccess(data).json()
 
 
-class BooksListView(BaseResource):
+class BookGenresListView(BaseResource):
     def get(self) -> Response:
-        books = controller.get_all_books()
-        data = books_schema.dump(books, many=True)
+        book_genres = controller.get_all_book_genres()
+        data = book_genres_schema.dump(book_genres, many=True)
 
         return ResponseSuccess(data).json()
 
     @jwt_required()
     def post(self) -> Response:
         try:
-            new_book = controller.create_book()
+            new_book_genre = controller.create_book_genre()
         except CustomError as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(new_book)
+            data = book_genres_schema.dump(new_book_genre)
 
             return ResponseSuccess(data, 201).json()
 
 
-books_api.add_resource(BooksView, '/<id>')
-books_api.add_resource(BooksListView, '')
+book_genres_api.add_resource(BookGenresView, '/<id>')
+book_genres_api.add_resource(BookGenresListView, '')

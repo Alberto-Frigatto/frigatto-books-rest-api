@@ -1,6 +1,6 @@
 from marshmallow import fields
 
-from models import BookKeyword
+from model import BookKeyword
 
 from .marshmallow import ma
 

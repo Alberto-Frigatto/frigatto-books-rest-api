@@ -11,8 +11,8 @@ from sqlalchemy import text
 from app import create_app
 from db import db
 from handle_errors import CustomError
-from models import BookImg, User
-from schemas.book_imgs_schema import BookImgsSchema
+from model import BookImg, User
+from schema.book_imgs_schema import BookImgsSchema
 
 
 @pytest.fixture()

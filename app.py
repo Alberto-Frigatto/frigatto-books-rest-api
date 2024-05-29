@@ -8,7 +8,7 @@ from handle_errors import CustomError, import_error_messages
 from json_web_token import jwt
 from response import ResponseError
 from routes import add_routes
-from schemas import ma
+from schema import ma
 
 
 def create_app(test_config: bool = False) -> Flask:

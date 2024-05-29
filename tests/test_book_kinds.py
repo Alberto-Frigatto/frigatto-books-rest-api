@@ -9,8 +9,8 @@ from sqlalchemy import text
 from app import create_app
 from db import db
 from handle_errors import CustomError
-from models import BookKind, User
-from schemas import book_kinds_schema
+from model import BookKind, User
+from schema import book_kinds_schema
 
 
 @pytest.fixture()

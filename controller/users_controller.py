@@ -7,8 +7,8 @@ from sqlalchemy import select
 
 from db import db
 from handle_errors import CustomError
-from image_uploaders import UsersImageUploader
-from models import User
+from image_uploader import UsersImageUploader
+from model import User
 
 from .controller import Controller
 

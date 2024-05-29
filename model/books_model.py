@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import db, int_pk
 from handle_errors import CustomError
-from models import BookGenre, BookImg, BookKeyword, BookKind
+from model import BookGenre, BookImg, BookKeyword, BookKind
 
 
 class Book(db.Model):

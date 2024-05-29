@@ -4,8 +4,8 @@ from flask import current_app, request
 
 from db import db
 from handle_errors import CustomError
-from image_uploaders import BooksImageUploader
-from models import Book, BookImg
+from image_uploader import BooksImageUploader
+from model import Book, BookImg
 
 from .controller import Controller
 

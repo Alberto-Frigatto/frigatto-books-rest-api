@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from db import db
 from handle_errors import CustomError
-from models import Book, SavedBook
+from model import Book, SavedBook
 
 from .controller import Controller
 

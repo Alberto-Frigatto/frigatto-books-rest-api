@@ -1,6 +1,6 @@
 from marshmallow import fields
 
-from models import BookImg
+from model import BookImg
 
 from .marshmallow import ma
 

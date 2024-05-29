@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 
 from db import db
 from handle_errors import CustomError
-from models import User
+from model import User
 from response import ResponseError
 
 jwt = JWTManager()

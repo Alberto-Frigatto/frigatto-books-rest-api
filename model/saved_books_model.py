@@ -2,7 +2,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import db, int_pk
-from models import Book
+from model import Book
 
 
 class SavedBook(db.Model):
