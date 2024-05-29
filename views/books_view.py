@@ -15,7 +15,7 @@ controller = BooksController()
 
 
 class BooksView(BaseResource):
-    def get(self, id: int) -> Response:
+    def get(self, id: str) -> Response:
         try:
             book = controller.get_book_by_id(id)
         except CustomError as e:
@@ -26,7 +26,7 @@ class BooksView(BaseResource):
             return ResponseSuccess(data).json()
 
     @jwt_required()
-    def delete(self, id: int) -> Response:
+    def delete(self, id: str) -> Response:
         try:
             controller.delete_book(id)
         except CustomError as e:
@@ -35,7 +35,7 @@ class BooksView(BaseResource):
             return ResponseSuccess().json()
 
     @jwt_required()
-    def patch(self, id: int) -> Response:
+    def patch(self, id: str) -> Response:
         try:
             updated_book = controller.update_book(id)
         except CustomError as e:
@@ -65,5 +65,5 @@ class BooksListView(BaseResource):
             return ResponseSuccess(data, 201).json()
 
 
-books_api.add_resource(BooksView, '/<int:id>', '/<string:id>')
+books_api.add_resource(BooksView, '/<id>')
 books_api.add_resource(BooksListView, '')

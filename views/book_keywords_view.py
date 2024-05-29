@@ -16,7 +16,7 @@ controller = BookKeywordsController()
 
 class AddBookKeywordsView(BaseResource):
     @jwt_required()
-    def post(self, id_book: int) -> Response:
+    def post(self, id_book: str) -> Response:
         try:
             new_book_keyword = controller.create_book_keyword(id_book)
         except CustomError as e:
@@ -29,7 +29,7 @@ class AddBookKeywordsView(BaseResource):
 
 class DeleteBookKeywordsView(BaseResource):
     @jwt_required()
-    def delete(self, id_book: int, id_keyword: int) -> Response:
+    def delete(self, id_book: str, id_keyword: str) -> Response:
         try:
             controller.delete_book_keyword(id_book, id_keyword)
         except CustomError as e:
@@ -40,11 +40,9 @@ class DeleteBookKeywordsView(BaseResource):
 
 book_keywords_api.add_resource(
     AddBookKeywordsView,
-    '/<int:id_book>/keywords',
-    '/<string:id_book>/keywords',
+    '/<id_book>/keywords',
 )
 book_keywords_api.add_resource(
     DeleteBookKeywordsView,
-    '/<int:id_book>/keywords/<int:id_keyword>',
-    '/<string:id_book>/keywords/<string:id_keyword>',
+    '/<id_book>/keywords/<id_keyword>',
 )

@@ -16,7 +16,7 @@ controller = SavedBooksController()
 
 class SavedBooksView(BaseResource):
     @jwt_required()
-    def post(self, id: int) -> Response:
+    def post(self, id: str) -> Response:
         try:
             saved_book = controller.save_book(id)
         except CustomError as e:
@@ -38,7 +38,7 @@ class SavedBooksListView(BaseResource):
 
 class DeleteSavedBooksView(BaseResource):
     @jwt_required()
-    def delete(self, id_book: int) -> Response:
+    def delete(self, id_book: str) -> Response:
         try:
             controller.delete_saved_book(id_book)
         except CustomError as e:
@@ -47,6 +47,6 @@ class DeleteSavedBooksView(BaseResource):
             return ResponseSuccess().json()
 
 
-saved_books_api.add_resource(SavedBooksView, '/<int:id>/save', '/<string:id>/save')
+saved_books_api.add_resource(SavedBooksView, '/<id>/save')
 saved_books_api.add_resource(SavedBooksListView, '/saved')
-saved_books_api.add_resource(DeleteSavedBooksView, '/saved/<int:id_book>')
+saved_books_api.add_resource(DeleteSavedBooksView, '/saved/<id_book>')

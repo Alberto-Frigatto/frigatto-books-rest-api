@@ -26,7 +26,7 @@ class GetBooksPhotosView(BaseResource):
 
 class EditBooksPhotosView(BaseResource):
     @jwt_required()
-    def delete(self, id_book: int, id_img: int) -> Response:
+    def delete(self, id_book: str, id_img: str) -> Response:
         try:
             controller.delete_book_img(id_book, id_img)
         except CustomError as e:
@@ -35,7 +35,7 @@ class EditBooksPhotosView(BaseResource):
             return ResponseSuccess().json()
 
     @jwt_required()
-    def patch(self, id_book: int, id_img: int) -> Response:
+    def patch(self, id_book: str, id_img: str) -> Response:
         try:
             updated_book_img = controller.update_book_img(id_book, id_img)
         except CustomError as e:
@@ -48,7 +48,7 @@ class EditBooksPhotosView(BaseResource):
 
 class AddBooksPhotosView(BaseResource):
     @jwt_required()
-    def post(self, id_book: int) -> Response:
+    def post(self, id_book: str) -> Response:
         try:
             new_book_img = controller.create_book_img(id_book)
         except CustomError as e:
@@ -59,14 +59,12 @@ class AddBooksPhotosView(BaseResource):
             return ResponseSuccess(data, 201).json()
 
 
-book_imgs_api.add_resource(GetBooksPhotosView, '/photos/<string:filename>')
+book_imgs_api.add_resource(GetBooksPhotosView, '/photos/<filename>')
 book_imgs_api.add_resource(
     EditBooksPhotosView,
-    '/<int:id_book>/photos/<int:id_img>',
-    '/<string:id_book>/photos/<string:id_img>',
+    '/<id_book>/photos/<id_img>',
 )
 book_imgs_api.add_resource(
     AddBooksPhotosView,
-    '/<int:id_book>/photos',
-    '/<string:id_book>/photos',
+    '/<id_book>/photos',
 )

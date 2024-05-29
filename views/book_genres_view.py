@@ -15,7 +15,7 @@ controller = BookGenresController()
 
 
 class BookGenresView(BaseResource):
-    def get(self, id: int) -> Response:
+    def get(self, id: str) -> Response:
         try:
             book_genre = controller.get_book_genre_by_id(id)
         except CustomError as e:
@@ -26,7 +26,7 @@ class BookGenresView(BaseResource):
             return ResponseSuccess(data).json()
 
     @jwt_required()
-    def delete(self, id: int) -> Response:
+    def delete(self, id: str) -> Response:
         try:
             controller.delete_book_genre(id)
         except CustomError as e:
@@ -35,7 +35,7 @@ class BookGenresView(BaseResource):
             return ResponseSuccess().json()
 
     @jwt_required()
-    def patch(self, id: int) -> Response:
+    def patch(self, id: str) -> Response:
         try:
             updated_book_genre = controller.update_book_genre(id)
         except CustomError as e:
@@ -65,5 +65,5 @@ class BookGenresListView(BaseResource):
             return ResponseSuccess(data, 201).json()
 
 
-book_genres_api.add_resource(BookGenresView, '/<int:id>', '/<string:id>')
+book_genres_api.add_resource(BookGenresView, '/<id>')
 book_genres_api.add_resource(BookGenresListView, '')
