@@ -16,7 +16,7 @@ class BookKindsController(Controller):
 
         return book_kinds
 
-    def get_book_kind_by_id(self, id: int) -> BookKind:
+    def get_book_kind_by_id(self, id: str) -> BookKind:
         book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
@@ -56,7 +56,7 @@ class BookKindsController(Controller):
         )
         return bool(db.session.execute(query).scalar())
 
-    def delete_book_kind(self, id: int) -> None:
+    def delete_book_kind(self, id: str) -> None:
         book_kind = self.get_book_kind_by_id(id)
 
         if self._are_there_linked_books(book_kind):
@@ -69,7 +69,7 @@ class BookKindsController(Controller):
         query = select(Book).filter_by(id_kind=book_kind.id)
         return bool(db.session.execute(query).scalars().all())
 
-    def update_book_kind(self, id: int) -> BookKind:
+    def update_book_kind(self, id: str) -> BookKind:
         book_kind = self.get_book_kind_by_id(id)
 
         if not super().are_there_data():
