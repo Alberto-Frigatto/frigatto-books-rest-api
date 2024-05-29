@@ -7,7 +7,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 
 from db import db
 from handle_errors import CustomError
-from image_uploader import BooksImageUploader
+from image_uploader import BookImageUploader
 from model import Book, BookGenre, BookImg, BookKeyword, BookKind
 
 from .controller import Controller
@@ -54,7 +54,7 @@ class BookController(Controller):
         book_kind = self._get_book_kind_by_id(form_data['id_book_kind'])
         book_genre = self._get_book_genre_by_id(form_data['id_book_genre'])
         book_keywords = self._extract_book_keywords(form_data['keywords'])
-        book_imgs = [BooksImageUploader(image) for image in files_data.getlist('imgs')]
+        book_imgs = [BookImageUploader(image) for image in files_data.getlist('imgs')]
 
         new_book.book_kind = book_kind
         new_book.book_genre = book_genre
@@ -129,7 +129,7 @@ class BookController(Controller):
         book = self.get_book_by_id(id)
 
         for book_img in book.book_imgs:
-            BooksImageUploader.delete(book_img.img_url)
+            BookImageUploader.delete(book_img.img_url)
 
         db.session.delete(book)
         db.session.commit()

@@ -1,2 +1,2 @@
-from .books_image_uploader import BooksImageUploader
-from .users_image_uploader import UsersImageUploader
+from .book_image_uploader import BookImageUploader
+from .user_image_uploader import UserImageUploader

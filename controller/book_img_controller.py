@@ -4,7 +4,7 @@ from flask import current_app, request
 
 from db import db
 from handle_errors import CustomError
-from image_uploader import BooksImageUploader
+from image_uploader import BookImageUploader
 from model import Book, BookImg
 
 from .controller import Controller
@@ -38,7 +38,7 @@ class BookImgController(Controller):
         if self._does_book_have_one_img(book):
             raise CustomError('BookMustHaveAtLeastOneImg')
 
-        BooksImageUploader.delete(book_img.img_url)
+        BookImageUploader.delete(book_img.img_url)
 
         db.session.delete(book_img)
         db.session.commit()
@@ -77,9 +77,9 @@ class BookImgController(Controller):
         if book_img.id_book != book.id:
             raise CustomError('BookDoesntOwnThisImg')
 
-        image_uploader = BooksImageUploader(files_data['img'])
+        image_uploader = BookImageUploader(files_data['img'])
 
-        BooksImageUploader.delete(book_img.img_url)
+        BookImageUploader.delete(book_img.img_url)
 
         book_img.update_img_url(image_uploader.get_url())
 
@@ -101,7 +101,7 @@ class BookImgController(Controller):
         if not self._is_data_valid(files_data):
             raise CustomError('InvalidDataSent')
 
-        image_uploader = BooksImageUploader(files_data['img'])
+        image_uploader = BookImageUploader(files_data['img'])
 
         book = self._get_book_by_id(id_book)
         book_img = BookImg(image_uploader.get_url())
