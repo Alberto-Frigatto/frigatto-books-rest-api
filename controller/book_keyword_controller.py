@@ -1,7 +1,7 @@
 from typing import Any
 
 from db import db
-from handle_errors import CustomError
+from exception import BookException, BookKeywordException, GeneralException
 from model import Book, BookKeyword
 
 from .controller import Controller
@@ -10,12 +10,12 @@ from .controller import Controller
 class BookKeywordController(Controller):
     def create_book_keyword(self, id_book: str) -> BookKeyword:
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         data = super().get_json_data()
 
         if not self._is_data_valid(data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         book = self._get_book_by_id(id_book)
         book_keyword = BookKeyword(data['keyword'])
@@ -33,7 +33,7 @@ class BookKeywordController(Controller):
         book = db.session.get(Book, id)
 
         if book is None:
-            raise CustomError('BookDoesntExists')
+            raise BookException.BookDoesntExists(id)
 
         return book
 
@@ -43,10 +43,10 @@ class BookKeywordController(Controller):
         book_keyword = self._get_book_keyword_by_id(id_keyword)
 
         if book_keyword.id_book != book.id:
-            raise CustomError('BookDoesntOwnThisKeyword')
+            raise BookKeywordException.BookDoesntOwnThisKeyword(id_keyword, id_book)
 
         if self._does_book_have_one_keyword(book):
-            raise CustomError('BookMustHaveAtLeastOneKeyword')
+            raise BookKeywordException.BookMustHaveAtLeastOneKeyword(id_book)
 
         db.session.delete(book_keyword)
         db.session.commit()
@@ -55,7 +55,7 @@ class BookKeywordController(Controller):
         book = db.session.get(BookKeyword, id)
 
         if book is None:
-            raise CustomError('BookKeywordDoesntExists')
+            raise BookKeywordException.BookKeywordDoesntExists(id)
 
         return book
 
