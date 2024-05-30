@@ -2,7 +2,8 @@ from flask import Response
 from flask_jwt_extended import JWTManager
 
 from db import db
-from handle_errors import CustomError
+from exception import SecurityException
+from exception.base import ApiException
 from model import User
 from response import ResponseError
 
@@ -23,7 +24,7 @@ def user_lookup_callback(_jwt_header: dict, jwt_data: dict) -> User | None:
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error_string: str) -> Response:
-    return ResponseError(CustomError('InvalidJWT')).json()
+    return ResponseError(SecurityException.InvalidJWT()).json()
 
 
 @jwt.unauthorized_loader
@@ -35,4 +36,6 @@ def unauthorized_callback(error_string: str) -> Response:
         'Missing Authorization Header': 'MissingJWT',
     }
 
-    return ResponseError(CustomError(error_map[error_string])).json()
+    exception: ApiException = getattr(SecurityException, error_map[error_string])()
+
+    return ResponseError(exception).json()
