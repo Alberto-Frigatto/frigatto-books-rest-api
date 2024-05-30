@@ -4,7 +4,7 @@ from typing import Any
 from flask import current_app
 from werkzeug.datastructures import FileStorage
 
-from handle_errors import CustomError
+from exception import GeneralException
 
 from .image_uploader import ImageUploader
 
@@ -18,7 +18,7 @@ class UserImageUploader(ImageUploader):
 
     def _validate_file(self, file: Any) -> None:
         if not self._is_file_valid(file):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_file_valid(self, file: FileStorage) -> bool:
         max_size = current_app.config['USER_PHOTOS_MAX_SIZE']
