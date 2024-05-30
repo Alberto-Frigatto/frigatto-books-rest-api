@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash
 
 from app import create_app
 from db import db
-from handle_errors import CustomError
+from exception import GeneralException
 from model import User
 from schema import users_schema
 
@@ -73,20 +73,20 @@ def test_instantiate_User():
     assert user.img_url == img_url
 
 
-def test_when_User_receives_invalid_username_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_User_receives_invalid_username_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('', 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('user name', 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User(456, 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('aa', 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User(
             'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             'SEnha_#45',
@@ -94,34 +94,34 @@ def test_when_User_receives_invalid_username_raises_CustomError():
         )
 
 
-def test_when_User_receives_invalid_password_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_User_receives_invalid_password_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', 'aaa', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', 'awidhauwidh123#', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', 'SEnha455', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', '', 'http://localhost:5000/users/photos/test.jpg')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', 456, 'http://localhost:5000/users/photos/test.jpg')
 
 
-def test_when_User_receives_invalid_img_url_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_User_receives_invalid_img_url_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', 'SEnha_#45', 456)
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', 'SEnha_#45', '')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User('username', 'SEnha_#45', 'url')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         User(
             'username',
             'SEnha_#45',

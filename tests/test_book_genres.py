@@ -8,7 +8,7 @@ from sqlalchemy import text
 
 from app import create_app
 from db import db
-from handle_errors import CustomError
+from exception import GeneralException
 from model import BookGenre, User
 from schema import book_genres_schema
 
@@ -57,23 +57,23 @@ def test_instantiate_BookGenre_with_uppercase_name():
     assert book_genre.genre == book_genre_name.lower()
 
 
-def test_when_BookGenre_receives_invalid_name_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_BookGenre_receives_invalid_name_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookGenre('')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookGenre('123')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookGenre('#')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookGenre('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookGenre(None)
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookGenre(123)
 
 

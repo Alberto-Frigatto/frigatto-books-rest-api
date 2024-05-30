@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash
 
 from app import create_app
 from db import db
-from handle_errors import CustomError
+from exception import GeneralException
 from model import Book, User
 from schema import books_schema
 
@@ -110,17 +110,17 @@ def test_instantiate_Book():
     assert book.release_year == int(release_year)
 
 
-def test_when_Book_receives_invalid_name_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_Book_receives_invalid_name_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('', '49.99', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('a', '49.99', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('#@#$@#$!#@!@', '49.99', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book(
             'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             '49.99',
@@ -128,47 +128,47 @@ def test_when_Book_receives_invalid_name_raises_CustomError():
             '1969',
         )
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book(None, '49.99', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book(123, '49.99', 'Mario Puzo', '1969')
 
 
-def test_when_Book_receives_invalid_price_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_Book_receives_invalid_price_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', None, 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.999', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '4444444444449.99', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', 'abc', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '-1', 'Mario Puzo', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49,99', 'Mario Puzo', '1969')
 
 
-def test_when_Book_receives_invalid_author_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_Book_receives_invalid_author_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', '', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', '123', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', '#@#$@#$!#@!@', '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book(
             'O Poderoso Chefão',
             '49.99',
@@ -176,30 +176,30 @@ def test_when_Book_receives_invalid_author_raises_CustomError():
             '1969',
         )
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', None, '1969')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', 123, '1969')
 
 
-def test_when_Book_receives_invalid_release_year_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_Book_receives_invalid_release_year_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', None)
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '999')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', datetime.datetime.now().year + 1)
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '1969.45')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         Book('O Poderoso Chefão', '49.99', 'Mario Puzo', 123)
 
 

@@ -8,7 +8,7 @@ from sqlalchemy import text
 
 from app import create_app
 from db import db
-from handle_errors import CustomError
+from exception import GeneralException
 from model import BookKeyword, User
 from schema.book_keywords_schema import BookKeywordsSchema
 
@@ -87,23 +87,23 @@ def test_instantiate_BookKeyword_with_uppercase_keyword():
     assert book_keyword.keyword == keyword.lower()
 
 
-def test_when_BookKeyword_receives_invalid_keyword_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_BookKeyword_receives_invalid_keyword_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKeyword('')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKeyword('12')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKeyword('#')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKeyword('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKeyword(None)
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKeyword(123)
 
 

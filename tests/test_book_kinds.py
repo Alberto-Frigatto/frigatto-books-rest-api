@@ -8,7 +8,7 @@ from sqlalchemy import text
 
 from app import create_app
 from db import db
-from handle_errors import CustomError
+from exception import GeneralException
 from model import BookKind, User
 from schema import book_kinds_schema
 
@@ -57,23 +57,23 @@ def test_instantiate_BookKind_with_uppercase_name():
     assert book_kind.kind == book_kind_name.lower()
 
 
-def test_when_BookKind_receives_invalid_name_raises_CustomError():
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+def test_when_BookKind_receives_invalid_name_raises_InvalidDataSent():
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKind('')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKind('123')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKind('#')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKind('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKind(None)
 
-    with pytest.raises(CustomError, match=r'^InvalidDataSent$'):
+    with pytest.raises(GeneralException.InvalidDataSent):
         BookKind(123)
 
 
