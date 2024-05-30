@@ -3,7 +3,7 @@ from typing import Any, Sequence
 from sqlalchemy import select
 
 from db import db
-from handle_errors import CustomError
+from exception import BookGenreException, GeneralException
 from model import Book, BookGenre
 
 from .controller import Controller
@@ -20,23 +20,23 @@ class BookGenreController(Controller):
         book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
-            raise CustomError('BookGenreDoesntExists')
+            raise BookGenreException.BookGenreDoesntExists(id)
 
         return book_genre
 
     def create_book_genre(self) -> BookGenre:
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         data = super().get_json_data()
 
         if not self._is_data_valid(data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         new_book_genre = BookGenre(data['genre'])
 
         if self._book_genre_already_exists(new_book_genre):
-            raise CustomError('BookGenreAlreadyExists')
+            raise BookGenreException.BookGenreAlreadyExists(data['genre'])
 
         db.session.add(new_book_genre)
         db.session.commit()
@@ -61,7 +61,7 @@ class BookGenreController(Controller):
         book_genre = self.get_book_genre_by_id(id)
 
         if self._are_there_linked_books(book_genre):
-            raise CustomError('ThereAreLinkedBooksWithThisBookGenre')
+            raise BookGenreException.ThereAreLinkedBooksWithThisBookGenre(id)
 
         db.session.delete(book_genre)
         db.session.commit()
@@ -74,17 +74,19 @@ class BookGenreController(Controller):
         book_genre = self.get_book_genre_by_id(id)
 
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         data = super().get_json_data()
 
         if not self._is_data_valid(data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
-        if self._book_genre_already_exists(data['genre']):
-            raise CustomError('BookGenreAlreadyExists')
+        new_genre = data['genre']
 
-        book_genre.update_genre(data['genre'])
+        if self._book_genre_already_exists(new_genre):
+            raise BookGenreException.BookGenreAlreadyExists(new_genre)
+
+        book_genre.update_genre(new_genre)
         db.session.commit()
 
         return book_genre
