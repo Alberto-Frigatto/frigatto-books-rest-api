@@ -3,7 +3,7 @@ from typing import Any, Sequence
 from sqlalchemy import select
 
 from db import db
-from handle_errors import CustomError
+from exception import BookKindException, GeneralException
 from model import Book, BookKind
 
 from .controller import Controller
@@ -20,23 +20,23 @@ class BookKindController(Controller):
         book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
-            raise CustomError('BookKindDoesntExists')
+            raise BookKindException.BookKindDoesntExists(id)
 
         return book_kind
 
     def create_book_kind(self) -> BookKind:
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         data = super().get_json_data()
 
         if not self._is_data_valid(data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         new_book_kind = BookKind(data['kind'])
 
         if self._book_kind_already_exists(new_book_kind):
-            raise CustomError('BookKindAlreadyExists')
+            raise BookKindException.BookKindAlreadyExists(id)
 
         db.session.add(new_book_kind)
         db.session.commit()
@@ -60,7 +60,7 @@ class BookKindController(Controller):
         book_kind = self.get_book_kind_by_id(id)
 
         if self._are_there_linked_books(book_kind):
-            raise CustomError('ThereAreLinkedBooksWithThisBookKind')
+            raise BookKindException.ThereAreLinkedBooksWithThisBookKind(id)
 
         db.session.delete(book_kind)
         db.session.commit()
@@ -73,17 +73,19 @@ class BookKindController(Controller):
         book_kind = self.get_book_kind_by_id(id)
 
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         data = super().get_json_data()
 
         if not self._is_data_valid(data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
-        if self._book_kind_already_exists(data['kind']):
-            raise CustomError('BookKindAlreadyExists')
+        new_kind = data['kind']
 
-        book_kind.update_kind(data['kind'])
+        if self._book_kind_already_exists(new_kind):
+            raise BookKindException.BookKindAlreadyExists(new_kind)
+
+        book_kind.update_kind(new_kind)
         db.session.commit()
 
         return book_kind
