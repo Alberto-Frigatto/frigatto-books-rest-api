@@ -6,7 +6,7 @@ from flask_jwt_extended import create_access_token, current_user
 from sqlalchemy import select
 
 from db import db
-from handle_errors import CustomError
+from exception import AuthException, GeneralException, ImageException, UserException
 from image_uploader import UserImageUploader
 from model import User
 
@@ -20,19 +20,19 @@ mimetype = str
 class UserController(Controller):
     def create_user(self) -> User:
         if self._user_already_authenticated():
-            raise CustomError('UserAlreadyAuthenticated')
+            raise AuthException.UserAlreadyAuthenticated()
 
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         form_data = request.form.to_dict()
         files_data = request.files.to_dict()
 
         if not self._is_data_valid_for_create(form_data, files_data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         if self._user_already_exists(form_data['username']):
-            raise CustomError('UserAlreadyExists')
+            raise UserException.UserAlreadyExists()
 
         image_uploader = UserImageUploader(files_data['img'])
 
@@ -63,20 +63,20 @@ class UserController(Controller):
 
     def login(self) -> tuple[User, token]:
         if self._user_already_authenticated():
-            raise CustomError('UserAlreadyAuthenticated')
+            raise AuthException.UserAlreadyAuthenticated()
 
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         data = super().get_json_data()
 
         if not self._is_data_valid_for_login(data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         user = self._get_user_by_username(data['username'])
 
         if user is None or not user.check_password(data['password']):
-            raise CustomError('InvalidLogin')
+            raise AuthException.InvalidLogin()
 
         access_token = create_access_token(user)
 
@@ -97,7 +97,7 @@ class UserController(Controller):
 
     def get_user_photo(self, filename: str) -> tuple[file_path, mimetype]:
         if not self._is_file_name_valid(filename):
-            raise CustomError('ImageNotFound')
+            raise ImageException.ImageNotFound(filename)
 
         return os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename), 'image/jpeg'
 
@@ -110,18 +110,18 @@ class UserController(Controller):
 
     def update_user(self) -> User:
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         form_data = request.form.to_dict()
         files_data = request.files.to_dict()
 
         if not self._is_data_valid_for_update(form_data, files_data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         if self._are_there_username_in_request(form_data) and self._user_already_exists(
             form_data['username']
         ):
-            raise CustomError('UserAlreadyExists')
+            raise UserException.UserAlreadyExists()
 
         for key, value in list(form_data.items()):
             getattr(current_user, f'update_{key.strip()}')(value)
