@@ -6,7 +6,7 @@ from sqlalchemy import select
 from werkzeug.datastructures import ImmutableMultiDict
 
 from db import db
-from handle_errors import CustomError
+from exception import BookException, BookGenreException, BookKindException, GeneralException
 from image_uploader import BookImageUploader
 from model import Book, BookGenre, BookImg, BookKeyword, BookKind
 
@@ -27,25 +27,27 @@ class BookController(Controller):
         book = db.session.get(Book, id)
 
         if book is None:
-            raise CustomError('BookDoesntExists')
+            raise BookException.BookDoesntExists(id)
 
         return book
 
     def create_book(self) -> Book:
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         form_data = request.form.to_dict()
         files_data = request.files
 
         if not self._is_data_valid_for_create(form_data, files_data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
-        if self._book_already_exists(form_data['name']):
-            raise CustomError('BookAlreadyExists')
+        name = form_data['name']
+
+        if self._book_already_exists(name):
+            raise BookException.BookAlreadyExists(name)
 
         new_book = Book(
-            form_data['name'],
+            name,
             form_data['price'],
             form_data['author'],
             form_data['release_year'],
@@ -102,7 +104,7 @@ class BookController(Controller):
         book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
-            raise CustomError('BookKindDoesntExists')
+            raise BookKindException.BookKindDoesntExists(id)
 
         return book_kind
 
@@ -110,13 +112,13 @@ class BookController(Controller):
         book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
-            raise CustomError('BookGenreDoesntExists')
+            raise BookGenreException.BookGenreDoesntExists(id)
 
         return book_genre
 
     def _extract_book_keywords(self, keywords: str) -> list[BookKeyword]:
         if not self._is_book_keywords_valid(keywords):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         separator = ';'
 
@@ -136,17 +138,17 @@ class BookController(Controller):
 
     def update_book(self, id: str) -> Book:
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         form_data = request.form.to_dict()
 
         if not self._is_data_valid_for_update(form_data):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         if self._are_there_name_in_request(form_data) and self._book_already_exists(
             form_data['name']
         ):
-            raise CustomError('BookAlreadyExists')
+            raise BookException.BookAlreadyExists(form_data['name'])
 
         book = self.get_book_by_id(id)
 
