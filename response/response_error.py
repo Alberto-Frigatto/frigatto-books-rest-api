@@ -1,24 +1,21 @@
 import flask
 
-from handle_errors import CustomError
+from exception.base import ApiException
 
 from .response import Response
 
 
 class ResponseError(Response):
-    def __init__(self, error: CustomError) -> None:
-        from api import api
-
-        self._api_error = api.errors.get(error.error_name)
-        self._error_name = error.error_name
+    def __init__(self, exception: ApiException) -> None:
+        self._exception = exception
 
     def json(self) -> flask.Response:
-        status = self._api_error['status']
+        status = self._exception.status
 
         response = {
             'error': True,
-            'error_name': self._error_name,
-            'message': self._api_error['message'],
+            'error_name': self._exception.name,
+            'message': self._exception.message,
             'status': status,
         }
 
