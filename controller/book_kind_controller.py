@@ -36,7 +36,7 @@ class BookKindController(Controller):
         new_book_kind = BookKind(data['kind'])
 
         if self._book_kind_already_exists(new_book_kind):
-            raise BookKindException.BookKindAlreadyExists(id)
+            raise BookKindException.BookKindAlreadyExists(new_book_kind.kind)
 
         db.session.add(new_book_kind)
         db.session.commit()
