@@ -3,7 +3,7 @@ from typing import Any, Sequence
 from sqlalchemy import Select, select
 
 from db import db
-from handle_errors import CustomError
+from exception import BookGenreException, BookKindException, GeneralException
 from model import Book, BookGenre, BookKind
 
 from .controller import Controller
@@ -12,12 +12,12 @@ from .controller import Controller
 class SearchController(Controller):
     def search_books(self) -> Sequence[Book]:
         if not super().are_there_data():
-            raise CustomError('NoDataSent')
+            raise GeneralException.NoDataSent()
 
         search = super().get_json_data()
 
         if not self._is_data_valid(search):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
         books = self._get_matched_books(search)
 
@@ -165,7 +165,7 @@ class SearchController(Controller):
         book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
-            raise CustomError('BookKindDoesntExists')
+            raise BookKindException.BookKindDoesntExists(id)
 
         return bool(book_kind)
 
@@ -173,7 +173,7 @@ class SearchController(Controller):
         book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
-            raise CustomError('BookGenreDoesntExists')
+            raise BookGenreException.BookGenreDoesntExists(id)
 
         return bool(book_genre)
 
