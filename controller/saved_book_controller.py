@@ -4,7 +4,7 @@ from flask_jwt_extended import current_user
 from sqlalchemy import select
 
 from db import db
-from handle_errors import CustomError
+from exception import BookException, SavedBookException
 from model import Book, SavedBook
 
 from .controller import Controller
@@ -22,7 +22,7 @@ class SavedBookController(Controller):
         book = self._get_book_by_id(id)
 
         if book in saved_books:
-            raise CustomError('BookAlreadySaved')
+            raise SavedBookException.BookAlreadySaved(id)
 
         saved_book = SavedBook(current_user.id, book)
 
@@ -35,7 +35,7 @@ class SavedBookController(Controller):
         book = db.session.get(Book, id)
 
         if book is None:
-            raise CustomError('BookDoesntExists')
+            raise BookException.BookDoesntExists(id)
 
         return book
 
@@ -44,7 +44,7 @@ class SavedBookController(Controller):
         book = self._get_book_by_id(id_book)
 
         if book not in saved_books:
-            raise CustomError('BookArentSaved')
+            raise SavedBookException.BookArentSaved(id_book)
 
         db.session.delete(book)
         db.session.commit()
