@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from api import api
 from db import db
-from handle_errors import CustomError, import_error_messages
+from exception import GeneralException
 from json_web_token import jwt
 from response import ResponseError
 from routes import add_routes
@@ -46,15 +46,13 @@ def create_app(test_config: bool = False) -> Flask:
     db.init_app(app)
     ma.init_app(app)
 
-    import_error_messages(api)
-
     @app.before_request
     def check_db_connection():
         try:
             db.session.execute(text('SELECT 1'))
             db.session.commit()
         except Exception:
-            return ResponseError(CustomError('DatabaseConnection')).json()
+            return ResponseError(GeneralException.DatabaseConnection()).json()
 
     @app.before_request
     def check_http_method():
@@ -65,7 +63,7 @@ def create_app(test_config: bool = False) -> Flask:
         try:
             adapter.match(route, method)
         except Exception:
-            return ResponseError(CustomError('MethodNotAllowed')).json()
+            return ResponseError(GeneralException.MethodNotAllowed()).json()
 
     @app.before_request
     def check_content_type():
@@ -75,7 +73,7 @@ def create_app(test_config: bool = False) -> Flask:
             allowed_content_type not in request.content_type
             for allowed_content_type in allowed_content_types
         ):
-            return ResponseError(CustomError('InvalidContentType')).json()
+            return ResponseError(GeneralException.InvalidContentType()).json()
 
     add_routes(app)
 
