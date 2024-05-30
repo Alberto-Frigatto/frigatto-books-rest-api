@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db, int_pk
-from handle_errors import CustomError
+from exception import GeneralException
 
 
 class BookKeyword(db.Model):
@@ -22,7 +22,7 @@ class BookKeyword(db.Model):
 
     def _validate_keyword(self, keyword: Any) -> None:
         if not self._is_keyword_valid(keyword):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_keyword_valid(self, keyword: Any) -> bool:
         if not isinstance(keyword, str):

@@ -5,7 +5,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db, int_pk
-from handle_errors import CustomError
+from exception import GeneralException
 
 
 class BookGenre(db.Model):
@@ -20,7 +20,7 @@ class BookGenre(db.Model):
 
     def _validate_genre_name(self, genre: Any) -> None:
         if not self._is_genre_name_valid(genre):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_genre_name_valid(self, genre: Any) -> bool:
         if not isinstance(genre, str):

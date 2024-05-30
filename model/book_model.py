@@ -7,7 +7,7 @@ from sqlalchemy.dialects.mysql import DECIMAL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import db, int_pk
-from handle_errors import CustomError
+from exception import GeneralException
 from model import BookGenre, BookImg, BookKeyword, BookKind
 
 
@@ -47,7 +47,7 @@ class Book(db.Model):
 
     def _validate_name(self, name: Any) -> None:
         if not self._is_name_valid(name):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_name_valid(self, name: Any) -> bool:
         if not isinstance(name, str):
@@ -66,7 +66,7 @@ class Book(db.Model):
 
     def _validate_price(self, price: Any) -> None:
         if not self._is_price_valid(price):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_price_valid(self, price: Any) -> bool:
         try:
@@ -103,7 +103,7 @@ class Book(db.Model):
 
     def _validate_author(self, author: Any) -> None:
         if not self._is_author_valid(author):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_author_valid(self, author: Any) -> bool:
         if not isinstance(author, str):
@@ -122,7 +122,7 @@ class Book(db.Model):
 
     def _validate_release_year(self, release_year: Any) -> None:
         if not self._is_release_year_valid(release_year):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_release_year_valid(self, release_year: Any) -> bool:
         try:

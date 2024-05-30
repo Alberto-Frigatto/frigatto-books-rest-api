@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db, int_pk
-from handle_errors import CustomError
+from exception import GeneralException
 
 
 class BookImg(db.Model):
@@ -24,7 +24,7 @@ class BookImg(db.Model):
 
     def _validate_img_url(self, img_url: Any) -> None:
         if not self._is_img_url_valid(img_url):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_img_url_valid(self, img_url: Any) -> bool:
         if not isinstance(img_url, str):

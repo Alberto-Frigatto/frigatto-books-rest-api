@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import db, int_pk
-from handle_errors import CustomError
+from exception import GeneralException
 
 
 class User(db.Model):
@@ -28,7 +28,7 @@ class User(db.Model):
 
     def _validate_username(self, username: Any) -> None:
         if not self._is_username_valid(username):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_username_valid(self, username: Any) -> bool:
         if not isinstance(username, str):
@@ -46,7 +46,7 @@ class User(db.Model):
 
     def _validate_password(self, password: Any) -> None:
         if not self._is_password_valid(password):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_password_valid(self, password: Any) -> bool:
         min_length = 8
@@ -67,7 +67,7 @@ class User(db.Model):
 
     def _validate_img_url(self, img_url: Any) -> None:
         if not self._is_img_url_valid(img_url):
-            raise CustomError('InvalidDataSent')
+            raise GeneralException.InvalidDataSent()
 
     def _is_img_url_valid(self, img_url: Any) -> bool:
         if not isinstance(img_url, str):
