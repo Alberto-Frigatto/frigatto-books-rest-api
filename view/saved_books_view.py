@@ -4,7 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import SavedBookController
-from handle_errors import CustomError
+from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import books_schema
 
@@ -19,7 +19,7 @@ class SavedBooksView(BaseResource):
     def post(self, id: str) -> Response:
         try:
             saved_book = controller.save_book(id)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = books_schema.dump(saved_book)
@@ -41,7 +41,7 @@ class DeleteSavedBooksView(BaseResource):
     def delete(self, id_book: str) -> Response:
         try:
             controller.delete_saved_book(id_book)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             return ResponseSuccess().json()

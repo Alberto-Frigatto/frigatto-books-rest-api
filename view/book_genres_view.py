@@ -4,7 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import BookGenreController
-from handle_errors import CustomError
+from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import book_genres_schema
 
@@ -18,7 +18,7 @@ class BookGenresView(BaseResource):
     def get(self, id: str) -> Response:
         try:
             book_genre = controller.get_book_genre_by_id(id)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = book_genres_schema.dump(book_genre)
@@ -29,7 +29,7 @@ class BookGenresView(BaseResource):
     def delete(self, id: str) -> Response:
         try:
             controller.delete_book_genre(id)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             return ResponseSuccess().json()
@@ -38,7 +38,7 @@ class BookGenresView(BaseResource):
     def patch(self, id: str) -> Response:
         try:
             updated_book_genre = controller.update_book_genre(id)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = book_genres_schema.dump(updated_book_genre)
@@ -57,7 +57,7 @@ class BookGenresListView(BaseResource):
     def post(self) -> Response:
         try:
             new_book_genre = controller.create_book_genre()
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = book_genres_schema.dump(new_book_genre)

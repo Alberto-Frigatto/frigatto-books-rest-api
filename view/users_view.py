@@ -4,7 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import UserController
-from handle_errors import CustomError
+from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import users_schema
 
@@ -26,7 +26,7 @@ class UsersView(BaseResource):
     def post(self) -> Response:
         try:
             new_user = controller.create_user()
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = users_schema.dump(new_user)
@@ -37,7 +37,7 @@ class UsersView(BaseResource):
     def patch(self) -> Response:
         try:
             updated_user = controller.update_user()
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = users_schema.dump(updated_user)
@@ -49,7 +49,7 @@ class UsersLoginView(BaseResource):
     def post(self) -> Response:
         try:
             user, access_token = controller.login()
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = users_schema.dump(user)
@@ -75,7 +75,7 @@ class UsersPhotosView(BaseResource):
     def get(self, filename: str) -> Response:
         try:
             file_path, mimetype = controller.get_user_photo(filename)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             return send_file(file_path, mimetype)

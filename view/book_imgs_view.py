@@ -4,7 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import BookImgController
-from handle_errors import CustomError
+from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import book_imgs_schema
 
@@ -18,7 +18,7 @@ class GetBooksPhotosView(BaseResource):
     def get(self, filename: str) -> Response:
         try:
             file_path, mimetype = controller.get_book_photo(filename)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             return send_file(file_path, mimetype)
@@ -29,7 +29,7 @@ class EditBooksPhotosView(BaseResource):
     def delete(self, id_book: str, id_img: str) -> Response:
         try:
             controller.delete_book_img(id_book, id_img)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             return ResponseSuccess().json()
@@ -38,7 +38,7 @@ class EditBooksPhotosView(BaseResource):
     def patch(self, id_book: str, id_img: str) -> Response:
         try:
             updated_book_img = controller.update_book_img(id_book, id_img)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = book_imgs_schema.dump(updated_book_img)
@@ -51,7 +51,7 @@ class AddBooksPhotosView(BaseResource):
     def post(self, id_book: str) -> Response:
         try:
             new_book_img = controller.create_book_img(id_book)
-        except CustomError as e:
+        except ApiException as e:
             return ResponseError(e).json()
         else:
             data = book_imgs_schema.dump(new_book_img)
