@@ -4,6 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import BookImgController
+from dto.input import CreateBookImgDTO, UpdateBookImgDTO
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import book_imgs_schema
@@ -37,7 +38,12 @@ class EditBooksPhotosView(BaseResource):
     @jwt_required()
     def patch(self, id_book: str, id_img: str) -> Response:
         try:
-            updated_book_img = controller.update_book_img(id_book, id_img)
+            input_dto = UpdateBookImgDTO()
+            updated_book_img = controller.update_book_img(
+                id_book=id_book,
+                id_img=id_img,
+                input_dto=input_dto,
+            )
         except ApiException as e:
             return ResponseError(e).json()
         else:
@@ -50,7 +56,8 @@ class AddBooksPhotosView(BaseResource):
     @jwt_required()
     def post(self, id_book: str) -> Response:
         try:
-            new_book_img = controller.create_book_img(id_book)
+            input_dto = CreateBookImgDTO()
+            new_book_img = controller.create_book_img(id_book, input_dto)
         except ApiException as e:
             return ResponseError(e).json()
         else:
