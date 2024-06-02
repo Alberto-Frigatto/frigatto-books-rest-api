@@ -1,9 +1,10 @@
-from typing import Any, Sequence
+from typing import Sequence
 
 from sqlalchemy import select
 
 from db import db
-from exception import BookKindException, GeneralException
+from dto.input import CreateBookKindDTO, UpdateBookKindDTO
+from exception import BookKindException
 from model import Book, BookKind
 
 from .controller import Controller
@@ -24,36 +25,20 @@ class BookKindController(Controller):
 
         return book_kind
 
-    def create_book_kind(self) -> BookKind:
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
+    def create_book_kind(self, input_dto: CreateBookKindDTO) -> BookKind:
+        new_book_kind = BookKind(input_dto.kind)
 
-        data = super().get_json_data()
-
-        if not self._is_data_valid(data):
-            raise GeneralException.InvalidDataSent()
-
-        new_book_kind = BookKind(data['kind'])
-
-        if self._book_kind_already_exists(new_book_kind):
-            raise BookKindException.BookKindAlreadyExists(new_book_kind.kind)
+        if self._book_kind_already_exists(input_dto.kind):
+            raise BookKindException.BookKindAlreadyExists(input_dto.kind)
 
         db.session.add(new_book_kind)
         db.session.commit()
 
         return new_book_kind
 
-    def _is_data_valid(self, data: Any) -> bool:
-        return isinstance(data, dict) and 'kind' in data.keys()
+    def _book_kind_already_exists(self, book_kind: str) -> bool:
+        query = select(BookKind).filter_by(kind=book_kind.strip().lower())
 
-    def _book_kind_already_exists(self, book_kind: BookKind | str) -> bool:
-        query = select(BookKind).filter_by(
-            kind=(
-                book_kind.kind
-                if isinstance(book_kind, BookKind)
-                else (book_kind.strip().lower() if isinstance(book_kind, str) else book_kind)
-            )
-        )
         return bool(db.session.execute(query).scalar())
 
     def delete_book_kind(self, id: str) -> None:
@@ -69,18 +54,9 @@ class BookKindController(Controller):
         query = select(Book).filter_by(id_kind=book_kind.id)
         return bool(db.session.execute(query).scalars().all())
 
-    def update_book_kind(self, id: str) -> BookKind:
+    def update_book_kind(self, id: str, input_dto: UpdateBookKindDTO) -> BookKind:
         book_kind = self.get_book_kind_by_id(id)
-
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        data = super().get_json_data()
-
-        if not self._is_data_valid(data):
-            raise GeneralException.InvalidDataSent()
-
-        new_kind = data['kind']
+        new_kind = input_dto.kind
 
         if self._book_kind_already_exists(new_kind):
             raise BookKindException.BookKindAlreadyExists(new_kind)
