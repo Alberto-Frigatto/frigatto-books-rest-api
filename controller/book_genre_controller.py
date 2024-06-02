@@ -37,7 +37,7 @@ class BookGenreController(Controller):
         return new_book_genre
 
     def _book_genre_already_exists(self, book_genre: str) -> bool:
-        query = select(BookGenre).filter_by(genre=book_genre.strip().lower())
+        query = select(BookGenre).filter_by(genre=book_genre)
 
         return bool(db.session.execute(query).scalar())
 
