@@ -13,10 +13,6 @@ class ImageUploader(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _is_file_valid(self) -> bool:
-        pass
-
-    @abstractmethod
     def get_url(self) -> bool:
         pass
 
