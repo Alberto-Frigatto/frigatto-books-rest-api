@@ -1,11 +1,11 @@
 import os
-from typing import Sequence
+from typing import Any, Sequence
 
 from flask import request
 from sqlalchemy import select
-from werkzeug.datastructures import ImmutableMultiDict
 
 from db import db
+from dto.input import CreateBookDTO, UpdateBookDTO
 from exception import BookException, BookGenreException, BookKindException, GeneralException
 from image_uploader import BookImageUploader
 from model import Book, BookGenre, BookImg, BookKeyword, BookKind
@@ -31,39 +31,30 @@ class BookController(Controller):
 
         return book
 
-    def create_book(self) -> Book:
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        form_data = request.form.to_dict()
-        files_data = request.files
-
-        if not self._is_data_valid_for_create(form_data, files_data):
-            raise GeneralException.InvalidDataSent()
-
-        name = form_data['name']
+    def create_book(self, input_dto: CreateBookDTO) -> Book:
+        name = input_dto.name
 
         if self._book_already_exists(name):
             raise BookException.BookAlreadyExists(name)
 
         new_book = Book(
             name,
-            form_data['price'],
-            form_data['author'],
-            form_data['release_year'],
+            input_dto.price,
+            input_dto.author,
+            input_dto.release_year,
         )
 
-        book_kind = self._get_book_kind_by_id(form_data['id_book_kind'])
-        book_genre = self._get_book_genre_by_id(form_data['id_book_genre'])
-        book_keywords = self._extract_book_keywords(form_data['keywords'])
-        book_imgs = [BookImageUploader(image) for image in files_data.getlist('imgs')]
+        book_kind = self._get_book_kind_by_id(input_dto.id_book_kind)
+        book_genre = self._get_book_genre_by_id(input_dto.id_book_genre)
+        book_keywords = [BookKeyword(keyword) for keyword in input_dto.keywords]
+        book_imgs = [BookImg(img.get_url()) for img in input_dto.imgs]
 
         new_book.book_kind = book_kind
         new_book.book_genre = book_genre
         new_book.book_keywords = book_keywords
-        new_book.book_imgs = [BookImg(img.get_url()) for img in book_imgs]
+        new_book.book_imgs = book_imgs
 
-        for img in book_imgs:
+        for img in input_dto.imgs:
             img.save()
 
         db.session.add(new_book)
@@ -71,32 +62,8 @@ class BookController(Controller):
 
         return new_book
 
-    def _is_data_valid_for_create(self, form_data: dict, files_data: ImmutableMultiDict) -> bool:
-        max_photo_qty = 5
-
-        imgs_qty = len(files_data.getlist('imgs'))
-
-        return (
-            all(
-                key in form_data.keys()
-                for key in (
-                    'name',
-                    'price',
-                    'author',
-                    'release_year',
-                    'keywords',
-                    'id_book_kind',
-                    'id_book_genre',
-                )
-            )
-            and imgs_qty
-            and imgs_qty <= max_photo_qty
-        )
-
     def _book_already_exists(self, name: str) -> bool:
-        query = select(Book).where(
-            Book.name.ilike(name.strip().lower() if isinstance(name, str) else name)
-        )
+        query = select(Book).where(Book.name.ilike(name))
 
         return bool(db.session.execute(query).scalar())
 
@@ -116,17 +83,6 @@ class BookController(Controller):
 
         return book_genre
 
-    def _extract_book_keywords(self, keywords: str) -> list[BookKeyword]:
-        if not self._is_book_keywords_valid(keywords):
-            raise GeneralException.InvalidDataSent()
-
-        separator = ';'
-
-        return [BookKeyword(keyword) for keyword in keywords.strip().split(separator) if keyword]
-
-    def _is_book_keywords_valid(self, keywords: str) -> bool:
-        return isinstance(keywords, str) and keywords
-
     def delete_book(self, id: str) -> None:
         book = self.get_book_by_id(id)
 
@@ -136,38 +92,26 @@ class BookController(Controller):
         db.session.delete(book)
         db.session.commit()
 
-    def update_book(self, id: str) -> Book:
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        form_data = request.form.to_dict()
-
-        if not self._is_data_valid_for_update(form_data):
-            raise GeneralException.InvalidDataSent()
-
-        if self._are_there_name_in_request(form_data) and self._book_already_exists(
-            form_data['name']
+    def update_book(self, id: str, input_dto: UpdateBookDTO) -> Book:
+        if self._are_there_name_in_request(input_dto.name) and self._book_already_exists(
+            input_dto.name
         ):
-            raise BookException.BookAlreadyExists(form_data['name'])
+            raise BookException.BookAlreadyExists(input_dto.name)
 
         book = self.get_book_by_id(id)
 
-        for key, value in list(form_data.items()):
-            self._update_fields(book, key, value)
+        for key, value in input_dto.__dict__.items():
+            if value is not None:
+                self._update_fields(book, key, value)
 
         db.session.commit()
 
         return book
 
-    def _is_data_valid_for_update(self, form_data: dict) -> bool:
-        allowed_keys = ('name', 'price', 'author', 'release_year', 'id_book_kind', 'id_book_genre')
+    def _are_there_name_in_request(self, name: str | None) -> bool:
+        return name is not None
 
-        return all(key in allowed_keys for key in form_data.keys())
-
-    def _are_there_name_in_request(self, form_data: dict) -> bool:
-        return 'name' in form_data.keys()
-
-    def _update_fields(self, book: Book, key: str, value: str):
+    def _update_fields(self, book: Book, key: str, value: Any):
         if key not in ('id_book_kind', 'id_book_genre'):
             getattr(book, f'update_{key.strip()}')(value)
         else:
