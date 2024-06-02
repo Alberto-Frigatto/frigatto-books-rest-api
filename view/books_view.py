@@ -4,6 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import BookController
+from dto.input import CreateBookDTO, UpdateBookDTO
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import books_schema
@@ -37,7 +38,8 @@ class BooksView(BaseResource):
     @jwt_required()
     def patch(self, id: str) -> Response:
         try:
-            updated_book = controller.update_book(id)
+            input_book = UpdateBookDTO()
+            updated_book = controller.update_book(id, input_book)
         except ApiException as e:
             return ResponseError(e).json()
         else:
@@ -56,7 +58,8 @@ class BooksListView(BaseResource):
     @jwt_required()
     def post(self) -> Response:
         try:
-            new_book = controller.create_book()
+            input_dto = CreateBookDTO()
+            new_book = controller.create_book(input_dto)
         except ApiException as e:
             return ResponseError(e).json()
         else:
