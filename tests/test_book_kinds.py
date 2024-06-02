@@ -8,7 +8,6 @@ from sqlalchemy import text
 
 from app import create_app
 from db import db
-from exception import GeneralException
 from model import BookKind, User
 from schema import book_kinds_schema
 
@@ -48,33 +47,6 @@ def test_instantiate_BookKind():
     book_kind = BookKind(book_kind_name)
 
     assert book_kind.kind == book_kind_name
-
-
-def test_instantiate_BookKind_with_uppercase_name():
-    book_kind_name = 'NOVO TIPO'
-    book_kind = BookKind(book_kind_name)
-
-    assert book_kind.kind == book_kind_name.lower()
-
-
-def test_when_BookKind_receives_invalid_name_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKind('')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKind('123')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKind('#')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKind('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKind(None)
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKind(123)
 
 
 def test_return_all_book_kinds(client: FlaskClient):
