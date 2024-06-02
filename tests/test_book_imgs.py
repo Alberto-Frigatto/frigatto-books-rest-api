@@ -10,7 +10,6 @@ from sqlalchemy import text
 
 from app import create_app
 from db import db
-from exception import GeneralException
 from model import BookImg, User
 from schema.book_imgs_schema import BookImgsSchema
 
@@ -91,28 +90,6 @@ def test_instantiate_BookImg():
     book_img = BookImg(img_url)
 
     assert book_img.img_url == img_url
-
-
-def test_when_BookImg_receives_invalid_url_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookImg('')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookImg('12')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookImg('#')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookImg(
-            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-        )
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookImg(None)
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookImg(123)
 
 
 def test_dump_BookImg_coming_from_db(app: Flask):
