@@ -12,7 +12,6 @@ from werkzeug.security import generate_password_hash
 
 from app import create_app
 from db import db
-from exception import GeneralException
 from model import Book, User
 from schema import books_schema
 
@@ -98,109 +97,16 @@ def access_token(app: Flask) -> str:
 
 def test_instantiate_Book():
     name = 'O Poderoso Chefão'
-    price = '49.99'
+    price = 49.99
     author = 'Mario Puzo'
-    release_year = '1969'
+    release_year = 1969
 
     book = Book(name, price, author, release_year)
 
     assert book.name == name
-    assert book.price == float(price)
+    assert book.price == price
     assert book.author == author
-    assert book.release_year == int(release_year)
-
-
-def test_when_Book_receives_invalid_name_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('', '49.99', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('a', '49.99', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('#@#$@#$!#@!@', '49.99', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book(
-            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-            '49.99',
-            'Mario Puzo',
-            '1969',
-        )
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book(None, '49.99', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book(123, '49.99', 'Mario Puzo', '1969')
-
-
-def test_when_Book_receives_invalid_price_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', None, 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.999', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '4444444444449.99', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', 'abc', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '-1', 'Mario Puzo', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49,99', 'Mario Puzo', '1969')
-
-
-def test_when_Book_receives_invalid_author_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', '', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', '123', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', '#@#$@#$!#@!@', '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book(
-            'O Poderoso Chefão',
-            '49.99',
-            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-            '1969',
-        )
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', None, '1969')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', 123, '1969')
-
-
-def test_when_Book_receives_invalid_release_year_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', None)
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '999')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', datetime.datetime.now().year + 1)
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', '1969.45')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        Book('O Poderoso Chefão', '49.99', 'Mario Puzo', 123)
+    assert book.release_year == release_year
 
 
 def test_create_book(client: FlaskClient, access_token: str):
@@ -840,9 +746,9 @@ def test_when_try_to_create_book_with_invalid_id_book_kind_returns_error_respons
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookKindDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
     invalid_data = {
         'name': 'O Poderoso Chefão',
@@ -862,9 +768,9 @@ def test_when_try_to_create_book_with_invalid_id_book_kind_returns_error_respons
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookKindDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
 
 def test_when_try_to_create_book_with_invalid_id_book_genre_returns_error_response(
@@ -936,9 +842,9 @@ def test_when_try_to_create_book_with_invalid_id_book_genre_returns_error_respon
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookGenreDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
     invalid_data = {
         'name': 'O Poderoso Chefão',
@@ -958,9 +864,9 @@ def test_when_try_to_create_book_with_invalid_id_book_genre_returns_error_respon
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookGenreDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
 
 def test_when_try_to_create_book_with_invalid_keywords_returns_error_response(
@@ -1861,9 +1767,9 @@ def test_when_try_to_update_book_kind_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookKindDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
     update = {'id_book_kind': ''}
 
@@ -1871,9 +1777,9 @@ def test_when_try_to_update_book_kind_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookKindDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
 
 def test_update_book_genre(client: FlaskClient, access_token: str):
@@ -1945,9 +1851,9 @@ def test_when_try_to_update_book_genre_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookGenreDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
     update = {'id_book_genre': ''}
 
@@ -1955,9 +1861,9 @@ def test_when_try_to_update_book_genre_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     assert response_data['error']
-    assert response_data['error_name'] == 'BookGenreDoesntExists'
-    assert response_data['status'] == 404
-    assert response.status_code == 404
+    assert response_data['error_name'] == 'InvalidDataSent'
+    assert response_data['status'] == 400
+    assert response.status_code == 400
 
 
 def test_when_try_to_update_book_without_data_returns_error_response(
