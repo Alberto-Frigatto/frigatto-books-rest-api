@@ -4,6 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import BookGenreController
+from dto.input import CreateBookGenreDTO, UpdateBookGenreDTO
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import book_genres_schema
@@ -37,7 +38,8 @@ class BookGenresView(BaseResource):
     @jwt_required()
     def patch(self, id: str) -> Response:
         try:
-            updated_book_genre = controller.update_book_genre(id)
+            input_dto = UpdateBookGenreDTO()
+            updated_book_genre = controller.update_book_genre(id, input_dto)
         except ApiException as e:
             return ResponseError(e).json()
         else:
@@ -56,7 +58,8 @@ class BookGenresListView(BaseResource):
     @jwt_required()
     def post(self) -> Response:
         try:
-            new_book_genre = controller.create_book_genre()
+            input_dto = CreateBookGenreDTO()
+            new_book_genre = controller.create_book_genre(input_dto)
         except ApiException as e:
             return ResponseError(e).json()
         else:
