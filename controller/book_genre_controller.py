@@ -1,9 +1,10 @@
-from typing import Any, Sequence
+from typing import Sequence
 
 from sqlalchemy import select
 
 from db import db
-from exception import BookGenreException, GeneralException
+from dto.input import CreateBookGenreDTO, UpdateBookGenreDTO
+from exception import BookGenreException
 from model import Book, BookGenre
 
 from .controller import Controller
@@ -24,36 +25,19 @@ class BookGenreController(Controller):
 
         return book_genre
 
-    def create_book_genre(self) -> BookGenre:
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
+    def create_book_genre(self, input_dto: CreateBookGenreDTO) -> BookGenre:
+        new_book_genre = BookGenre(input_dto.genre)
 
-        data = super().get_json_data()
-
-        if not self._is_data_valid(data):
-            raise GeneralException.InvalidDataSent()
-
-        new_book_genre = BookGenre(data['genre'])
-
-        if self._book_genre_already_exists(new_book_genre):
-            raise BookGenreException.BookGenreAlreadyExists(data['genre'])
+        if self._book_genre_already_exists(input_dto.genre):
+            raise BookGenreException.BookGenreAlreadyExists(input_dto.genre)
 
         db.session.add(new_book_genre)
         db.session.commit()
 
         return new_book_genre
 
-    def _is_data_valid(self, data: Any) -> bool:
-        return isinstance(data, dict) and 'genre' in data.keys()
-
-    def _book_genre_already_exists(self, book_genre: BookGenre | str) -> bool:
-        query = select(BookGenre).filter_by(
-            genre=(
-                book_genre.genre
-                if isinstance(book_genre, BookGenre)
-                else (book_genre.strip().lower() if isinstance(book_genre, str) else book_genre)
-            )
-        )
+    def _book_genre_already_exists(self, book_genre: str) -> bool:
+        query = select(BookGenre).filter_by(genre=book_genre.strip().lower())
 
         return bool(db.session.execute(query).scalar())
 
@@ -70,18 +54,9 @@ class BookGenreController(Controller):
         query = select(Book).filter_by(id_genre=book_genre.id)
         return bool(db.session.execute(query).scalars().all())
 
-    def update_book_genre(self, id: str) -> BookGenre:
+    def update_book_genre(self, id: str, input_dto: UpdateBookGenreDTO) -> BookGenre:
         book_genre = self.get_book_genre_by_id(id)
-
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        data = super().get_json_data()
-
-        if not self._is_data_valid(data):
-            raise GeneralException.InvalidDataSent()
-
-        new_genre = data['genre']
+        new_genre = input_dto.genre
 
         if self._book_genre_already_exists(new_genre):
             raise BookGenreException.BookGenreAlreadyExists(new_genre)
