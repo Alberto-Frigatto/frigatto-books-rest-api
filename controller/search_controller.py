@@ -1,86 +1,31 @@
-from typing import Any, Sequence
+from typing import Sequence
 
 from sqlalchemy import Select, select
 
 from db import db
-from exception import BookGenreException, BookKindException, GeneralException
+from dto.input import SearchDTO
+from exception import BookGenreException, BookKindException
 from model import Book, BookGenre, BookKind
 
 from .controller import Controller
 
 
 class SearchController(Controller):
-    def search_books(self) -> Sequence[Book]:
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        search = super().get_json_data()
-
-        if not self._is_data_valid(search):
-            raise GeneralException.InvalidDataSent()
-
-        books = self._get_matched_books(search)
-
-        return books
-
-    def _is_data_valid(self, data: Any) -> bool:
-        if not isinstance(data, dict):
-            return False
-
-        if not self._is_query_valid(data.get('query', None)) and not self._is_filter_valid(
-            data.get('filter', None)
-        ):
-            return False
-
-        return True
-
-    def _is_query_valid(self, query: Any) -> bool:
-        return isinstance(query, str)
-
-    def _is_filter_valid(self, filter_data: Any) -> bool:
-        return (
-            isinstance(filter_data, dict)
-            and self._has_valid_filter_params(filter_data)
-            and self._is_price_filter_valid(filter_data.get('price', None))
-        )
-
-    def _has_valid_filter_params(self, filter_data: dict) -> bool:
-        param_types = [
-            {'name': 'id_kind', 'type': int},
-            {'name': 'id_genre', 'type': int},
-            {'name': 'release_year', 'type': int},
-            {'name': 'price', 'type': dict},
-        ]
-
-        return any(
-            (
-                param['name'] in filter_data.keys()
-                and isinstance(filter_data[param['name']], param['type'])
-            )
-            for param in param_types
-        )
-
-    def _is_price_filter_valid(self, price: Any) -> bool:
-        if price is None:
-            return True
-
-        valid_keys = ('min', 'max')
-
-        return any(key in price and isinstance(price[key], (int, float)) for key in valid_keys)
-
-    def _get_matched_books(self, search: dict) -> list[Book]:
-        sql_query = self._build_base_query(search)
+    def search_books(self, input_dto: SearchDTO) -> Sequence[Book]:
+        sql_query = self._build_base_query(input_dto.query, input_dto.filter)
         matched_books = self._get_books_from_query(sql_query)
 
         return matched_books
 
-    def _build_base_query(self, search: dict) -> Select[tuple[Book]]:
+    def _build_base_query(
+        self, search_query: str | None, search_filter: dict | None
+    ) -> Select[tuple[Book]]:
         sql_query = select(Book).order_by(Book.id)
 
-        if (search_query := search.get('query', None)) is not None:
+        if search_query is not None:
             sql_query = self._apply_search_query(sql_query, search_query)
 
-        if (search_filter := search.get('filter', None)) is not None:
+        if search_filter is not None:
             sql_query = self._apply_filters(sql_query, search_filter)
 
         return sql_query
