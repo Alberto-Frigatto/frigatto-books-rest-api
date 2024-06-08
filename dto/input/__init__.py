@@ -3,6 +3,7 @@ from .create_book_genre_dto import CreateBookGenreDTO
 from .create_book_img_dto import CreateBookImgDTO
 from .create_book_keyword_dto import CreateBookKeywordDTO
 from .create_book_kind_dto import CreateBookKindDTO
+from .search_dto import SearchDTO
 from .update_book_dto import UpdateBookDTO
 from .update_book_genre_dto import UpdateBookGenreDTO
 from .update_book_img_dto import UpdateBookImgDTO
