@@ -3,6 +3,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import SearchController
+from dto.input import SearchDTO
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import books_schema
@@ -16,7 +17,8 @@ controller = SearchController()
 class SearchersView(BaseResource):
     def get(self) -> Response:
         try:
-            matched_books = controller.search_books()
+            input_dto = SearchDTO()
+            matched_books = controller.search_books(input_dto)
         except ApiException as e:
             return ResponseError(e).json()
         else:
