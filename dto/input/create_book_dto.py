@@ -110,10 +110,6 @@ class CreateBookDTO(InputDTO):
         return (
             isinstance(keywords, str)
             and StrConstraints.not_empty(keywords.strip())
-            and StrConstraints.match_pattern(
-                keywords.strip(),
-                r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s\d-]',
-            )
             and all(
                 StrConstraints.between_size(keyword, min_size=3, max_size=20)
                 and StrConstraints.match_pattern(
