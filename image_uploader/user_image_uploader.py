@@ -1,40 +1,25 @@
 import os
-from typing import Any
 
 from flask import current_app
 from werkzeug.datastructures import FileStorage
-
-from exception import GeneralException
 
 from .image_uploader import ImageUploader
 
 
 class UserImageUploader(ImageUploader):
-    def __init__(self, image: FileStorage) -> None:
-        self._validate_file(image)
-
-        self._file = image
-        self._new_filename = self._generate_random_filename()
-
-    def _validate_file(self, file: Any) -> None:
-        if not self._is_file_valid(file):
-            raise GeneralException.InvalidDataSent()
-
-    def _is_file_valid(self, file: FileStorage) -> bool:
-        max_size = current_app.config['USER_PHOTOS_MAX_SIZE']
-
-        file.stream.seek(0, 2)
-        file_size = file.stream.tell()
-        file.stream.seek(0)
-
-        return self._has_allowed_extensions(file.filename) and file_size <= max_size
-
     def get_url(self) -> str:
-        return f'{self._base_url}/users/photos/{self._new_filename}'
+        return f'{super()._base_url}/users/photos/{self._new_filename}'
 
     def save(self) -> None:
         filename = os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], self._new_filename)
         self._file.save(filename)
+
+    @classmethod
+    def validate_file(cls, file: FileStorage) -> bool:
+        max_size = current_app.config['USER_PHOTOS_MAX_SIZE']
+        file_size = cls._get_file_size(file)
+
+        return cls._has_valid_extensions(file.filename) and file_size <= max_size
 
     @classmethod
     def delete(cls, img_url: str) -> None:
