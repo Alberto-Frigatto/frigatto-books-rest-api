@@ -3,11 +3,11 @@ from typing import Any
 
 class NumberConstraints:
     @staticmethod
-    def positive(value: int) -> bool:
+    def positive(value: int | float) -> bool:
         return value > 0
 
     @staticmethod
-    def between(value: int, *, min_value: int, max_value: int) -> bool:
+    def between(value: int | float, *, min_value: int, max_value: int) -> bool:
         return min_value <= value <= max_value
 
     @staticmethod
