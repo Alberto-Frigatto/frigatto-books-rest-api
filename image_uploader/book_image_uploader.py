@@ -7,10 +7,6 @@ from .image_uploader import ImageUploader
 
 
 class BookImageUploader(ImageUploader):
-    def __init__(self, image: FileStorage) -> None:
-        self._file = image
-        self._new_filename = self._generate_random_filename()
-
     def get_url(self) -> str:
         return f'{super()._base_url}/books/photos/{self._new_filename}'
 
@@ -19,18 +15,11 @@ class BookImageUploader(ImageUploader):
         self._file.save(filename)
 
     @classmethod
-    def validate_file(cls, file: FileStorage) -> None:
+    def validate_file(cls, file: FileStorage) -> bool:
         max_size = current_app.config['BOOK_PHOTOS_MAX_SIZE']
-
-        file.stream.seek(0, 2)
-        file_size = file.stream.tell()
-        file.stream.seek(0)
+        file_size = cls._get_file_size(file)
 
         return cls._has_valid_extensions(file.filename) and file_size <= max_size
-
-    @classmethod
-    def _has_valid_extensions(cls, filename: str) -> bool:
-        return filename.lower().endswith(cls._allowed_extensions)
 
     @classmethod
     def delete(cls, img_url: str) -> None:
