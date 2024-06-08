@@ -8,9 +8,12 @@ class ImageUploader(metaclass=ABCMeta):
     _base_url = 'http://localhost:5000'
     _allowed_extensions = '.png', '.jpg', '.jpeg'
 
-    @abstractmethod
     def __init__(self, image: FileStorage) -> None:
-        pass
+        self._file = image
+        self._new_filename = self._generate_random_filename()
+
+    def _generate_random_filename(self) -> str:
+        return f'{str(uuid.uuid4()).replace("-", "")}.jpg'
 
     @abstractmethod
     def get_url(self) -> bool:
@@ -20,11 +23,17 @@ class ImageUploader(metaclass=ABCMeta):
     def save(self) -> None:
         pass
 
-    def _generate_random_filename(self) -> str:
-        return f'{str(uuid.uuid4()).replace("-", "")}.jpg'
+    @classmethod
+    def _has_valid_extensions(cls, filename: str) -> bool:
+        return filename.lower().endswith(cls._allowed_extensions)
 
-    def _has_allowed_extensions(self, filename: str) -> bool:
-        return filename.lower().endswith(self._allowed_extensions)
+    @classmethod
+    def _get_file_size(cls, file: FileStorage) -> int:
+        file.stream.seek(0, 2)
+        file_size = file.stream.tell()
+        file.stream.seek(0)
+
+        return file_size
 
     @classmethod
     @abstractmethod
