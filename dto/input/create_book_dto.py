@@ -114,7 +114,19 @@ class CreateBookDTO(InputDTO):
                 keywords.strip(),
                 r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s\d-]',
             )
+            and all(
+                StrConstraints.between_size(keyword, min_size=3, max_size=20)
+                and StrConstraints.match_pattern(
+                    keyword, r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s\d]+$'
+                )
+                for keyword in self._extract_book_keywords(keywords)
+            )
         )
+
+    def _extract_book_keywords(self, keywords: str) -> list[str]:
+        separator = ';'
+
+        return [keyword.strip() for keyword in keywords.strip().split(separator) if keyword]
 
     def _is_id_book_kind_valid(self, id_book_kind: Any) -> bool:
         return NumberConstraints.is_int(id_book_kind) and NumberConstraints.positive(
@@ -132,7 +144,7 @@ class CreateBookDTO(InputDTO):
         )
 
     def _set_fields(self, data: dict) -> None:
-        form_data: dict[str, str | int | float] = data['form']
+        form_data: dict[str, str] = data['form']
         files_data: ImmutableMultiDict = data['files']
 
         self.name = form_data['name'].strip()
@@ -143,8 +155,3 @@ class CreateBookDTO(InputDTO):
         self.id_book_genre = int(form_data['id_book_genre'])
         self.keywords = self._extract_book_keywords(form_data['keywords'])
         self.imgs = [BookImageUploader(img) for img in files_data.getlist('imgs')]
-
-    def _extract_book_keywords(self, keywords: str) -> list[str]:
-        separator = ';'
-
-        return [keyword.strip() for keyword in keywords.strip().split(separator) if keyword]
