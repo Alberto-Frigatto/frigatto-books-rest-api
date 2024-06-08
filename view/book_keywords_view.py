@@ -4,6 +4,7 @@ from flask_restful import Api
 
 from api import BaseResource
 from controller import BookKeywordController
+from dto.input import CreateBookKeywordDTO
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import book_keywords_schema
@@ -18,7 +19,8 @@ class AddBookKeywordsView(BaseResource):
     @jwt_required()
     def post(self, id_book: str) -> Response:
         try:
-            new_book_keyword = controller.create_book_keyword(id_book)
+            input_dto = CreateBookKeywordDTO()
+            new_book_keyword = controller.create_book_keyword(id_book, input_dto)
         except ApiException as e:
             return ResponseError(e).json()
         else:
