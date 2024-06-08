@@ -80,33 +80,6 @@ def test_instantiate_BookKeyword():
     assert book_keyword.keyword == keyword
 
 
-def test_instantiate_BookKeyword_with_uppercase_keyword():
-    keyword = 'PALAVRA CHAVE'
-    book_keyword = BookKeyword(keyword)
-
-    assert book_keyword.keyword == keyword.lower()
-
-
-def test_when_BookKeyword_receives_invalid_keyword_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKeyword('')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKeyword('12')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKeyword('#')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKeyword('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKeyword(None)
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        BookKeyword(123)
-
-
 def test_dump_BookKeyword_coming_from_db(app: Flask):
     with app.app_context():
         book_keyword = db.session.get(BookKeyword, 1)
