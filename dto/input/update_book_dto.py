@@ -12,7 +12,7 @@ class UpdateBookDTO(InputDTO):
     author: str | None
     release_year: int | None
     id_book_kind: int | None
-    id_book_genre: str | None
+    id_book_genre: int | None
 
     def __init__(self) -> None:
         data = super()._get_form_data()
@@ -48,7 +48,6 @@ class UpdateBookDTO(InputDTO):
     def _is_name_valid(self, name: Any) -> bool:
         return name is None or (
             isinstance(name, str)
-            and StrConstraints.not_empty(name.strip())
             and StrConstraints.between_size(name.strip(), min_size=2, max_size=80)
             and StrConstraints.match_pattern(
                 name.strip(), r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s\d-]+$'
@@ -69,7 +68,6 @@ class UpdateBookDTO(InputDTO):
     def _is_author_valid(self, author: Any) -> bool:
         return author is None or (
             isinstance(author, str)
-            and StrConstraints.not_empty(author.strip())
             and StrConstraints.between_size(
                 author.strip(),
                 min_size=3,

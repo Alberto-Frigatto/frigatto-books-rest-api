@@ -67,7 +67,6 @@ class CreateBookDTO(InputDTO):
     def _is_name_valid(self, name: Any) -> bool:
         return (
             isinstance(name, str)
-            and StrConstraints.not_empty(name.strip())
             and StrConstraints.between_size(name.strip(), min_size=2, max_size=80)
             and StrConstraints.match_pattern(
                 name.strip(), r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s\d-]+$'
@@ -88,7 +87,6 @@ class CreateBookDTO(InputDTO):
     def _is_author_valid(self, author: Any) -> bool:
         return (
             isinstance(author, str)
-            and StrConstraints.not_empty(author.strip())
             and StrConstraints.between_size(
                 author.strip(),
                 min_size=3,

@@ -16,7 +16,6 @@ class UpdateBookGenreDTO(InputDTO):
 
         if not (
             isinstance(new_genre, str)
-            and StrConstraints.not_empty(new_genre)
             and StrConstraints.between_size(new_genre, min_size=3, max_size=30)
             and StrConstraints.match_pattern(
                 new_genre, r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s]+$'

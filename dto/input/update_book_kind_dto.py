@@ -16,7 +16,6 @@ class UpdateBookKindDTO(InputDTO):
 
         if not (
             isinstance(new_kind, str)
-            and StrConstraints.not_empty(new_kind)
             and StrConstraints.between_size(new_kind, min_size=3, max_size=30)
             and StrConstraints.match_pattern(
                 new_kind, r'^[a-zA-ZáàãâäéèẽêëíìîĩïóòõôöúùũûüÁÀÃÂÄÉÈẼÊËÍÌÎĨÏÓÒÕÔÖÚÙŨÛÜç\s]+$'
