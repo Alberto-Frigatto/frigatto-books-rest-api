@@ -16,7 +16,7 @@ class ImageUploader(metaclass=ABCMeta):
         return f'{str(uuid.uuid4()).replace("-", "")}.jpg'
 
     @abstractmethod
-    def get_url(self) -> bool:
+    def get_url(self) -> str:
         pass
 
     @abstractmethod
@@ -24,7 +24,7 @@ class ImageUploader(metaclass=ABCMeta):
         pass
 
     @classmethod
-    def _has_valid_extensions(cls, filename: str) -> bool:
+    def _has_valid_extensions(cls, filename: str | None) -> bool:
         return filename.lower().endswith(cls._allowed_extensions)
 
     @classmethod
