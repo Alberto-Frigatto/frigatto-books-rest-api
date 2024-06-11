@@ -1,4 +1,4 @@
-from .book_genres_view import book_genres_bp
+from .auth_view import auth_bp
 from .book_genre_view import book_genre_bp
 from .book_img_view import book_img_bp
 from .book_keyword_view import book_keyword_bp
