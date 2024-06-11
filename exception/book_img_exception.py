@@ -3,7 +3,7 @@ from .base import ApiException
 
 class BookImgException:
     class BookImgDoesntExists(ApiException):
-        def __init__(self, id: int) -> None:
+        def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'A imagem {id} não existe',

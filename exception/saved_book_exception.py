@@ -3,7 +3,7 @@ from .base import ApiException
 
 class SavedBookException:
     class BookArentSaved(ApiException):
-        def __init__(self, id: int) -> None:
+        def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'O livro {id} não foi salvo pelo usuário',
@@ -11,7 +11,7 @@ class SavedBookException:
             )
 
     class BookAlreadySaved(ApiException):
-        def __init__(self, id: int) -> None:
+        def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'O livro {id} já está salvo pelo usuário',

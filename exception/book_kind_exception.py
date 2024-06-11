@@ -11,7 +11,7 @@ class BookKindException:
             )
 
     class BookKindDoesntExists(ApiException):
-        def __init__(self, id: int) -> None:
+        def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'O tipo de livro {id} não existe',
@@ -19,7 +19,7 @@ class BookKindException:
             )
 
     class ThereAreLinkedBooksWithThisBookKind(ApiException):
-        def __init__(self, id: int) -> None:
+        def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'O tipo de livro {id} não pode ser excluído, pois há livros desse tipo',

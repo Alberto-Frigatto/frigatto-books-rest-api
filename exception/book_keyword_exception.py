@@ -3,7 +3,7 @@ from .base import ApiException
 
 class BookKeywordException:
     class BookKeywordDoesntExists(ApiException):
-        def __init__(self, id: int) -> None:
+        def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'A palavra chave {id} não existe',
