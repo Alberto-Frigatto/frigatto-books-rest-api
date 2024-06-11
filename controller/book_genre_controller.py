@@ -7,10 +7,8 @@ from dto.input import CreateBookGenreDTO, UpdateBookGenreDTO
 from exception import BookGenreException
 from model import Book, BookGenre
 
-from .controller import Controller
 
-
-class BookGenreController(Controller):
+class BookGenreController:
     def get_all_book_genres(self) -> Sequence[BookGenre]:
         query = select(BookGenre).order_by(BookGenre.id)
         book_genres = db.session.execute(query).scalars().all()
