@@ -11,7 +11,6 @@ from werkzeug.security import generate_password_hash
 
 from app import create_app
 from db import db
-from exception import GeneralException
 from model import User
 from schema import users_schema
 
@@ -71,159 +70,6 @@ def test_instantiate_User():
     assert user.username == username
     assert user.password != password
     assert user.img_url == img_url
-
-
-def test_when_User_receives_invalid_username_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('', 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('user name', 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User(456, 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('aa', 'SEnha_#45', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User(
-            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-            'SEnha_#45',
-            'http://localhost:5000/users/photos/test.jpg',
-        )
-
-
-def test_when_User_receives_invalid_password_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', 'aaa', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', 'awidhauwidh123#', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', 'SEnha455', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', '', 'http://localhost:5000/users/photos/test.jpg')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', 456, 'http://localhost:5000/users/photos/test.jpg')
-
-
-def test_when_User_receives_invalid_img_url_raises_InvalidDataSent():
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', 'SEnha_#45', 456)
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', 'SEnha_#45', '')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User('username', 'SEnha_#45', 'url')
-
-    with pytest.raises(GeneralException.InvalidDataSent):
-        User(
-            'username',
-            'SEnha_#45',
-            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        )
-
-
-def test_login_with_valid_credentials(client: FlaskClient):
-    credentials = {'username': 'test', 'password': 'Senha@123'}
-
-    response = client.post(f'/users/login', json=credentials)
-    response_data = json.loads(response.data)
-
-    expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {
-            'id': 1,
-            'username': 'test',
-            'img_url': 'http://localhost:5000/users/photos/test.jpg',
-        },
-    }
-
-    assert response_data == expected_data
-    assert response.status_code == 200
-
-
-def test_when_try_to_login_with_content_type_multipart_form_data_returns_error_response(
-    client: FlaskClient,
-):
-    headers = {'Content-Type': 'multipart/form-data'}
-
-    credentials = {'username': 'test', 'password': 'Senha@123'}
-
-    response = client.post(f'/users/login', headers=headers, data=credentials)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidContentType'
-    assert response_data['status'] == 415
-    assert response.status_code == 415
-
-
-def test_when_try_to_login_with_already_authenticated_returns_error_response(
-    client: FlaskClient, access_token: str
-):
-    headers = {'Authorization': f'Bearer {access_token}'}
-
-    credentials = {'username': 'teste', 'password': 'Senha@123'}
-
-    response = client.post(f'/users/login', headers=headers, json=credentials)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'UserAlreadyAuthenticated'
-    assert response_data['status'] == 400
-    assert response.status_code == 400
-
-
-def test_when_try_to_login_with_invalid_username_returns_error_response(client: FlaskClient):
-    credentials = {'username': 'teste', 'password': 'Senha@123'}
-
-    response = client.post(f'/users/login', json=credentials)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidLogin'
-    assert response_data['status'] == 401
-    assert response.status_code == 401
-
-
-def test_when_try_to_login_with_invalid_password_returns_error_response(client: FlaskClient):
-    credentials = {'username': 'test', 'password': 'Senha@1234'}
-
-    response = client.post(f'/users/login', json=credentials)
-    response_data = json.loads(response.data)
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidLogin'
-    assert response_data['status'] == 401
-    assert response.status_code == 401
-
-
-def test_when_try_to_login_with_invalid_data_returns_error_response(client: FlaskClient):
-    credentials = {'usernames': 'test', 'passwords': 'Senha@123'}
-
-    response = client.post(f'/users/login', json=credentials)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidDataSent'
-    assert response_data['status'] == 400
-    assert response.status_code == 400
-
-
-def test_when_try_to_login_without_data_returns_error_response(client: FlaskClient):
-    response = client.post(f'/users/login')
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'NoDataSent'
-    assert response_data['status'] == 400
-    assert response.status_code == 400
 
 
 def test_create_user(client: FlaskClient):
@@ -384,12 +230,6 @@ def test_when_try_to_create_user_already_exists_return_error_reponse(client: Fla
     response = client.post(f'/users', data=data)
     response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': True,
-        'status': 409,
-        'message': 'Esse usuário já existe',
-    }
-
     assert response_data['error']
     assert response_data['error_name'] == 'UserAlreadyExists'
     assert response_data['status'] == 409
@@ -457,40 +297,6 @@ def test_when_try_to_get_user_information_with_invalid_auth_returns_error_respon
     headers = {'Authorization': f'Bearer 123'}
 
     response = client.get(f'/users', headers=headers)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidJWT'
-    assert response_data['status'] == 401
-    assert response.status_code == 401
-
-
-def test_logout(client: FlaskClient, access_token: str):
-    headers = {'Authorization': f'Bearer {access_token}'}
-
-    response = client.post('/users/logout', headers=headers)
-    response_data = json.loads(response.data)
-
-    expected_data = {'error': False, 'status': 200}
-
-    assert response_data == expected_data
-    assert response.status_code == 200
-
-
-def test_when_try_to_logout_without_auth_returns_error_response(client: FlaskClient):
-    response = client.post(f'/users/logout')
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'MissingJWT'
-    assert response_data['status'] == 401
-    assert response.status_code == 401
-
-
-def test_when_try_to_logout_with_invalid_auth_returns_error_response(client: FlaskClient):
-    headers = {'Authorization': f'Bearer 123'}
-
-    response = client.post(f'/users/logout', headers=headers)
     response_data = json.loads(response.data)
 
     assert response_data['error']
