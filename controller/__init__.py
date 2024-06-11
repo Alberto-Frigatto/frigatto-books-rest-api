@@ -1,3 +1,4 @@
+from .auth_controller import AuthController
 from .book_controller import BookController
 from .book_genre_controller import BookGenreController
 from .book_img_controller import BookImgController
