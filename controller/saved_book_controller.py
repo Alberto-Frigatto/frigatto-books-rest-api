@@ -7,10 +7,8 @@ from db import db
 from exception import BookException, SavedBookException
 from model import Book, SavedBook
 
-from .controller import Controller
 
-
-class SavedBookController(Controller):
+class SavedBookController:
     def get_all_saved_books(self) -> Sequence[Book]:
         query = select(SavedBook).filter_by(id_user=current_user.id).order_by(SavedBook.id)
         saved_books = db.session.execute(query).scalars().all()
