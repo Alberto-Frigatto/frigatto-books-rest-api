@@ -1,24 +1,23 @@
 from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
-from flask_restful import Api
 
-from api import BaseResource
 from controller import SavedBookController
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import books_schema
 
-saved_books_bp = Blueprint('saved_books_bp', __name__)
-saved_books_api = Api(saved_books_bp)
-
-controller = SavedBookController()
+saved_book_bp = Blueprint('saved_book_bp', __name__)
 
 
-class SavedBooksView(BaseResource):
+class SavedBookView:
+    controller = SavedBookController()
+
+    @staticmethod
+    @saved_book_bp.post('/<id>/save')
     @jwt_required()
-    def post(self, id: str) -> Response:
+    def save_book(id: str) -> Response:
         try:
-            saved_book = controller.save_book(id)
+            saved_book = SavedBookView.controller.save_book(id)
         except ApiException as e:
             return ResponseError(e).json()
         else:
@@ -26,27 +25,22 @@ class SavedBooksView(BaseResource):
 
             return ResponseSuccess(data, 201).json()
 
-
-class SavedBooksListView(BaseResource):
+    @staticmethod
+    @saved_book_bp.get('/saved')
     @jwt_required()
-    def get(self) -> Response:
-        saved_books = controller.get_all_saved_books()
+    def get_all_saved_books() -> Response:
+        saved_books = SavedBookView.controller.get_all_saved_books()
         data = books_schema.dump(saved_books, many=True)
 
         return ResponseSuccess(data).json()
 
-
-class DeleteSavedBooksView(BaseResource):
+    @staticmethod
+    @saved_book_bp.delete('/saved/<id_book>')
     @jwt_required()
-    def delete(self, id_book: str) -> Response:
+    def delete_saved_book(id_book: str) -> Response:
         try:
-            controller.delete_saved_book(id_book)
+            SavedBookView.controller.delete_saved_book(id_book)
         except ApiException as e:
             return ResponseError(e).json()
         else:
             return ResponseSuccess().json()
-
-
-saved_books_api.add_resource(SavedBooksView, '/<id>/save')
-saved_books_api.add_resource(SavedBooksListView, '/saved')
-saved_books_api.add_resource(DeleteSavedBooksView, '/saved/<id_book>')
