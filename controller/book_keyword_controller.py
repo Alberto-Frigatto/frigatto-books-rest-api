@@ -1,14 +1,10 @@
-from typing import Any
-
 from db import db
 from dto.input import CreateBookKeywordDTO
 from exception import BookException, BookKeywordException
 from model import Book, BookKeyword
 
-from .controller import Controller
 
-
-class BookKeywordController(Controller):
+class BookKeywordController:
     def create_book_keyword(self, id_book: str, input_dto: CreateBookKeywordDTO) -> BookKeyword:
         book = self._get_book_by_id(id_book)
         book_keyword = BookKeyword(input_dto.keyword)
