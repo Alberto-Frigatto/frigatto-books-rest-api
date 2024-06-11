@@ -1,20 +1,18 @@
 import os
 
-from flask import current_app, request
+from flask import current_app
 
 from db import db
 from dto.input import CreateBookImgDTO, UpdateBookImgDTO
-from exception import BookException, BookImgException, GeneralException, ImageException
+from exception import BookException, BookImgException, ImageException
 from image_uploader import BookImageUploader
 from model import Book, BookImg
-
-from .controller import Controller
 
 file_path = str
 mimetype = str
 
 
-class BookImgController(Controller):
+class BookImgController:
     def get_book_photo(self, filename: str) -> tuple[file_path, mimetype]:
         if not self._is_file_name_valid(filename):
             raise ImageException.ImageNotFound(filename)
@@ -63,7 +61,7 @@ class BookImgController(Controller):
 
         return book_img
 
-    def update_book_img(self, *, id_book: str, id_img: str, input_dto: UpdateBookImgDTO) -> BookImg:
+    def update_book_img(self, id_book: str, id_img: str, input_dto: UpdateBookImgDTO) -> BookImg:
         book = self._get_book_by_id(id_book)
         book_img = self._get_book_img_by_id(id_img)
 
