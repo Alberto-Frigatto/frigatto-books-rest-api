@@ -7,10 +7,8 @@ from dto.input import SearchDTO
 from exception import BookGenreException, BookKindException
 from model import Book, BookGenre, BookKind
 
-from .controller import Controller
 
-
-class SearchController(Controller):
+class SearchController:
     def search_books(self, input_dto: SearchDTO) -> Sequence[Book]:
         sql_query = self._build_base_query(input_dto.query, input_dto.filter)
         matched_books = self._get_books_from_query(sql_query)
@@ -106,19 +104,19 @@ class SearchController(Controller):
 
         return sql_query
 
-    def _book_kind_exists(self, id: str) -> bool:
+    def _book_kind_exists(self, id: int | None) -> bool:
         book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
-            raise BookKindException.BookKindDoesntExists(id)
+            raise BookKindException.BookKindDoesntExists(str(id))
 
         return bool(book_kind)
 
-    def _book_genre_exists(self, id: str) -> bool:
+    def _book_genre_exists(self, id: int | None) -> bool:
         book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
-            raise BookGenreException.BookGenreDoesntExists(id)
+            raise BookGenreException.BookGenreDoesntExists(str(id))
 
         return bool(book_genre)
 
