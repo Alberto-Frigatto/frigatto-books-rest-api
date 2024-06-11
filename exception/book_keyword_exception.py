@@ -11,7 +11,7 @@ class BookKeywordException:
             )
 
     class BookDoesntOwnThisKeyword(ApiException):
-        def __init__(self, id_keyword: int, id_book: int) -> None:
+        def __init__(self, id_keyword: str, id_book: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'A palavra chave {id_keyword} não pertence ao livro {id_book}',
@@ -19,7 +19,7 @@ class BookKeywordException:
             )
 
     class BookMustHaveAtLeastOneKeyword(ApiException):
-        def __init__(self, id_book: int) -> None:
+        def __init__(self, id_book: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'O livro {id_book} deve ter pelo menos uma palavra chave',
