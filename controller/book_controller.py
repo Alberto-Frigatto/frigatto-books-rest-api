@@ -1,22 +1,18 @@
-import os
 from typing import Any, Sequence
 
-from flask import request
 from sqlalchemy import select
 
 from db import db
 from dto.input import CreateBookDTO, UpdateBookDTO
-from exception import BookException, BookGenreException, BookKindException, GeneralException
+from exception import BookException, BookGenreException, BookKindException
 from image_uploader import BookImageUploader
 from model import Book, BookGenre, BookImg, BookKeyword, BookKind
-
-from .controller import Controller
 
 file_path = str
 mimetype = str
 
 
-class BookController(Controller):
+class BookController:
     def get_all_books(self) -> Sequence[Book]:
         query = select(Book).order_by(Book.id)
         books = db.session.execute(query).scalars().all()
@@ -62,24 +58,24 @@ class BookController(Controller):
 
         return new_book
 
-    def _book_already_exists(self, name: str) -> bool:
+    def _book_already_exists(self, name: str | None) -> bool:
         query = select(Book).where(Book.name.ilike(name))
 
         return bool(db.session.execute(query).scalar())
 
-    def _get_book_kind_by_id(self, id: str) -> BookKind:
+    def _get_book_kind_by_id(self, id: int) -> BookKind:
         book_kind = db.session.get(BookKind, id)
 
         if book_kind is None:
-            raise BookKindException.BookKindDoesntExists(id)
+            raise BookKindException.BookKindDoesntExists(str(id))
 
         return book_kind
 
-    def _get_book_genre_by_id(self, id: str) -> BookGenre:
+    def _get_book_genre_by_id(self, id: int) -> BookGenre:
         book_genre = db.session.get(BookGenre, id)
 
         if book_genre is None:
-            raise BookGenreException.BookGenreDoesntExists(id)
+            raise BookGenreException.BookGenreDoesntExists(str(id))
 
         return book_genre
 
@@ -93,9 +89,7 @@ class BookController(Controller):
         db.session.commit()
 
     def update_book(self, id: str, input_dto: UpdateBookDTO) -> Book:
-        if self._are_there_name_in_request(input_dto.name) and self._book_already_exists(
-            input_dto.name
-        ):
+        if input_dto.name is not None and self._book_already_exists(input_dto.name):
             raise BookException.BookAlreadyExists(input_dto.name)
 
         book = self.get_book_by_id(id)
@@ -107,9 +101,6 @@ class BookController(Controller):
         db.session.commit()
 
         return book
-
-    def _are_there_name_in_request(self, name: str | None) -> bool:
-        return name is not None
 
     def _update_fields(self, book: Book, key: str, value: Any):
         if key not in ('id_book_kind', 'id_book_genre'):
