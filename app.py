@@ -2,13 +2,12 @@ from flask import Flask, request
 from flask_cors import CORS
 from sqlalchemy import text
 
-from api import api
 from db import db
 from exception import GeneralException
-from json_web_token import jwt
-from response import ResponseError
+from response import ResponseError, ResponseSuccess
 from routes import add_routes
 from schema import ma
+from security import jwt
 
 
 def create_app(test_config: bool = False) -> Flask:
@@ -42,7 +41,6 @@ def create_app(test_config: bool = False) -> Flask:
     CORS(app, supports_credentials=True)
 
     jwt.init_app(app)
-    api.init_app(app)
     db.init_app(app)
     ma.init_app(app)
 
@@ -74,6 +72,11 @@ def create_app(test_config: bool = False) -> Flask:
             for allowed_content_type in allowed_content_types
         ):
             return ResponseError(GeneralException.InvalidContentType()).json()
+
+    @app.before_request
+    def check_options_request():
+        if request.method == 'OPTIONS':
+            return ResponseSuccess().json()
 
     add_routes(app)
 
