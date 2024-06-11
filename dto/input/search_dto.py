@@ -7,7 +7,7 @@ from exception import GeneralException
 
 class SearchDTO(InputDTO):
     query: str | None = None
-    filter: dict[str, str | int | dict[str, float | None] | None] | None = {
+    filter: dict = {
         'id_kind': None,
         'id_genre': None,
         'release_year': None,
@@ -101,7 +101,7 @@ class SearchDTO(InputDTO):
         )
 
     def _set_fields(self, data: dict) -> None:
-        filter: dict[str, str | int | dict[str, float] | None] | None = data.get('filter')
+        filter: dict[str, Any | dict] | None = data.get('filter')
 
         self.query = data['query'].strip() if data.get('query') is not None else None
 
@@ -116,9 +116,9 @@ class SearchDTO(InputDTO):
                 int(filter['release_year']) if filter.get('release_year') is not None else None
             )
 
-            if isinstance(filter.get('price'), dict):
-                price: dict = filter.get('price')
+            price: dict | None = filter.get('price')
 
+            if isinstance(price, dict):
                 self.filter['price']['min'] = (
                     int(price['min']) if price.get('min') is not None else None
                 )

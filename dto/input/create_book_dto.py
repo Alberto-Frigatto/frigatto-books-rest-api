@@ -16,7 +16,7 @@ class CreateBookDTO(InputDTO):
     release_year: int
     keywords: list[str]
     id_book_kind: int
-    id_book_genre: str
+    id_book_genre: int
     imgs: list[BookImageUploader]
 
     def __init__(self) -> None:
