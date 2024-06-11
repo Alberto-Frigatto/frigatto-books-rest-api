@@ -1,45 +1,46 @@
 from flask import Blueprint, Response, send_file
 from flask_jwt_extended import jwt_required
-from flask_restful import Api
 
-from api import BaseResource
 from controller import BookImgController
 from dto.input import CreateBookImgDTO, UpdateBookImgDTO
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
 from schema import book_imgs_schema
 
-book_imgs_bp = Blueprint('books_imgs_bp', __name__)
-book_imgs_api = Api(book_imgs_bp)
-
-controller = BookImgController()
+book_img_bp = Blueprint('book_img_bp', __name__)
 
 
-class GetBooksPhotosView(BaseResource):
-    def get(self, filename: str) -> Response:
+class BookImgView:
+    controller = BookImgController()
+
+    @staticmethod
+    @book_img_bp.get('/photos/<filename>')
+    def get_book_img_by_filename(filename: str) -> Response:
         try:
-            file_path, mimetype = controller.get_book_photo(filename)
+            file_path, mimetype = BookImgView.controller.get_book_photo(filename)
         except ApiException as e:
             return ResponseError(e).json()
         else:
             return send_file(file_path, mimetype)
 
-
-class EditBooksPhotosView(BaseResource):
+    @staticmethod
+    @book_img_bp.delete('/<id_book>/photos/<id_img>')
     @jwt_required()
-    def delete(self, id_book: str, id_img: str) -> Response:
+    def delete_book_img(id_book: str, id_img: str) -> Response:
         try:
-            controller.delete_book_img(id_book, id_img)
+            BookImgView.controller.delete_book_img(id_book, id_img)
         except ApiException as e:
             return ResponseError(e).json()
         else:
             return ResponseSuccess().json()
 
+    @staticmethod
+    @book_img_bp.patch('/<id_book>/photos/<id_img>')
     @jwt_required()
-    def patch(self, id_book: str, id_img: str) -> Response:
+    def update_book_img(id_book: str, id_img: str) -> Response:
         try:
             input_dto = UpdateBookImgDTO()
-            updated_book_img = controller.update_book_img(
+            updated_book_img = BookImgView.controller.update_book_img(
                 id_book=id_book,
                 id_img=id_img,
                 input_dto=input_dto,
@@ -51,27 +52,16 @@ class EditBooksPhotosView(BaseResource):
 
             return ResponseSuccess(data).json()
 
-
-class AddBooksPhotosView(BaseResource):
+    @staticmethod
+    @book_img_bp.post('/<id_book>/photos')
     @jwt_required()
-    def post(self, id_book: str) -> Response:
+    def add_book_img(id_book: str) -> Response:
         try:
             input_dto = CreateBookImgDTO()
-            new_book_img = controller.create_book_img(id_book, input_dto)
+            new_book_img = BookImgView.controller.create_book_img(id_book, input_dto)
         except ApiException as e:
             return ResponseError(e).json()
         else:
             data = book_imgs_schema.dump(new_book_img)
 
             return ResponseSuccess(data, 201).json()
-
-
-book_imgs_api.add_resource(GetBooksPhotosView, '/photos/<filename>')
-book_imgs_api.add_resource(
-    EditBooksPhotosView,
-    '/<id_book>/photos/<id_img>',
-)
-book_imgs_api.add_resource(
-    AddBooksPhotosView,
-    '/<id_book>/photos',
-)
