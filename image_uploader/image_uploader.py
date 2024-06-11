@@ -25,7 +25,7 @@ class ImageUploader(metaclass=ABCMeta):
 
     @classmethod
     def _has_valid_extensions(cls, filename: str | None) -> bool:
-        return filename.lower().endswith(cls._allowed_extensions)
+        return isinstance(filename, str) and filename.lower().endswith(cls._allowed_extensions)
 
     @classmethod
     def _get_file_size(cls, file: FileStorage) -> int:
