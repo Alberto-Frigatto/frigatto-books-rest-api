@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from typing import Any
 
 import flask
 from flask import current_app, jsonify
@@ -16,6 +15,6 @@ class Response(metaclass=ABCMeta):
         for header, value in current_app.config['RESPONSE_HEADERS']:
             out_response.headers.add(header, value)
 
-        out_response.status = status
+        out_response.status = str(status)
 
         return out_response
