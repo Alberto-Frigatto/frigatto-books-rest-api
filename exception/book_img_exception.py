@@ -11,7 +11,7 @@ class BookImgException:
             )
 
     class BookDoesntOwnThisImg(ApiException):
-        def __init__(self, id_img: int, id_book: int) -> None:
+        def __init__(self, id_img: str, id_book: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'A imagem {id_img} não pertence ao livro {id_book}',
@@ -19,7 +19,7 @@ class BookImgException:
             )
 
     class BookMustHaveAtLeastOneImg(ApiException):
-        def __init__(self, id_book: int) -> None:
+        def __init__(self, id_book: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=f'O livro {id_book} deve ter pelo menos uma imagem',
