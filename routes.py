@@ -1,7 +1,7 @@
 from flask import Flask
 
 from view import (
-    book_genres_bp,
+    auth_bp,
     book_bp,
     book_genre_bp,
     book_img_bp,
@@ -14,7 +14,7 @@ from view import (
 
 
 def add_routes(app: Flask):
-    app.register_blueprint(book_kinds_bp, url_prefix='/bookKinds', name='book_kinds')
+    app.register_blueprint(auth_bp, url_prefix='/auth', name='auth')
     app.register_blueprint(book_bp, url_prefix='/books', name='books')
     app.register_blueprint(book_genre_bp, url_prefix='/bookGenres', name='book_genres')
     app.register_blueprint(book_img_bp, url_prefix='/books', name='book_imgs')
