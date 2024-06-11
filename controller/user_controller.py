@@ -1,44 +1,31 @@
 import os
-from typing import Any
 
-from flask import current_app, request
+from flask import current_app
 from flask_jwt_extended import create_access_token, current_user
 from sqlalchemy import select
 
 from db import db
+from dto.input import CreateUserDTO, UpdateUserDTO
 from exception import AuthException, GeneralException, ImageException, UserException
 from image_uploader import UserImageUploader
 from model import User
-
-from .controller import Controller
 
 token = str
 file_path = str
 mimetype = str
 
 
-class UserController(Controller):
-    def create_user(self) -> User:
+class UserController:
+    def create_user(self, input_dto: CreateUserDTO) -> User:
         if self._user_already_authenticated():
             raise AuthException.UserAlreadyAuthenticated()
 
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        form_data = request.form.to_dict()
-        files_data = request.files.to_dict()
-
-        if not self._is_data_valid_for_create(form_data, files_data):
-            raise GeneralException.InvalidDataSent()
-
-        if self._user_already_exists(form_data['username']):
+        if self._user_already_exists(input_dto.username):
             raise UserException.UserAlreadyExists()
 
-        image_uploader = UserImageUploader(files_data['img'])
+        new_user = User(input_dto.username, input_dto.password, input_dto.img.get_url())
 
-        new_user = User(form_data['username'], form_data['password'], image_uploader.get_url())
-
-        image_uploader.save()
+        input_dto.img.save()
 
         db.session.add(new_user)
         db.session.commit()
@@ -48,49 +35,10 @@ class UserController(Controller):
     def _user_already_authenticated(self) -> bool:
         return bool(current_user)
 
-    def _is_data_valid_for_create(self, form_data: dict, files_data: dict) -> bool:
-        return (
-            all(key in form_data.keys() for key in ('username', 'password'))
-            and 'img' in files_data.keys()
-        )
-
-    def _user_already_exists(self, username: Any) -> bool:
-        query = select(User).where(
-            User.username.ilike(username.strip().lower() if isinstance(username, str) else username)
-        )
+    def _user_already_exists(self, username: str) -> bool:
+        query = select(User).where(User.username.ilike(username))
 
         return bool(db.session.execute(query).scalar())
-
-    def login(self) -> tuple[User, token]:
-        if self._user_already_authenticated():
-            raise AuthException.UserAlreadyAuthenticated()
-
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        data = super().get_json_data()
-
-        if not self._is_data_valid_for_login(data):
-            raise GeneralException.InvalidDataSent()
-
-        user = self._get_user_by_username(data['username'])
-
-        if user is None or not user.check_password(data['password']):
-            raise AuthException.InvalidLogin()
-
-        access_token = create_access_token(user)
-
-        return user, access_token
-
-    def _is_data_valid_for_login(self, data: Any) -> bool:
-        return isinstance(data, dict) and all(
-            key in data.keys() for key in ('username', 'password')
-        )
-
-    def _get_user_by_username(self, username: Any) -> User | None:
-        query = select(User).filter_by(username=username)
-
-        return db.session.execute(query).scalar()
 
     def get_current_user(self) -> User:
         return current_user
@@ -108,51 +56,24 @@ class UserController(Controller):
             and os.path.isfile(os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename))
         )
 
-    def update_user(self) -> User:
-        if not super().are_there_data():
-            raise GeneralException.NoDataSent()
-
-        form_data = request.form.to_dict()
-        files_data = request.files.to_dict()
-
-        if not self._is_data_valid_for_update(form_data, files_data):
-            raise GeneralException.InvalidDataSent()
-
-        if self._are_there_username_in_request(form_data) and self._user_already_exists(
-            form_data['username']
-        ):
+    def update_user(self, input_dto: UpdateUserDTO) -> User:
+        if input_dto.username is not None and self._user_already_exists(input_dto.username):
             raise UserException.UserAlreadyExists()
 
-        for key, value in list(form_data.items()):
-            getattr(current_user, f'update_{key.strip()}')(value)
+        for key, value in input_dto.__dict__.items():
+            if value is not None and key != 'img':
+                getattr(current_user, f'update_{key.strip()}')(value)
 
-        if self._are_there_image_in_request(files_data):
-            self._replace_image_and_img_url(files_data)
+        if input_dto.img is not None:
+            self._swap_book_img(current_user.img_url, input_dto.img)
 
         db.session.commit()
 
         return current_user
 
-    def _is_data_valid_for_update(self, form_data: dict, files_data: dict) -> bool:
-        files_keys = files_data.keys()
+    def _swap_book_img(self, old_img_url: str, new_img: UserImageUploader) -> None:
+        UserImageUploader.delete(old_img_url)
 
-        allowed_keys = ('username', 'password')
+        current_user.update_img_url(new_img.get_url())
 
-        return 'img_url' not in files_keys and (
-            all(key in allowed_keys for key in form_data.keys()) or 'img' in files_keys
-        )
-
-    def _replace_image_and_img_url(self, files_data: dict) -> None:
-        image_uploader = UserImageUploader(files_data['img'])
-
-        UserImageUploader.delete(current_user.img_url)
-
-        current_user.update_img_url(image_uploader.get_url())
-
-        image_uploader.save()
-
-    def _are_there_image_in_request(self, files_data: dict) -> bool:
-        return 'img' in files_data.keys()
-
-    def _are_there_username_in_request(self, form_data: dict) -> bool:
-        return 'username' in form_data.keys()
+        new_img.save()
