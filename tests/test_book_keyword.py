@@ -1,4 +1,5 @@
 import json
+from tkinter import N
 
 import pytest
 from flask import Flask
@@ -8,7 +9,6 @@ from sqlalchemy import text
 
 from app import create_app
 from db import db
-from exception import GeneralException
 from model import BookKeyword, User
 from schema.book_keywords_schema import BookKeywordsSchema
 
@@ -91,7 +91,7 @@ def test_dump_BookKeyword_coming_from_db(app: Flask):
         assert dump_book_keyword == expected_dump_book_keyword
 
 
-def test_add_book_keyword_in_lowercase(client: FlaskClient, access_token: str):
+def test_add_book_keyword_in_lowercase(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     book_id = 1
@@ -106,8 +106,18 @@ def test_add_book_keyword_in_lowercase(client: FlaskClient, access_token: str):
     assert response_data == expected_data
     assert response.status_code == 201
 
+    with app.app_context():
+        book_keyword = db.session.get(BookKeyword, 4)
 
-def test_add_book_keyword_with_space_and_in_uppercase(client: FlaskClient, access_token: str):
+        assert book_keyword is not None
+        assert book_keyword.id == 4
+        assert book_keyword.keyword == 'emocionante'
+        assert book_keyword.id_book == 1
+
+
+def test_add_book_keyword_with_space_and_in_uppercase(
+    client: FlaskClient, access_token: str, app: Flask
+):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     book_id = 1
@@ -125,6 +135,14 @@ def test_add_book_keyword_with_space_and_in_uppercase(client: FlaskClient, acces
 
     assert response_data == expected_data
     assert response.status_code == 201
+
+    with app.app_context():
+        book_keyword = db.session.get(BookKeyword, 4)
+
+        assert book_keyword is not None
+        assert book_keyword.id == 4
+        assert book_keyword.keyword == 'muito emocionante'
+        assert book_keyword.id_book == 1
 
 
 def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, access_token: str):
@@ -258,7 +276,7 @@ def test_when_try_to_add_book_keyword_with_invalid_auth_return_error_response(cl
     assert response.status_code == 401
 
 
-def test_delete_book_keyword(client: FlaskClient, access_token: str):
+def test_delete_book_keyword(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     book_id = 1
@@ -271,6 +289,11 @@ def test_delete_book_keyword(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book_keyword = db.session.get(BookKeyword, 2)
+
+        assert book_keyword is None
 
 
 def test_when_try_to_delete_book_keyword_without_auth_return_error_response(client: FlaskClient):
