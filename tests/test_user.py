@@ -72,7 +72,7 @@ def test_instantiate_User():
     assert user.img_url == img_url
 
 
-def test_create_user(client: FlaskClient):
+def test_create_user(client: FlaskClient, app: Flask):
     data = {
         'username': 'frigatto',
         'password': 'SEnha#45',
@@ -92,6 +92,16 @@ def test_create_user(client: FlaskClient):
     assert response_data['data']['img_url'].startswith('http://localhost:5000/users/photos/')
     assert response_data['data']['img_url'].endswith('.jpg')
     assert response.status_code == 201
+
+    with app.app_context():
+        new_user = db.session.get(User, 3)
+
+        assert new_user is not None
+        assert new_user.id == 3
+        assert new_user.username == 'frigatto'
+        assert new_user.password != 'SEnha#45'
+        assert new_user.img_url.startswith('http://localhost:5000/users/photos/')
+        assert new_user.img_url.endswith('.jpg')
 
 
 def test_when_try_to_create_user_already_authenticated_returns_error_response(
@@ -305,7 +315,7 @@ def test_when_try_to_get_user_information_with_invalid_auth_returns_error_respon
     assert response.status_code == 401
 
 
-def test_update_username(client: FlaskClient, access_token: str):
+def test_update_username(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -328,6 +338,15 @@ def test_update_username(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        updated_user = db.session.get(User, 1)
+
+        assert updated_user is not None
+        assert updated_user.id == 1
+        assert updated_user.username == 'andrade'
+        assert updated_user.password != 'Senha@123'
+        assert updated_user.img_url == 'http://localhost:5000/users/photos/test.jpg'
 
 
 def test_when_try_to_update_user_without_auth_returns_error_response(client: FlaskClient):
@@ -431,7 +450,7 @@ def test_when_try_to_update_username_to_username_already_exists_return_error_res
 
 def test_update_password(client: FlaskClient, access_token: str, app: Flask):
     with app.app_context():
-        old_password = db.session.get(User, 1).password
+        old_user = db.session.get(User, 1)
 
     headers = {
         'Authorization': f'Bearer {access_token}',
@@ -453,12 +472,18 @@ def test_update_password(client: FlaskClient, access_token: str, app: Flask):
         },
     }
 
-    with app.app_context():
-        new_password = db.session.get(User, 1).password
-
-    assert old_password != new_password
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        updated_user = db.session.get(User, 1)
+
+        assert updated_user is not None
+        assert updated_user.id == 1
+        assert updated_user.username == 'test'
+        assert old_user is not None
+        assert updated_user.password != old_user.password
+        assert updated_user.img_url == 'http://localhost:5000/users/photos/test.jpg'
 
 
 def test_when_try_to_update_password_with_invalid_data_returns_error_response(
@@ -534,6 +559,15 @@ def test_update_image(client: FlaskClient, app: Flask):
     assert response_data['data']['username'] == 'lopes'
     assert response_data['data']['img_url'] != 'http://localhost:5000/users/photos/test2.jpg'
     assert response.status_code == 200
+
+    with app.app_context():
+        updated_user = db.session.get(User, 2)
+
+        assert updated_user is not None
+        assert updated_user.id == 2
+        assert updated_user.username == 'lopes'
+        assert updated_user.password != 'Senha@123'
+        assert updated_user.img_url != 'http://localhost:5000/users/photos/test2.jpg'
 
 
 def test_when_try_to_update_image_with_invalid_data_returns_error_response(
