@@ -1,48 +1,25 @@
-from typing import Sequence
-
 from flask_jwt_extended import current_user
-from sqlalchemy import select
 
-from db import db
-from exception import BookException, SavedBookException
 from model import Book, SavedBook
+from repository import BookRepository, SavedBookRepository
 
 
 class SavedBookController:
-    def get_all_saved_books(self) -> Sequence[Book]:
-        query = select(SavedBook).filter_by(id_user=current_user.id).order_by(SavedBook.id)
-        saved_books = db.session.execute(query).scalars().all()
+    saved_book_repository = SavedBookRepository()
+    book_repository = BookRepository()
 
-        return [saved_book.book for saved_book in saved_books]
+    def get_all_saved_books(self) -> list[Book]:
+        return self.saved_book_repository.get_all()
 
     def save_book(self, id: str) -> Book:
-        saved_books = self.get_all_saved_books()
-        book = self._get_book_by_id(id)
-
-        if book in saved_books:
-            raise SavedBookException.BookAlreadySaved(id)
-
+        book = self.book_repository.get_by_id(id)
         saved_book = SavedBook(current_user.id, book)
 
-        db.session.add(saved_book)
-        db.session.commit()
-
-        return book
-
-    def _get_book_by_id(self, id: str) -> Book:
-        book = db.session.get(Book, id)
-
-        if book is None:
-            raise BookException.BookDoesntExists(id)
+        self.saved_book_repository.add(saved_book)
 
         return book
 
     def delete_saved_book(self, id_book: str) -> None:
-        saved_books = self.get_all_saved_books()
-        book = self._get_book_by_id(id_book)
-
-        if book not in saved_books:
-            raise SavedBookException.BookArentSaved(id_book)
-
-        db.session.delete(book)
-        db.session.commit()
+        book = self.book_repository.get_by_id(id_book)
+        saved_book = self.saved_book_repository.get_by_id_book(book.id)
+        self.saved_book_repository.delete(saved_book)
