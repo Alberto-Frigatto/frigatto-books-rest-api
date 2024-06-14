@@ -122,7 +122,7 @@ def test_when_try_to_get_book_img_with_invalid_filename_returns_error_response(c
     assert response.status_code == 404
 
 
-def test_delete_book_img(client: FlaskClient, access_token: str):
+def test_delete_book_img(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     book_id = 1
@@ -135,6 +135,11 @@ def test_delete_book_img(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book_img = db.session.get(BookImg, 2)
+
+        assert book_img is None
 
 
 def test_when_try_to_delete_last_book_img_returns_error_response(
@@ -233,7 +238,7 @@ def test_when_try_to_delete_book_img_with_invalid_auth_returns_error_response(cl
     assert response.status_code == 401
 
 
-def test_update_book_img(client: FlaskClient, access_token: str):
+def test_update_book_img(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -253,6 +258,14 @@ def test_update_book_img(client: FlaskClient, access_token: str):
     assert response_data['data']['id'] == 2
     assert response_data['data']['img_url'] != 'http://localhost:5000/users/photos/test2.jpg'
     assert response.status_code == 200
+
+    with app.app_context():
+        book_img = db.session.get(BookImg, 2)
+
+        assert book_img is not None
+        assert book_img.id == 2
+        assert book_img.img_url != 'http://localhost:5000/users/photos/test2.jpg'
+        assert book_img.id_book == 1
 
 
 def test_when_try_to_update_book_img_does_not_exists_returns_error_response(
@@ -425,7 +438,7 @@ def test_when_try_to_update_book_img_with_invalid_auth_returns_error_response(cl
     assert response.status_code == 401
 
 
-def test_add_book_img(client: FlaskClient, access_token: str):
+def test_add_book_img(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -445,6 +458,15 @@ def test_add_book_img(client: FlaskClient, access_token: str):
     assert response_data['data']['img_url'].startswith('http://localhost:5000/books/photos/')
     assert response_data['data']['img_url'].endswith('.jpg')
     assert response.status_code == 201
+
+    with app.app_context():
+        book_img = db.session.get(BookImg, 4)
+
+        assert book_img is not None
+        assert book_img.id == 4
+        assert book_img.img_url.startswith('http://localhost:5000/books/photos/')
+        assert book_img.img_url.endswith('.jpg')
+        assert book_img.id_book == 1
 
 
 def test_when_try_to_create_book_img_from_book_does_not_exists_returns_error_response(
