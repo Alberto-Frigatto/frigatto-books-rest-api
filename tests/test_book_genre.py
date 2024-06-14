@@ -94,7 +94,7 @@ def test_when_try_to_get_book_genre_does_not_exists_return_error_response(client
     assert response.status_code == 404
 
 
-def test_create_book_genre(client: FlaskClient, access_token: str):
+def test_create_book_genre(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     new_book_genre = {'genre': 'genrele'}
@@ -110,6 +110,13 @@ def test_create_book_genre(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 201
+
+    with app.app_context():
+        new_book_genre = db.session.get(BookGenre, 3)
+
+        assert new_book_genre is not None
+        assert new_book_genre.id == 3
+        assert new_book_genre.genre == 'genrele'
 
 
 def test_when_try_to_create_book_genre_with_content_type_multipart_form_data_returns_error_response(
@@ -229,7 +236,7 @@ def test_when_try_to_create_book_genre_with_invalid_auth_return_error_response(c
     assert response.status_code == 401
 
 
-def test_update_book_genre(client: FlaskClient, access_token: str):
+def test_update_book_genre(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     updates = {'genre': 'batman'}
@@ -247,6 +254,13 @@ def test_update_book_genre(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        updated_book_genre = db.session.get(BookGenre, 2)
+
+        assert updated_book_genre is not None
+        assert updated_book_genre.id == 2
+        assert updated_book_genre.genre == 'batman'
 
 
 def test_when_try_to_update_book_genre_with_content_type_multipart_form_data_returns_error_response(
@@ -386,7 +400,7 @@ def test_when_try_to_update_book_genre_with_invalid_auth_return_error_response(c
     assert response.status_code == 401
 
 
-def test_delete_book_genre(client: FlaskClient, access_token: str):
+def test_delete_book_genre(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     book_genre_id = 2
@@ -398,6 +412,11 @@ def test_delete_book_genre(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        deleted_book_genre = db.session.get(BookGenre, 2)
+
+        assert deleted_book_genre is None
 
 
 def test_when_try_to_delete_book_genre_have_linked_book_return_error_response(
