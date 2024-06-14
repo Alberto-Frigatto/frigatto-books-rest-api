@@ -8,7 +8,7 @@ from sqlalchemy import text
 
 from app import create_app
 from db import db
-from model import SavedBook, User
+from model import Book, SavedBook, User
 
 
 @pytest.fixture()
@@ -108,7 +108,7 @@ def test_return_all_saved_books(client: FlaskClient, access_token: str):
     assert response.status_code == 200
 
 
-def test_save_book(client: FlaskClient, access_token: str):
+def test_save_book(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     response = client.post('/books/2/save', headers=headers)
@@ -132,6 +132,15 @@ def test_save_book(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 201
+
+    with app.app_context():
+        saved_book = db.session.get(SavedBook, 2)
+
+        assert saved_book is not None
+        assert saved_book.id == 2
+        assert saved_book.book == db.session.get(Book, 2)
+        user = db.session.get(User, 1)
+        assert user is not None and saved_book.id_user == user.id
 
 
 def test_when_try_to_save_book_with_id_from_book_already_saved_return_error_response(
@@ -184,7 +193,7 @@ def test_when_try_to_save_book_with_invalid_auth_return_error_response(client: F
     assert response.status_code == 401
 
 
-def test_delete_saved_book(client: FlaskClient, access_token: str):
+def test_delete_saved_book(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     response = client.delete('/books/saved/1', headers=headers)
@@ -197,6 +206,11 @@ def test_delete_saved_book(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        saved_book = db.session.get(SavedBook, 2)
+
+        assert saved_book is None
 
 
 def test_when_try_to_delete_saved_book_with_id_from_book_arent_saved_return_error_response(
