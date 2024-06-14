@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash
 
 from app import create_app
 from db import db
-from model import Book, User
+from model import Book, BookGenre, BookImg, BookKeyword, BookKind, User
 from schema import books_schema
 
 
@@ -109,7 +109,7 @@ def test_instantiate_Book():
     assert book.release_year == release_year
 
 
-def test_create_book(client: FlaskClient, access_token: str):
+def test_create_book(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     new_book = {
@@ -132,11 +132,13 @@ def test_create_book(client: FlaskClient, access_token: str):
     assert not response_data['error']
     assert response_data['status'] == 201
     assert response_data['data']
+    assert response_data['data']['id'] == 3
     assert response_data['data']['name'] == 'O Poderoso Chefão'
     assert response_data['data']['price'] == 49.99
     assert response_data['data']['author'] == 'Mario Puzo'
     assert response_data['data']['release_year'] == 1969
     assert response_data['data']['book_genre'] == {'genre': 'fábula', 'id': 1}
+    assert response_data['data']['book_kind'] == {'kind': 'físico', 'id': 1}
     assert len(response_data['data']['book_imgs']) == 2
     assert all(isinstance(book_img['id'], int) for book_img in response_data['data']['book_imgs'])
     assert response_data['data']['book_keywords'] == [
@@ -145,6 +147,20 @@ def test_create_book(client: FlaskClient, access_token: str):
         {'id': 6, 'keyword': 'itália'},
     ]
     assert response.status_code == 201
+
+    with app.app_context():
+        book = db.session.get(Book, 3)
+
+        assert book is not None
+        assert book.id == 3
+        assert book.name == 'O Poderoso Chefão'
+        assert float(book.price) == 49.99
+        assert book.author == 'Mario Puzo'
+        assert book.release_year == 1969
+        assert book.book_genre == db.session.get(BookGenre, 1)
+        assert book.book_kind == db.session.get(BookKind, 1)
+        assert book.book_imgs == [db.session.get(BookImg, i) for i in (3, 4)]
+        assert book.book_keywords == [db.session.get(BookKeyword, i) for i in range(4, 7)]
 
 
 def test_when_try_to_create_book_without_data_returns_error_response(
@@ -1256,16 +1272,21 @@ def test_delete_book(client: FlaskClient, access_token: str, app: Flask):
     response_data = json.loads(response.data)
 
     expected_data = {'error': False, 'status': 200}
+
+    assert response_data == expected_data
+    assert response.status_code == 200
+
     with app.app_context():
+        book = db.session.get(Book, 2)
+
+        assert book is None
+
         assert not db.session.execute(
             text("SELECT COUNT(*) FROM book_imgs WHERE id_book = :id"), {'id': book_id}
         ).scalar()
         assert not db.session.execute(
             text("SELECT COUNT(*) FROM book_keywords WHERE id_book = :id"), {'id': book_id}
         ).scalar()
-
-    assert response_data == expected_data
-    assert response.status_code == 200
 
 
 def test_when_try_to_delete_book_does_not_exists_return_error_message(
@@ -1331,7 +1352,7 @@ def test_dump_Book_coming_from_db(app: Flask):
         assert dump_book == expected_dump_book
 
 
-def test_update_name(client: FlaskClient, access_token: str):
+def test_update_name(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -1362,6 +1383,20 @@ def test_update_name(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book = db.session.get(Book, 2)
+
+        assert book is not None
+        assert book.id == 2
+        assert book.name == 'NOVO livro 123'
+        assert float(book.price) == 89.67
+        assert book.author == 'Timothy Zhan'
+        assert book.release_year == 1993
+        assert book.book_genre == db.session.get(BookGenre, 1)
+        assert book.book_kind == db.session.get(BookKind, 1)
+        assert book.book_imgs == [db.session.get(BookImg, 2)]
+        assert book.book_keywords == [db.session.get(BookKeyword, 3)]
 
 
 def test_when_try_to_update_name_with_invalid_data_returns_error_response(
@@ -1436,7 +1471,7 @@ def test_when_try_to_update_name_with_name_from_existing_book_returns_error_resp
     assert response.status_code == 409
 
 
-def test_update_price(client: FlaskClient, access_token: str):
+def test_update_price(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -1467,6 +1502,20 @@ def test_update_price(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book = db.session.get(Book, 2)
+
+        assert book is not None
+        assert book.id == 2
+        assert book.name == 'Herdeiro do Império'
+        assert float(book.price) == 1000
+        assert book.author == 'Timothy Zhan'
+        assert book.release_year == 1993
+        assert book.book_genre == db.session.get(BookGenre, 1)
+        assert book.book_kind == db.session.get(BookKind, 1)
+        assert book.book_imgs == [db.session.get(BookImg, 2)]
+        assert book.book_keywords == [db.session.get(BookKeyword, 3)]
 
 
 def test_when_try_to_update_price_with_invalid_data_returns_error_response(
@@ -1520,7 +1569,7 @@ def test_when_try_to_update_price_with_invalid_data_returns_error_response(
     assert response.status_code == 400
 
 
-def test_update_author(client: FlaskClient, access_token: str):
+def test_update_author(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -1551,6 +1600,20 @@ def test_update_author(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book = db.session.get(Book, 2)
+
+        assert book is not None
+        assert book.id == 2
+        assert book.name == 'Herdeiro do Império'
+        assert float(book.price) == 89.67
+        assert book.author == 'William Shakespeare'
+        assert book.release_year == 1993
+        assert book.book_genre == db.session.get(BookGenre, 1)
+        assert book.book_kind == db.session.get(BookKind, 1)
+        assert book.book_imgs == [db.session.get(BookImg, 2)]
+        assert book.book_keywords == [db.session.get(BookKeyword, 3)]
 
 
 def test_when_try_to_update_author_with_invalid_data_returns_error_response(
@@ -1604,7 +1667,7 @@ def test_when_try_to_update_author_with_invalid_data_returns_error_response(
     assert response.status_code == 400
 
 
-def test_update_release_year(client: FlaskClient, access_token: str):
+def test_update_release_year(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -1635,6 +1698,20 @@ def test_update_release_year(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book = db.session.get(Book, 2)
+
+        assert book is not None
+        assert book.id == 2
+        assert book.name == 'Herdeiro do Império'
+        assert float(book.price) == 89.67
+        assert book.author == 'Timothy Zhan'
+        assert book.release_year == 2014
+        assert book.book_genre == db.session.get(BookGenre, 1)
+        assert book.book_kind == db.session.get(BookKind, 1)
+        assert book.book_imgs == [db.session.get(BookImg, 2)]
+        assert book.book_keywords == [db.session.get(BookKeyword, 3)]
 
 
 def test_when_try_to_update_release_year_with_invalid_data_returns_error_response(
@@ -1698,7 +1775,7 @@ def test_when_try_to_update_release_year_with_invalid_data_returns_error_respons
     assert response.status_code == 400
 
 
-def test_update_book_kind(client: FlaskClient, access_token: str):
+def test_update_book_kind(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -1729,6 +1806,20 @@ def test_update_book_kind(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book = db.session.get(Book, 2)
+
+        assert book is not None
+        assert book.id == 2
+        assert book.name == 'Herdeiro do Império'
+        assert float(book.price) == 89.67
+        assert book.author == 'Timothy Zhan'
+        assert book.release_year == 1993
+        assert book.book_genre == db.session.get(BookGenre, 1)
+        assert book.book_kind == db.session.get(BookKind, 2)
+        assert book.book_imgs == [db.session.get(BookImg, 2)]
+        assert book.book_keywords == [db.session.get(BookKeyword, 3)]
 
 
 def test_when_try_to_update_book_kind_with_invalid_data_returns_error_response(
@@ -1782,7 +1873,7 @@ def test_when_try_to_update_book_kind_with_invalid_data_returns_error_response(
     assert response.status_code == 400
 
 
-def test_update_book_genre(client: FlaskClient, access_token: str):
+def test_update_book_genre(client: FlaskClient, access_token: str, app: Flask):
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'multipart/form-data',
@@ -1813,6 +1904,20 @@ def test_update_book_genre(client: FlaskClient, access_token: str):
 
     assert response_data == expected_data
     assert response.status_code == 200
+
+    with app.app_context():
+        book = db.session.get(Book, 2)
+
+        assert book is not None
+        assert book.id == 2
+        assert book.name == 'Herdeiro do Império'
+        assert float(book.price) == 89.67
+        assert book.author == 'Timothy Zhan'
+        assert book.release_year == 1993
+        assert book.book_genre == db.session.get(BookGenre, 2)
+        assert book.book_kind == db.session.get(BookKind, 1)
+        assert book.book_imgs == [db.session.get(BookImg, 2)]
+        assert book.book_keywords == [db.session.get(BookKeyword, 3)]
 
 
 def test_when_try_to_update_book_genre_with_invalid_data_returns_error_response(
