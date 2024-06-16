@@ -385,9 +385,7 @@ def test_when_try_to_search_books_with_invalid_query_returns_error_response(
 
 def test_search_books_by_release_year_filter(client: FlaskClient):
     search = {
-        'filter': {
-            'release_year': 1912,
-        }
+        'release_year': 1912,
     }
 
     response = client.get('/search', json=search)
@@ -418,9 +416,7 @@ def test_search_books_by_release_year_filter(client: FlaskClient):
     assert response.status_code == 200
 
     search = {
-        'filter': {
-            'release_year': 1949,
-        }
+        'release_year': 1949,
     }
 
     response = client.get('/search', json=search)
@@ -456,9 +452,7 @@ def test_search_books_with_release_year_filter_doesnt_match_any_book_returns_emp
     client: FlaskClient,
 ):
     search = {
-        'filter': {
-            'release_year': 2015,
-        }
+        'release_year': 2015,
     }
 
     response = client.get('/search', json=search)
@@ -478,9 +472,7 @@ def test_when_try_to_search_books_with_invalid_release_year_filter_returns_error
     client: FlaskClient,
 ):
     search = {
-        'filter': {
-            'release_year': 'asd',
-        }
+        'release_year': 'asd',
     }
 
     response = client.get('/search', json=search)
@@ -506,11 +498,9 @@ def test_when_try_to_search_books_with_invalid_release_year_filter_returns_error
     assert response.status_code == 400
 
 
-def test_search_books_by_kind_using_id_kind_filter(client: FlaskClient):
+def test_search_books_by_kind_using_id_book_kind_filter(client: FlaskClient):
     search = {
-        'filter': {
-            'id_kind': 1,
-        }
+        'id_book_kind': 1,
     }
 
     response = client.get('/search', json=search)
@@ -558,9 +548,7 @@ def test_search_books_by_kind_using_id_kind_filter(client: FlaskClient):
     assert response.status_code == 200
 
     search = {
-        'filter': {
-            'id_kind': 3,
-        }
+        'id_book_kind': 3,
     }
 
     response = client.get('/search', json=search)
@@ -606,13 +594,11 @@ def test_search_books_by_kind_using_id_kind_filter(client: FlaskClient):
     assert response.status_code == 200
 
 
-def test_when_try_to_search_books_with_invalid_id_kind_filter_returns_error_response(
+def test_when_try_to_search_books_with_invalid_id_book_kind_filter_returns_error_response(
     client: FlaskClient,
 ):
     search = {
-        'filter': {
-            'id_kind': 'asd',
-        }
+        'id_book_kind': 'asd',
     }
 
     response = client.get('/search', json=search)
@@ -624,9 +610,7 @@ def test_when_try_to_search_books_with_invalid_id_kind_filter_returns_error_resp
     assert response.status_code == 400
 
     search = {
-        'filter': {
-            'id_kind': [1, 2, 3],
-        }
+        'id_book_kind': [1, 2, 3],
     }
 
     response = client.get('/search', json=search)
@@ -638,13 +622,11 @@ def test_when_try_to_search_books_with_invalid_id_kind_filter_returns_error_resp
     assert response.status_code == 400
 
 
-def test_when_try_to_search_books_with_id_kind_filter_doesnt_exists_returns_error_response(
+def test_when_try_to_search_books_with_id_book_kind_filter_doesnt_exists_returns_error_response(
     client: FlaskClient,
 ):
     search = {
-        'filter': {
-            'id_kind': 100,
-        }
+        'id_book_kind': 100,
     }
 
     response = client.get('/search', json=search)
@@ -656,11 +638,9 @@ def test_when_try_to_search_books_with_id_kind_filter_doesnt_exists_returns_erro
     assert response.status_code == 404
 
 
-def test_search_books_by_genre_using_id_genre_filter(client: FlaskClient):
+def test_search_books_by_genre_using_id_book_genre_filter(client: FlaskClient):
     search = {
-        'filter': {
-            'id_genre': 3,
-        }
+        'id_book_genre': 3,
     }
 
     response = client.get('/search', json=search)
@@ -724,13 +704,11 @@ def test_search_books_by_genre_using_id_genre_filter(client: FlaskClient):
     assert response.status_code == 200
 
 
-def test_when_try_to_search_books_with_invalid_id_genre_filter_returns_error_response(
+def test_when_try_to_search_books_with_invalid_id_book_genre_filter_returns_error_response(
     client: FlaskClient,
 ):
     search = {
-        'filter': {
-            'id_genre': 'asd',
-        }
+        'id_book_genre': 'asd',
     }
 
     response = client.get('/search', json=search)
@@ -742,9 +720,7 @@ def test_when_try_to_search_books_with_invalid_id_genre_filter_returns_error_res
     assert response.status_code == 400
 
     search = {
-        'filter': {
-            'id_genre': [1, 2, 3],
-        }
+        'id_book_genre': [1, 2, 3],
     }
 
     response = client.get('/search', json=search)
@@ -756,13 +732,11 @@ def test_when_try_to_search_books_with_invalid_id_genre_filter_returns_error_res
     assert response.status_code == 400
 
 
-def test_when_try_to_search_books_with_id_genre_filter_doesnt_exists_returns_error_response(
+def test_when_try_to_search_books_with_id_book_genre_filter_doesnt_exists_returns_error_response(
     client: FlaskClient,
 ):
     search = {
-        'filter': {
-            'id_genre': 100,
-        }
+        'id_book_genre': 100,
     }
 
     response = client.get('/search', json=search)
@@ -775,13 +749,7 @@ def test_when_try_to_search_books_with_id_genre_filter_doesnt_exists_returns_err
 
 
 def test_search_books_by_min_price_using_min_price_filter(client: FlaskClient):
-    search = {
-        'filter': {
-            'price': {
-                'min': 50,
-            }
-        }
-    }
+    search = {'min_price': 50}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -830,7 +798,7 @@ def test_search_books_by_min_price_using_min_price_filter(client: FlaskClient):
 def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_response(
     client: FlaskClient,
 ):
-    search = {'filter': {'price': {'min': 'asd'}}}
+    search = {'min_price': 'asd'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -840,13 +808,7 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
     assert response_data['error_name'] == 'InvalidDataSent'
     assert response.status_code == 400
 
-    search = {
-        'filter': {
-            'price': {
-                'min': [1, 2, 3],
-            }
-        }
-    }
+    search = {'min_price': [1, 2, 3]}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -858,13 +820,7 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
 
 
 def test_search_books_by_max_price_using_max_price_filter(client: FlaskClient):
-    search = {
-        'filter': {
-            'price': {
-                'max': 46,
-            }
-        }
-    }
+    search = {'max_price': 46}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -929,7 +885,7 @@ def test_search_books_by_max_price_using_max_price_filter(client: FlaskClient):
 def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_response(
     client: FlaskClient,
 ):
-    search = {'filter': {'price': {'max': 'asd'}}}
+    search = {'max_price': 'asd'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -939,13 +895,7 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
     assert response_data['error_name'] == 'InvalidDataSent'
     assert response.status_code == 400
 
-    search = {
-        'filter': {
-            'price': {
-                'max': [1, 2, 3],
-            }
-        }
-    }
+    search = {'max_price': [1, 2, 3]}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -957,14 +907,7 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
 
 
 def test_search_books_by_min_and_max_price_using_min_and_max_price_filter(client: FlaskClient):
-    search = {
-        'filter': {
-            'price': {
-                'min': 40,
-                'max': 60,
-            }
-        }
-    }
+    search = {'min_price': 40, 'max_price': 60}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -1009,66 +952,6 @@ def test_search_books_by_min_and_max_price_using_min_and_max_price_filter(client
 
     assert response_data == expected_data
     assert response.status_code == 200
-
-
-def test_when_try_to_search_books_with_invalid_price_filter_returns_error_response(
-    client: FlaskClient,
-):
-    search = {
-        'filter': {
-            'price': 'asd',
-        }
-    }
-
-    response = client.get('/search', json=search)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
-    assert response.status_code == 400
-
-    search = {
-        'filter': {
-            'price': [1, 2, 3],
-        }
-    }
-
-    response = client.get('/search', json=search)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
-    assert response.status_code == 400
-
-
-def test_when_try_to_search_books_with_invalid_filter_returns_error_response(
-    client: FlaskClient,
-):
-    search = {
-        'filter': 'asd',
-    }
-
-    response = client.get('/search', json=search)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
-    assert response.status_code == 400
-
-    search = {
-        'filter': [1, 2, 3],
-    }
-
-    response = client.get('/search', json=search)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
-    assert response.status_code == 400
 
 
 def test_when_try_to_search_books_with_invalid_data_returns_error_response(
