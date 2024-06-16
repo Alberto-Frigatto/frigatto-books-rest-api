@@ -2,7 +2,7 @@ import os
 
 from flask import current_app
 
-from dto.input import CreateBookImgDTO, UpdateBookImgDTO
+from dto.input import BookImgInputDTO
 from exception import BookImgException, ImageException
 from image_uploader import BookImageUploader
 from model import Book, BookImg
@@ -29,7 +29,7 @@ class BookImgController:
             and os.path.isfile(os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], filename))
         )
 
-    def create_book_img(self, id_book: str, input_dto: CreateBookImgDTO) -> BookImg:
+    def create_book_img(self, id_book: str, input_dto: BookImgInputDTO) -> BookImg:
         book = self.book_repository.get_by_id(id_book)
         book_img = BookImg(input_dto.img.get_url())
         book_img.id_book = book.id
@@ -56,7 +56,7 @@ class BookImgController:
     def _does_book_have_one_img(self, book: Book) -> bool:
         return len(book.book_imgs) == 1
 
-    def update_book_img(self, id_book: str, id_img: str, input_dto: UpdateBookImgDTO) -> BookImg:
+    def update_book_img(self, id_book: str, id_img: str, input_dto: BookImgInputDTO) -> BookImg:
         book = self.book_repository.get_by_id(id_book)
         book_img = self.book_img_repository.get_by_id(id_img)
 

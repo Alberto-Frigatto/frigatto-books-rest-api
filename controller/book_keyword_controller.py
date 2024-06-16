@@ -1,4 +1,4 @@
-from dto.input import CreateBookKeywordDTO
+from dto.input import BookKeywordInputDTO
 from exception import BookKeywordException
 from model import Book, BookKeyword
 from repository import BookKeywordRepository, BookRepository
@@ -8,7 +8,7 @@ class BookKeywordController:
     book_keyword_repository = BookKeywordRepository()
     book_repository = BookRepository()
 
-    def create_book_keyword(self, id_book: str, input_dto: CreateBookKeywordDTO) -> BookKeyword:
+    def create_book_keyword(self, id_book: str, input_dto: BookKeywordInputDTO) -> BookKeyword:
         book = self.book_repository.get_by_id(id_book)
         book_keyword = BookKeyword(input_dto.keyword)
         book_keyword.id_book = book.id

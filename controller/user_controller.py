@@ -3,7 +3,7 @@ import os
 from flask import current_app
 from flask_jwt_extended import current_user
 
-from dto.input import CreateUserDTO, UpdateUserDTO
+from dto.input import CreateUserInputDTO, UpdateUserInputDTO
 from exception import AuthException, ImageException
 from image_uploader import UserImageUploader
 from model import User
@@ -16,7 +16,7 @@ mimetype = str
 class UserController:
     repository = UserRepository()
 
-    def create_user(self, input_dto: CreateUserDTO) -> User:
+    def create_user(self, input_dto: CreateUserInputDTO) -> User:
         if self._user_already_authenticated():
             raise AuthException.UserAlreadyAuthenticated()
 
@@ -45,7 +45,7 @@ class UserController:
             os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename)
         )
 
-    def update_user(self, input_dto: UpdateUserDTO) -> User:
+    def update_user(self, input_dto: UpdateUserInputDTO) -> User:
         for key, value in input_dto.__dict__.items():
             if value is not None and key != 'img':
                 getattr(current_user, f'update_{key.strip()}')(value)

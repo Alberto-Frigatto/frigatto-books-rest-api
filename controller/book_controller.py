@@ -1,6 +1,6 @@
 from typing import Any, Sequence
 
-from dto.input import CreateBookDTO, UpdateBookDTO
+from dto.input import CreateBookInputDTO, UpdateBookInputDTO
 from model import Book, BookImg, BookKeyword
 from repository import BookGenreRepository, BookKindRepository, BookRepository
 
@@ -16,7 +16,7 @@ class BookController:
     def get_book_by_id(self, id: str) -> Book:
         return self.book_repository.get_by_id(id)
 
-    def create_book(self, input_dto: CreateBookDTO) -> Book:
+    def create_book(self, input_dto: CreateBookInputDTO) -> Book:
         new_book = Book(
             input_dto.name,
             input_dto.price,
@@ -44,7 +44,7 @@ class BookController:
     def delete_book(self, id: str) -> None:
         self.book_repository.delete(id)
 
-    def update_book(self, id: str, input_dto: UpdateBookDTO) -> Book:
+    def update_book(self, id: str, input_dto: UpdateBookInputDTO) -> Book:
         book = self.get_book_by_id(id)
 
         for key, value in input_dto.__dict__.items():
