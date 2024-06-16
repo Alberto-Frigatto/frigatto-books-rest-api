@@ -2,8 +2,9 @@ from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
 
 from controller import BookKindController
-from dto.input import CreateBookKindDTO, UpdateBookKindDTO
+from dto.input import BookKindInputDTO
 from exception.base import ApiException
+from request import Request
 from response import ResponseError, ResponseSuccess
 from schema import book_kinds_schema
 
@@ -38,7 +39,7 @@ class BookKindView:
     @jwt_required()
     def create_book_kind() -> Response:
         try:
-            input_dto = CreateBookKindDTO()
+            input_dto = BookKindInputDTO(**Request.get_json())
             new_book_kind = BookKindView.controller.create_book_kind(input_dto)
         except ApiException as e:
             return ResponseError(e).json()
@@ -63,7 +64,7 @@ class BookKindView:
     @jwt_required()
     def update_book_kind(id: str) -> Response:
         try:
-            input_dto = UpdateBookKindDTO()
+            input_dto = BookKindInputDTO(**Request.get_json())
             updated_book_kind = BookKindView.controller.update_book_kind(id, input_dto)
         except ApiException as e:
             return ResponseError(e).json()

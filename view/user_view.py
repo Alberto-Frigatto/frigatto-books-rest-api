@@ -2,8 +2,9 @@ from flask import Blueprint, Response, send_file
 from flask_jwt_extended import jwt_required
 
 from controller import UserController
-from dto.input import CreateUserDTO, UpdateUserDTO
+from dto.input import CreateUserInputDTO, UpdateUserInputDTO
 from exception.base import ApiException
+from request import Request
 from response import ResponseError, ResponseSuccess
 from schema import users_schema
 
@@ -27,7 +28,7 @@ class UserView:
     @jwt_required(optional=True)
     def create_user() -> Response:
         try:
-            input_dto = CreateUserDTO()
+            input_dto = CreateUserInputDTO(**Request.get_form(), **Request.get_files())
             new_user = UserView.controller.create_user(input_dto)
         except ApiException as e:
             return ResponseError(e).json()
@@ -41,7 +42,7 @@ class UserView:
     @jwt_required()
     def update_user() -> Response:
         try:
-            input_dto = UpdateUserDTO()
+            input_dto = UpdateUserInputDTO(**Request.get_form(), **Request.get_files())
             updated_user = UserView.controller.update_user(input_dto)
         except ApiException as e:
             return ResponseError(e).json()
