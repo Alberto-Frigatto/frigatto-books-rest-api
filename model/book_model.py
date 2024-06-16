@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.mysql import DECIMAL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -11,7 +13,7 @@ class Book(db.Model):
 
     id: Mapped[int_pk]
     name: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
-    price: Mapped[float] = mapped_column(DECIMAL(6, 2), nullable=False)
+    price: Mapped[Decimal] = mapped_column(DECIMAL(6, 2), nullable=False)
     author: Mapped[str] = mapped_column(String(40), nullable=False)
     release_year: Mapped[int] = mapped_column(nullable=False)
 
@@ -29,7 +31,7 @@ class Book(db.Model):
     book_keywords: Mapped[list[BookKeyword]] = relationship(cascade='all, delete, delete-orphan')
     book_imgs: Mapped[list[BookImg]] = relationship(cascade='all, delete, delete-orphan')
 
-    def __init__(self, name: str, price: float, author: str, release_year: int) -> None:
+    def __init__(self, name: str, price: Decimal, author: str, release_year: int) -> None:
         self.name = name
         self.price = price
         self.author = author
@@ -38,7 +40,7 @@ class Book(db.Model):
     def update_name(self, name: str) -> None:
         self.name = name
 
-    def update_price(self, price: float) -> None:
+    def update_price(self, price: Decimal) -> None:
         self.price = price
 
     def update_author(self, author: str) -> None:
