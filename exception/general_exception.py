@@ -1,3 +1,5 @@
+from typing import Any
+
 from .base import ApiException
 
 
@@ -35,9 +37,9 @@ class GeneralException:
             )
 
     class InvalidDataSent(ApiException):
-        def __init__(self) -> None:
+        def __init__(self, message: Any = 'Os dados enviados são inválidos') -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Os dados enviados são inválidos',
+                message=message,
                 status=400,
             )
