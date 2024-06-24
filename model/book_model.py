@@ -26,10 +26,14 @@ class Book(db.Model):
         nullable=False,
     )
 
-    book_genre: Mapped[BookGenre] = relationship()
-    book_kind: Mapped[BookKind] = relationship()
-    book_keywords: Mapped[list[BookKeyword]] = relationship(cascade='all, delete, delete-orphan')
-    book_imgs: Mapped[list[BookImg]] = relationship(cascade='all, delete, delete-orphan')
+    book_genre: Mapped[BookGenre] = relationship(lazy="immediate")
+    book_kind: Mapped[BookKind] = relationship(lazy="immediate")
+    book_keywords: Mapped[list[BookKeyword]] = relationship(
+        cascade='all, delete, delete-orphan', lazy="immediate"
+    )
+    book_imgs: Mapped[list[BookImg]] = relationship(
+        cascade='all, delete, delete-orphan', lazy="immediate"
+    )
 
     def __init__(self, name: str, price: Decimal, author: str, release_year: int) -> None:
         self.name = name
