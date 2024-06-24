@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required
 
 from controller import BookImgController
 from dto.input import BookImgInputDTO
+from dto.output import BookImgOutputDTO
 from exception.base import ApiException
 from request import Request
 from response import ResponseError, ResponseSuccess
-from schema import book_imgs_schema
 
 book_img_bp = Blueprint('book_img_bp', __name__)
 
@@ -45,7 +45,7 @@ class BookImgView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = book_imgs_schema.dump(updated_book_img)
+            data = BookImgOutputDTO.dump(updated_book_img)
 
             return ResponseSuccess(data).json()
 
@@ -59,6 +59,6 @@ class BookImgView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = book_imgs_schema.dump(new_book_img)
+            data = BookImgOutputDTO.dump(new_book_img)
 
             return ResponseSuccess(data, 201).json()
