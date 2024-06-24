@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required, set_access_cookies, unset_jwt_cooki
 
 from controller import AuthController
 from dto.input import LoginInputDTO
+from dto.output import UserOutputDTO
 from exception.base import ApiException
 from request import Request
 from response import ResponseError, ResponseSuccess
-from schema import users_schema
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -24,7 +24,7 @@ class AuthView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = users_schema.dump(user)
+            data = UserOutputDTO.dump(user)
 
             response = ResponseSuccess(data).json()
 
