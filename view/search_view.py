@@ -2,10 +2,10 @@ from flask import Blueprint, Response
 
 from controller import SearchController
 from dto.input import SearchInputDTO
+from dto.output import BookOutputDTO
 from exception.base import ApiException
 from request import Request
 from response import ResponseError, ResponseSuccess
-from schema import books_schema
 
 search_bp = Blueprint('search_bp', __name__)
 
@@ -22,6 +22,6 @@ class SearchView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(matched_books, many=True)
+            data = BookOutputDTO.dump_many(matched_books)
 
             return ResponseSuccess(data).json()
