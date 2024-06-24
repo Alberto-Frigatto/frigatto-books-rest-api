@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required
 
 from controller import BookKeywordController
 from dto.input import BookKeywordInputDTO
+from dto.output import BookKeywordOutputDTO
 from exception.base import ApiException
 from request import Request
 from response import ResponseError, ResponseSuccess
-from schema import book_keywords_schema
 
 book_keyword_bp = Blueprint('book_keyword_bp', __name__)
 
@@ -24,7 +24,7 @@ class BookKeywordView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = book_keywords_schema.dump(new_book_keyword)
+            data = BookKeywordOutputDTO.dump(new_book_keyword)
 
             return ResponseSuccess(data, 201).json()
 
