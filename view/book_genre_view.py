@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required
 
 from controller import BookGenreController
 from dto.input import BookGenreInputDTO
+from dto.output import BookGenreOutputDTO
 from exception.base import ApiException
 from request import Request
 from response import ResponseError, ResponseSuccess
-from schema import book_genres_schema
 
 book_genre_bp = Blueprint('book_genre_bp', __name__)
 
@@ -18,7 +18,7 @@ class BookGenreView:
     @book_genre_bp.get('')
     def get_all_book_genres() -> Response:
         book_genres = BookGenreView.controller.get_all_book_genres()
-        data = book_genres_schema.dump(book_genres, many=True)
+        data = BookGenreOutputDTO.dump_many(book_genres)
 
         return ResponseSuccess(data).json()
 
@@ -30,7 +30,7 @@ class BookGenreView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = book_genres_schema.dump(book_genre)
+            data = BookGenreOutputDTO.dump(book_genre)
 
             return ResponseSuccess(data).json()
 
@@ -44,7 +44,7 @@ class BookGenreView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = book_genres_schema.dump(new_book_genre)
+            data = BookGenreOutputDTO.dump(new_book_genre)
 
             return ResponseSuccess(data, 201).json()
 
@@ -69,6 +69,6 @@ class BookGenreView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = book_genres_schema.dump(updated_book_genre)
+            data = BookGenreOutputDTO.dump(updated_book_genre)
 
             return ResponseSuccess(data).json()
