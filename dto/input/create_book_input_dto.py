@@ -62,7 +62,7 @@ class CreateBookInputDTO(InputDTO):
         cls, imgs: list[FileStorage]
     ) -> list[BookImageUploader]:
         if not 1 <= len(imgs) <= 5:
-            raise ValueError('Book must contains at least 1 and a maximum 5 image')
+            raise ValueError('Book must contains at least 1 and a maximum 5 images')
 
         if not all(BookImageUploader.validate_file(img) for img in imgs):
             raise ValueError('img is larger than 7MB or is not a image')
