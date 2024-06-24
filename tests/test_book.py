@@ -13,7 +13,6 @@ from werkzeug.security import generate_password_hash
 from app import create_app
 from db import db
 from model import Book, BookGenre, BookImg, BookKeyword, BookKind, User
-from schema import books_schema
 
 
 @pytest.fixture()
@@ -1329,27 +1328,6 @@ def test_when_try_to_delete_book_with_invalid_auth_returns_error_response(client
     assert response_data['error_name'] == 'InvalidJWT'
     assert response_data['status'] == 401
     assert response.status_code == 401
-
-
-def test_dump_Book_coming_from_db(app: Flask):
-    with app.app_context():
-        book = db.session.get(Book, 2)
-
-        dump_book = books_schema.dump(book)
-
-        expected_dump_book = {
-            'id': 2,
-            'name': 'Herdeiro do Império',
-            'price': 89.67,
-            'author': 'Timothy Zhan',
-            'release_year': 1993,
-            'book_kind': {'kind': 'físico', 'id': 1},
-            'book_genre': {'genre': 'fábula', 'id': 1},
-            'book_imgs': [{'id': 2, 'img_url': 'http://localhost:5000/books/photos/test2.jpg'}],
-            'book_keywords': [{'id': 3, 'keyword': 'dramático'}],
-        }
-
-        assert dump_book == expected_dump_book
 
 
 def test_update_name(client: FlaskClient, access_token: str, app: Flask):

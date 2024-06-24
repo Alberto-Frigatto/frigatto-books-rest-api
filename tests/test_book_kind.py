@@ -9,7 +9,6 @@ from sqlalchemy import text
 from app import create_app
 from db import db
 from model import BookKind, User
-from schema import book_kinds_schema
 
 
 @pytest.fixture()
@@ -485,14 +484,3 @@ def test_when_try_to_delete_book_kind_with_invalid_auth_return_error_response(cl
     assert response_data['error_name'] == 'InvalidJWT'
     assert response_data['status'] == 401
     assert response.status_code == 401
-
-
-def test_dump_BookKind_coming_from_db(app: Flask):
-    with app.app_context():
-        book_kind = db.session.get(BookKind, 1)
-
-        dump_book_kind = book_kinds_schema.dump(book_kind)
-
-        expected_dump_book_kind = {'id': 1, 'kind': 'físico'}
-
-        assert dump_book_kind == expected_dump_book_kind

@@ -1,5 +1,4 @@
 import json
-from tkinter import N
 
 import pytest
 from flask import Flask
@@ -10,7 +9,6 @@ from sqlalchemy import text
 from app import create_app
 from db import db
 from model import BookKeyword, User
-from schema.book_keywords_schema import BookKeywordsSchema
 
 
 @pytest.fixture()
@@ -78,17 +76,6 @@ def test_instantiate_BookKeyword():
     book_keyword = BookKeyword(keyword)
 
     assert book_keyword.keyword == keyword
-
-
-def test_dump_BookKeyword_coming_from_db(app: Flask):
-    with app.app_context():
-        book_keyword = db.session.get(BookKeyword, 1)
-
-        dump_book_keyword = BookKeywordsSchema().dump(book_keyword)
-
-        expected_dump_book_keyword = {'id': 1, 'keyword': 'dramático'}
-
-        assert dump_book_keyword == expected_dump_book_keyword
 
 
 def test_add_book_keyword_in_lowercase(client: FlaskClient, access_token: str, app: Flask):

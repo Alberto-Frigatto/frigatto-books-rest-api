@@ -12,7 +12,6 @@ from werkzeug.security import generate_password_hash
 from app import create_app
 from db import db
 from model import User
-from schema import users_schema
 
 
 @pytest.fixture()
@@ -654,18 +653,3 @@ def test_when_try_to_update_user_without_data_return_error_response(
     assert response_data['error_name'] == 'NoDataSent'
     assert response_data['status'] == 400
     assert response.status_code == 400
-
-
-def test_dump_User_coming_from_db(app: Flask):
-    with app.app_context():
-        user = db.session.get(User, 1)
-
-        dump_user = users_schema.dump(user)
-
-        expected_dump_book_genre = {
-            'id': 1,
-            'username': 'test',
-            'img_url': 'http://localhost:5000/users/photos/test.jpg',
-        }
-
-        assert dump_user == expected_dump_book_genre

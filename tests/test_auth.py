@@ -12,7 +12,6 @@ from werkzeug.security import generate_password_hash
 from app import create_app
 from db import db
 from model import User
-from schema import users_schema
 
 
 @pytest.fixture()

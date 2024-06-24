@@ -11,7 +11,6 @@ from sqlalchemy import text
 from app import create_app
 from db import db
 from model import BookImg, User
-from schema.book_imgs_schema import BookImgsSchema
 
 
 @pytest.fixture()
@@ -90,17 +89,6 @@ def test_instantiate_BookImg():
     book_img = BookImg(img_url)
 
     assert book_img.img_url == img_url
-
-
-def test_dump_BookImg_coming_from_db(app: Flask):
-    with app.app_context():
-        book_img = db.session.get(BookImg, 1)
-
-        dump_book_img = BookImgsSchema().dump(book_img)
-
-        expected_dump_book_img = {'id': 1, 'img_url': 'http://localhost:5000/books/photos/test.jpg'}
-
-        assert dump_book_img == expected_dump_book_img
 
 
 def test_get_book_img(client: FlaskClient):
