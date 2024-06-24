@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required
 
 from controller import UserController
 from dto.input import CreateUserInputDTO, UpdateUserInputDTO
+from dto.output import UserOutputDTO
 from exception.base import ApiException
 from request import Request
 from response import ResponseError, ResponseSuccess
-from schema import users_schema
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -19,7 +19,7 @@ class UserView:
     @jwt_required()
     def get_user_info() -> Response:
         current_user = UserView.controller.get_current_user()
-        data = users_schema.dump(current_user)
+        data = UserOutputDTO.dump(current_user)
 
         return ResponseSuccess(data).json()
 
@@ -33,7 +33,7 @@ class UserView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = users_schema.dump(new_user)
+            data = UserOutputDTO.dump(new_user)
 
             return ResponseSuccess(data, 201).json()
 
@@ -47,7 +47,7 @@ class UserView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = users_schema.dump(updated_user)
+            data = UserOutputDTO.dump(updated_user)
             return ResponseSuccess(data).json()
 
     @staticmethod
