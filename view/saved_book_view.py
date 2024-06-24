@@ -2,9 +2,9 @@ from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
 
 from controller import SavedBookController
+from dto.output import BookOutputDTO
 from exception.base import ApiException
 from response import ResponseError, ResponseSuccess
-from schema import books_schema
 
 saved_book_bp = Blueprint('saved_book_bp', __name__)
 
@@ -21,7 +21,7 @@ class SavedBookView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(saved_book)
+            data = BookOutputDTO.dump(saved_book)
 
             return ResponseSuccess(data, 201).json()
 
@@ -30,7 +30,7 @@ class SavedBookView:
     @jwt_required()
     def get_all_saved_books() -> Response:
         saved_books = SavedBookView.controller.get_all_saved_books()
-        data = books_schema.dump(saved_books, many=True)
+        data = BookOutputDTO.dump_many(saved_books)
 
         return ResponseSuccess(data).json()
 
