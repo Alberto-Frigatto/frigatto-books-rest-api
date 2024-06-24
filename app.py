@@ -6,7 +6,6 @@ from db import db
 from exception import GeneralException
 from response import ResponseError, ResponseSuccess
 from routes import add_routes
-from schema import ma
 from security import jwt
 
 
@@ -42,7 +41,6 @@ def create_app(test_config: bool = False) -> Flask:
 
     jwt.init_app(app)
     db.init_app(app)
-    ma.init_app(app)
 
     @app.before_request
     def check_db_connection():
