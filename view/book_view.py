@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required
 
 from controller import BookController
 from dto.input import CreateBookInputDTO, UpdateBookInputDTO
+from dto.output import BookOutputDTO
 from exception.base import ApiException
 from request import Request
 from response import ResponseError, ResponseSuccess
-from schema import books_schema
 
 book_bp = Blueprint('book_bp', __name__)
 
@@ -18,7 +18,7 @@ class BookView:
     @book_bp.get('')
     def get_all_books() -> Response:
         books = BookView.controller.get_all_books()
-        data = books_schema.dump(books, many=True)
+        data = BookOutputDTO.dump_many(books)
 
         return ResponseSuccess(data).json()
 
@@ -30,7 +30,7 @@ class BookView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(book)
+            data = BookOutputDTO.dump(book)
 
             return ResponseSuccess(data).json()
 
@@ -45,7 +45,7 @@ class BookView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(new_book)
+            data = BookOutputDTO.dump(new_book)
 
             return ResponseSuccess(data, 201).json()
 
@@ -70,6 +70,6 @@ class BookView:
         except ApiException as e:
             return ResponseError(e).json()
         else:
-            data = books_schema.dump(updated_book)
+            data = BookOutputDTO.dump(updated_book)
 
             return ResponseSuccess(data).json()
