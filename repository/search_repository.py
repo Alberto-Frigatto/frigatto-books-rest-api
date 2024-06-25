@@ -1,18 +1,27 @@
 from decimal import Decimal
 from typing import Sequence
 
+from injector import inject
 from sqlalchemy import Select, select
+from sqlalchemy.orm import scoped_session
 
-from db import db
 from model import Book
 from repository import BookGenreRepository, BookKindRepository
 
 select_book = Select[tuple[Book]]
 
 
+@inject
 class SearchRepository:
-    book_kind_repository = BookKindRepository()
-    book_genre_repository = BookGenreRepository()
+    def __init__(
+        self,
+        book_kind_repository: BookKindRepository,
+        book_genre_repository: BookGenreRepository,
+        session: scoped_session,
+    ) -> None:
+        self.book_kind_repository = book_kind_repository
+        self.book_genre_repository = book_genre_repository
+        self.session = session
 
     def search(
         self,
@@ -28,7 +37,7 @@ class SearchRepository:
             query, id_book_kind, id_book_genre, release_year, min_price, max_price
         )
 
-        return db.session.execute(sql_query).scalars().all()
+        return self.session.execute(sql_query).scalars().all()
 
     def _build_query(
         self,
