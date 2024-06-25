@@ -1,4 +1,5 @@
 from flask_jwt_extended import create_access_token, current_user
+from injector import inject
 
 from dto.input import LoginInputDTO
 from exception import AuthException
@@ -8,8 +9,10 @@ from repository import UserRepository
 token = str
 
 
+@inject
 class AuthController:
-    repository = UserRepository()
+    def __init__(self, repository: UserRepository) -> None:
+        self.repository = repository
 
     def login(self, input_dto: LoginInputDTO) -> tuple[User, token]:
         if self._user_already_authenticated():
