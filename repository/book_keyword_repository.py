@@ -1,11 +1,17 @@
-from db import db
+from injector import inject
+from sqlalchemy.orm import scoped_session
+
 from exception import BookKeywordException
 from model import BookKeyword
 
 
+@inject
 class BookKeywordRepository:
+    def __init__(self, session: scoped_session) -> None:
+        self.session = session
+
     def get_by_id(self, id: str) -> BookKeyword:
-        book_keyword = db.session.get(BookKeyword, id)
+        book_keyword = self.session.get(BookKeyword, id)
 
         if book_keyword is None:
             raise BookKeywordException.BookKeywordDoesntExists(id)
@@ -13,9 +19,9 @@ class BookKeywordRepository:
         return book_keyword
 
     def add(self, new_book_keyword: BookKeyword) -> None:
-        db.session.add(new_book_keyword)
-        db.session.commit()
+        self.session.add(new_book_keyword)
+        self.session.commit()
 
     def delete(self, book_keyword: BookKeyword) -> None:
-        db.session.delete(book_keyword)
-        db.session.commit()
+        self.session.delete(book_keyword)
+        self.session.commit()
