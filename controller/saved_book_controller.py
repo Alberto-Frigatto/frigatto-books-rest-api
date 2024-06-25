@@ -1,12 +1,17 @@
 from flask_jwt_extended import current_user
+from injector import inject
 
 from model import Book, SavedBook
 from repository import BookRepository, SavedBookRepository
 
 
+@inject
 class SavedBookController:
-    saved_book_repository = SavedBookRepository()
-    book_repository = BookRepository()
+    def __init__(
+        self, book_repository: BookRepository, saved_book_repository: SavedBookRepository
+    ) -> None:
+        self.book_repository = book_repository
+        self.saved_book_repository = saved_book_repository
 
     def get_all_saved_books(self) -> list[Book]:
         return self.saved_book_repository.get_all()
