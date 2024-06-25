@@ -43,3 +43,11 @@ class GeneralException:
                 message=message,
                 status=400,
             )
+
+    class EnpointNotFound(ApiException):
+        def __init__(self) -> None:
+            super().__init__(
+                name=self.__class__.__name__,
+                message='O endpoint não existe',
+                status=400,
+            )
