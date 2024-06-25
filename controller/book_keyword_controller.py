@@ -1,12 +1,18 @@
+from injector import inject
+
 from dto.input import BookKeywordInputDTO
 from exception import BookKeywordException
 from model import Book, BookKeyword
 from repository import BookKeywordRepository, BookRepository
 
 
+@inject
 class BookKeywordController:
-    book_keyword_repository = BookKeywordRepository()
-    book_repository = BookRepository()
+    def __init__(
+        self, book_repository: BookRepository, book_keyword_repository: BookKeywordRepository
+    ) -> None:
+        self.book_repository = book_repository
+        self.book_keyword_repository = book_keyword_repository
 
     def create_book_keyword(self, id_book: str, input_dto: BookKeywordInputDTO) -> BookKeyword:
         book = self.book_repository.get_by_id(id_book)
