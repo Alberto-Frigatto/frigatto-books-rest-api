@@ -1,12 +1,16 @@
 from typing import Sequence
 
+from injector import inject
+
 from dto.input import BookGenreInputDTO
 from model import BookGenre
 from repository import BookGenreRepository
 
 
+@inject
 class BookGenreController:
-    repository = BookGenreRepository()
+    def __init__(self, repository: BookGenreRepository) -> None:
+        self.repository = repository
 
     def get_all_book_genres(self) -> Sequence[BookGenre]:
         return self.repository.get_all()
