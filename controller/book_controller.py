@@ -1,14 +1,23 @@
 from typing import Any, Sequence
 
+from injector import inject
+
 from dto.input import CreateBookInputDTO, UpdateBookInputDTO
 from model import Book, BookImg, BookKeyword
 from repository import BookGenreRepository, BookKindRepository, BookRepository
 
 
+@inject
 class BookController:
-    book_repository = BookRepository()
-    book_genre_repository = BookGenreRepository()
-    book_kind_repository = BookKindRepository()
+    def __init__(
+        self,
+        book_repository: BookRepository,
+        book_genre_repository: BookGenreRepository,
+        book_kind_repository: BookKindRepository,
+    ) -> None:
+        self.book_repository = book_repository
+        self.book_genre_repository = book_genre_repository
+        self.book_kind_repository = book_kind_repository
 
     def get_all_books(self) -> Sequence[Book]:
         return self.book_repository.get_all()
