@@ -4,21 +4,18 @@ from flask_jwt_extended import jwt_required
 from controller import UserController
 from dto.input import CreateUserInputDTO, UpdateUserInputDTO
 from dto.output import UserOutputDTO
-from exception.base import ApiException
 from request import Request
-from response import ResponseError, ResponseSuccess
+from response import ResponseSuccess
 
 user_bp = Blueprint('user_bp', __name__)
 
 
 class UserView:
-    controller = UserController()
-
     @staticmethod
     @user_bp.get('')
     @jwt_required()
-    def get_user_info() -> Response:
-        current_user = UserView.controller.get_current_user()
+    def get_user_info(controller: UserController) -> Response:
+        current_user = controller.get_current_user()
         data = UserOutputDTO.dump(current_user)
 
         return ResponseSuccess(data).json()
@@ -26,36 +23,28 @@ class UserView:
     @staticmethod
     @user_bp.post('')
     @jwt_required(optional=True)
-    def create_user() -> Response:
-        try:
-            input_dto = CreateUserInputDTO(**Request.get_form(), **Request.get_files())
-            new_user = UserView.controller.create_user(input_dto)
-        except ApiException as e:
-            return ResponseError(e).json()
-        else:
-            data = UserOutputDTO.dump(new_user)
+    def create_user(controller: UserController) -> Response:
+        input_dto = CreateUserInputDTO(**Request.get_form(), **Request.get_files())
 
-            return ResponseSuccess(data, 201).json()
+        new_user = controller.create_user(input_dto)
+        data = UserOutputDTO.dump(new_user)
+
+        return ResponseSuccess(data, 201).json()
 
     @staticmethod
     @user_bp.patch('')
     @jwt_required()
-    def update_user() -> Response:
-        try:
-            input_dto = UpdateUserInputDTO(**Request.get_form(), **Request.get_files())
-            updated_user = UserView.controller.update_user(input_dto)
-        except ApiException as e:
-            return ResponseError(e).json()
-        else:
-            data = UserOutputDTO.dump(updated_user)
-            return ResponseSuccess(data).json()
+    def update_user(controller: UserController) -> Response:
+        input_dto = UpdateUserInputDTO(**Request.get_form(), **Request.get_files())
+
+        updated_user = controller.update_user(input_dto)
+        data = UserOutputDTO.dump(updated_user)
+
+        return ResponseSuccess(data).json()
 
     @staticmethod
     @user_bp.get('/photos/<filename>')
-    def get_user_photo(filename: str) -> Response:
-        try:
-            file_path, mimetype = UserView.controller.get_user_photo(filename)
-        except ApiException as e:
-            return ResponseError(e).json()
-        else:
-            return send_file(file_path, mimetype)
+    def get_user_photo(filename: str, controller: UserController) -> Response:
+        file_path, mimetype = controller.get_user_photo(filename)
+
+        return send_file(file_path, mimetype)
