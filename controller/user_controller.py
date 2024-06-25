@@ -2,6 +2,7 @@ import os
 
 from flask import current_app
 from flask_jwt_extended import current_user
+from injector import inject
 
 from dto.input import CreateUserInputDTO, UpdateUserInputDTO
 from exception import AuthException, ImageException
@@ -13,8 +14,10 @@ file_path = str
 mimetype = str
 
 
+@inject
 class UserController:
-    repository = UserRepository()
+    def __init__(self, repository: UserRepository) -> None:
+        self.repository = repository
 
     def create_user(self, input_dto: CreateUserInputDTO) -> User:
         if self._user_already_authenticated():
