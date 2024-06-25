@@ -1,12 +1,16 @@
 from typing import Sequence
 
+from injector import inject
+
 from dto.input import SearchInputDTO
 from model import Book
 from repository import SearchRepository
 
 
+@inject
 class SearchController:
-    repository = SearchRepository()
+    def __init__(self, repository: SearchRepository) -> None:
+        self.repository = repository
 
     def search_books(self, input_dto: SearchInputDTO) -> Sequence[Book]:
         return self.repository.search(
