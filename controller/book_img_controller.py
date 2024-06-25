@@ -1,6 +1,7 @@
 import os
 
 from flask import current_app
+from injector import inject
 
 from dto.input import BookImgInputDTO
 from exception import BookImgException, ImageException
@@ -12,9 +13,13 @@ file_path = str
 mimetype = str
 
 
+@inject
 class BookImgController:
-    book_img_repository = BookImgRepository()
-    book_repository = BookRepository()
+    def __init__(
+        self, book_repository: BookRepository, book_img_repository: BookImgRepository
+    ) -> None:
+        self.book_repository = book_repository
+        self.book_img_repository = book_img_repository
 
     def get_book_photo(self, filename: str) -> tuple[file_path, mimetype]:
         if not self._is_file_name_valid(filename):
