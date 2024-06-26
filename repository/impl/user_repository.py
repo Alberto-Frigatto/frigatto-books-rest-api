@@ -5,17 +5,19 @@ from sqlalchemy.orm import scoped_session
 from exception import UserException
 from model import User
 
+from .. import IUserRepository
+
 
 @inject
-class UserRepository:
+class UserRepository(IUserRepository):
     def __init__(self, session: scoped_session) -> None:
         self.session = session
 
-    def add(self, new_user: User) -> None:
-        if self._user_already_exists(new_user.username):
+    def add(self, user: User) -> None:
+        if self._user_already_exists(user.username):
             raise UserException.UserAlreadyExists()
 
-        self.session.add(new_user)
+        self.session.add(user)
         self.session.commit()
 
     def _user_already_exists(self, username: str | None) -> bool:
@@ -24,10 +26,8 @@ class UserRepository:
 
             return bool(self.session.execute(query).scalar())
 
-    def update(self, updated_user: User) -> None:
-        if self._was_username_modified(updated_user) and self._user_already_exists(
-            updated_user.username
-        ):
+    def update(self, user: User) -> None:
+        if self._was_username_modified(user) and self._user_already_exists(user.username):
             raise UserException.UserAlreadyExists()
 
         self.session.commit()
