@@ -1,6 +1,6 @@
 from flask import Blueprint, Response
 
-from controller import SearchController
+from controller import ISearchController
 from dto.input import SearchInputDTO
 from dto.output import BookOutputDTO
 from request import Request
@@ -12,7 +12,7 @@ search_bp = Blueprint('search_bp', __name__)
 class SearchView:
     @staticmethod
     @search_bp.get('')
-    def search_books(controller: SearchController) -> Response:
+    def search_books(controller: ISearchController) -> Response:
         input_dto = SearchInputDTO(**Request.get_json())
 
         matched_books = controller.search_books(input_dto)

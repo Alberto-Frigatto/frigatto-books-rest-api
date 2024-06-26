@@ -1,7 +1,7 @@
 from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
 
-from controller import BookController
+from controller import IBookController
 from dto.input import CreateBookInputDTO, UpdateBookInputDTO
 from dto.output import BookOutputDTO
 from request import Request
@@ -13,7 +13,7 @@ book_bp = Blueprint('book_bp', __name__)
 class BookView:
     @staticmethod
     @book_bp.get('')
-    def get_all_books(controller: BookController) -> Response:
+    def get_all_books(controller: IBookController) -> Response:
         books = controller.get_all_books()
         data = BookOutputDTO.dump_many(books)
 
@@ -21,7 +21,7 @@ class BookView:
 
     @staticmethod
     @book_bp.get('/<id>')
-    def get_book_by_id(id: str, controller: BookController) -> Response:
+    def get_book_by_id(id: str, controller: IBookController) -> Response:
         book = controller.get_book_by_id(id)
         data = BookOutputDTO.dump(book)
 
@@ -30,7 +30,7 @@ class BookView:
     @staticmethod
     @book_bp.post('')
     @jwt_required()
-    def create_book(controller: BookController) -> Response:
+    def create_book(controller: IBookController) -> Response:
         request_data = {**Request.get_form(), 'imgs': Request.get_files().getlist('imgs')}
         input_dto = CreateBookInputDTO(**request_data)
 
@@ -42,7 +42,7 @@ class BookView:
     @staticmethod
     @book_bp.delete('/<id>')
     @jwt_required()
-    def delete_book(id: str, controller: BookController) -> Response:
+    def delete_book(id: str, controller: IBookController) -> Response:
         controller.delete_book(id)
 
         return ResponseSuccess().json()
@@ -50,7 +50,7 @@ class BookView:
     @staticmethod
     @book_bp.patch('/<id>')
     @jwt_required()
-    def update_book(id: str, controller: BookController) -> Response:
+    def update_book(id: str, controller: IBookController) -> Response:
         input_book = UpdateBookInputDTO(**Request.get_form())
 
         updated_book = controller.update_book(id, input_book)

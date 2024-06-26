@@ -1,7 +1,7 @@
 from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required, set_access_cookies, unset_jwt_cookies
 
-from controller import AuthController
+from controller import IAuthController
 from dto.input import LoginInputDTO
 from dto.output import UserOutputDTO
 from request import Request
@@ -14,7 +14,7 @@ class AuthView:
     @staticmethod
     @auth_bp.post('/login')
     @jwt_required(optional=True)
-    def login(controller: AuthController) -> Response:
+    def login(controller: IAuthController) -> Response:
         input_dto = LoginInputDTO(**Request.get_json())
         user, access_token = controller.login(input_dto)
         data = UserOutputDTO.dump(user)

@@ -1,7 +1,7 @@
 from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
 
-from controller import BookGenreController
+from controller import IBookGenreController
 from dto.input import BookGenreInputDTO
 from dto.output import BookGenreOutputDTO
 from request import Request
@@ -13,7 +13,7 @@ book_genre_bp = Blueprint('book_genre_bp', __name__)
 class BookGenreView:
     @staticmethod
     @book_genre_bp.get('')
-    def get_all_book_genres(controller: BookGenreController) -> Response:
+    def get_all_book_genres(controller: IBookGenreController) -> Response:
         book_genres = controller.get_all_book_genres()
         data = BookGenreOutputDTO.dump_many(book_genres)
 
@@ -21,7 +21,7 @@ class BookGenreView:
 
     @staticmethod
     @book_genre_bp.get('/<id>')
-    def get_book_genre_by_id(id: str, controller: BookGenreController) -> Response:
+    def get_book_genre_by_id(id: str, controller: IBookGenreController) -> Response:
         book_genre = controller.get_book_genre_by_id(id)
         data = BookGenreOutputDTO.dump(book_genre)
 
@@ -30,7 +30,7 @@ class BookGenreView:
     @staticmethod
     @book_genre_bp.post('')
     @jwt_required()
-    def create_book_genre(controller: BookGenreController) -> Response:
+    def create_book_genre(controller: IBookGenreController) -> Response:
         input_dto = BookGenreInputDTO(**Request.get_json())
         new_book_genre = controller.create_book_genre(input_dto)
         data = BookGenreOutputDTO.dump(new_book_genre)
@@ -40,14 +40,14 @@ class BookGenreView:
     @staticmethod
     @book_genre_bp.delete('/<id>')
     @jwt_required()
-    def delete_book_genre(id: str, controller: BookGenreController) -> Response:
+    def delete_book_genre(id: str, controller: IBookGenreController) -> Response:
         controller.delete_book_genre(id)
         return ResponseSuccess().json()
 
     @staticmethod
     @book_genre_bp.patch('/<id>')
     @jwt_required()
-    def update_book_genre(id: str, controller: BookGenreController) -> Response:
+    def update_book_genre(id: str, controller: IBookGenreController) -> Response:
         input_dto = BookGenreInputDTO(**Request.get_json())
         updated_book_genre = controller.update_book_genre(id, input_dto)
         data = BookGenreOutputDTO.dump(updated_book_genre)
