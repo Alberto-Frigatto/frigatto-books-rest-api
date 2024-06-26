@@ -8,9 +8,11 @@ from sqlalchemy.orm import scoped_session
 from exception import SavedBookException
 from model import Book, SavedBook
 
+from .. import ISavedBookRepository
+
 
 @inject
-class SavedBookRepository:
+class SavedBookRepository(ISavedBookRepository):
     def __init__(self, session: scoped_session) -> None:
         self.session = session
 
@@ -20,11 +22,11 @@ class SavedBookRepository:
 
         return [saved_book.book for saved_book in saved_books]
 
-    def add(self, new_saved_book: SavedBook) -> None:
-        if self._saved_book_already_exists(new_saved_book.book):
-            raise SavedBookException.BookAlreadySaved(str(new_saved_book.book.id))
+    def add(self, saved_book: SavedBook) -> None:
+        if self._saved_book_already_exists(saved_book.book):
+            raise SavedBookException.BookAlreadySaved(str(saved_book.book.id))
 
-        self.session.add(new_saved_book)
+        self.session.add(saved_book)
         self.session.commit()
 
     def _saved_book_already_exists(self, saved_book: Book) -> bool:
@@ -34,8 +36,8 @@ class SavedBookRepository:
         self.session.delete(saved_book)
         self.session.commit()
 
-    def get_by_id_book(self, id_book: int) -> SavedBook:
-        query = select(SavedBook).filter_by(id_book=id_book)
+    def get_by_id_book(self, id_book: str) -> SavedBook:
+        query = select(SavedBook).filter_by(id_book=id_book, id_user=current_user.id)
         saved_book = self.session.execute(query).scalar()
 
         if saved_book is None:
