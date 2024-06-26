@@ -4,9 +4,11 @@ from sqlalchemy.orm import scoped_session
 from exception import BookKeywordException
 from model import BookKeyword
 
+from .. import IBookKeywordRepository
+
 
 @inject
-class BookKeywordRepository:
+class BookKeywordRepository(IBookKeywordRepository):
     def __init__(self, session: scoped_session) -> None:
         self.session = session
 
@@ -18,8 +20,8 @@ class BookKeywordRepository:
 
         return book_keyword
 
-    def add(self, new_book_keyword: BookKeyword) -> None:
-        self.session.add(new_book_keyword)
+    def add(self, book_keyword: BookKeyword) -> None:
+        self.session.add(book_keyword)
         self.session.commit()
 
     def delete(self, book_keyword: BookKeyword) -> None:
