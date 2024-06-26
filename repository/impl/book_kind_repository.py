@@ -7,9 +7,11 @@ from sqlalchemy.orm import scoped_session
 from exception import BookKindException
 from model import Book, BookKind
 
+from .. import IBookKindRepository
+
 
 @inject
-class BookKindRepository:
+class BookKindRepository(IBookKindRepository):
     def __init__(self, session: scoped_session) -> None:
         self.session = session
 
@@ -26,11 +28,11 @@ class BookKindRepository:
 
         return book_kind
 
-    def add(self, new_book_kind: BookKind) -> None:
-        if self._book_kind_already_exists(new_book_kind.kind):
-            raise BookKindException.BookKindAlreadyExists(new_book_kind.kind)
+    def add(self, book_kind: BookKind) -> None:
+        if self._book_kind_already_exists(book_kind.kind):
+            raise BookKindException.BookKindAlreadyExists(book_kind.kind)
 
-        self.session.add(new_book_kind)
+        self.session.add(book_kind)
         self.session.commit()
 
     def _book_kind_already_exists(self, book_kind_name: str) -> bool:
@@ -52,8 +54,8 @@ class BookKindRepository:
         query = select(Book).filter_by(id_kind=book_kind.id)
         return bool(self.session.execute(query).scalars().all())
 
-    def update(self, updated_book_kind: BookKind) -> None:
-        if self._book_kind_already_exists(updated_book_kind.kind):
-            raise BookKindException.BookKindAlreadyExists(updated_book_kind.kind)
+    def update(self, book_kind: BookKind) -> None:
+        if self._book_kind_already_exists(book_kind.kind):
+            raise BookKindException.BookKindAlreadyExists(book_kind.kind)
 
         self.session.commit()
