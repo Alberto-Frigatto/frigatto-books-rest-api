@@ -6,17 +6,19 @@ from sqlalchemy import Select, select
 from sqlalchemy.orm import scoped_session
 
 from model import Book
-from repository import BookGenreRepository, BookKindRepository
+from repository import IBookGenreRepository, IBookKindRepository
+
+from .. import ISearchRepository
 
 select_book = Select[tuple[Book]]
 
 
 @inject
-class SearchRepository:
+class SearchRepository(ISearchRepository):
     def __init__(
         self,
-        book_kind_repository: BookKindRepository,
-        book_genre_repository: BookGenreRepository,
+        book_kind_repository: IBookKindRepository,
+        book_genre_repository: IBookGenreRepository,
         session: scoped_session,
     ) -> None:
         self.book_kind_repository = book_kind_repository
