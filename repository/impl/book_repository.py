@@ -8,9 +8,11 @@ from exception import BookException
 from image_uploader import BookImageUploader
 from model import Book
 
+from .. import IBookRepository
+
 
 @inject
-class BookRepository:
+class BookRepository(IBookRepository):
     def __init__(self, session: scoped_session) -> None:
         self.session = session
 
@@ -27,11 +29,11 @@ class BookRepository:
 
         return book
 
-    def add(self, new_book: Book) -> None:
-        if self._book_already_exists(new_book.name):
-            raise BookException.BookAlreadyExists(new_book.name)
+    def add(self, book: Book) -> None:
+        if self._book_already_exists(book.name):
+            raise BookException.BookAlreadyExists(book.name)
 
-        self.session.add(new_book)
+        self.session.add(book)
         self.session.commit()
 
     def _book_already_exists(self, name: str) -> bool:
@@ -49,9 +51,9 @@ class BookRepository:
         self.session.delete(book)
         self.session.commit()
 
-    def update(self, updated_book: Book) -> None:
-        if self._was_name_modified(updated_book) and self._book_already_exists(updated_book.name):
-            raise BookException.BookAlreadyExists(updated_book.name)
+    def update(self, book: Book) -> None:
+        if self._was_name_modified(book) and self._book_already_exists(book.name):
+            raise BookException.BookAlreadyExists(book.name)
 
         self.session.commit()
 
