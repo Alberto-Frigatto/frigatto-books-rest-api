@@ -7,9 +7,11 @@ from sqlalchemy.orm import scoped_session
 from exception import BookGenreException
 from model import Book, BookGenre
 
+from .. import IBookGenreRepository
+
 
 @inject
-class BookGenreRepository:
+class BookGenreRepository(IBookGenreRepository):
     def __init__(self, session: scoped_session) -> None:
         self.session = session
 
@@ -26,11 +28,11 @@ class BookGenreRepository:
 
         return book_genre
 
-    def add(self, new_book_genre: BookGenre) -> None:
-        if self._book_genre_already_exists(new_book_genre.genre):
-            raise BookGenreException.BookGenreAlreadyExists(new_book_genre.genre)
+    def add(self, book_genre: BookGenre) -> None:
+        if self._book_genre_already_exists(book_genre.genre):
+            raise BookGenreException.BookGenreAlreadyExists(book_genre.genre)
 
-        self.session.add(new_book_genre)
+        self.session.add(book_genre)
         self.session.commit()
 
     def _book_genre_already_exists(self, book_genre_name: str) -> bool:
@@ -52,8 +54,8 @@ class BookGenreRepository:
         query = select(Book).filter_by(id_genre=book_genre.id)
         return bool(self.session.execute(query).scalars().all())
 
-    def update(self, updated_book_genre: BookGenre) -> None:
-        if self._book_genre_already_exists(updated_book_genre.genre):
-            raise BookGenreException.BookGenreAlreadyExists(updated_book_genre.genre)
+    def update(self, book_genre: BookGenre) -> None:
+        if self._book_genre_already_exists(book_genre.genre):
+            raise BookGenreException.BookGenreAlreadyExists(book_genre.genre)
 
         self.session.commit()
