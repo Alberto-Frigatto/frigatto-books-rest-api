@@ -5,9 +5,11 @@ from exception import BookImgException
 from image_uploader import BookImageUploader
 from model import BookImg
 
+from .. import IBookImgRepository
+
 
 @inject
-class BookImgRepository:
+class BookImgRepository(IBookImgRepository):
     def __init__(self, session: scoped_session) -> None:
         self.session = session
 
@@ -19,8 +21,8 @@ class BookImgRepository:
 
         return book_img
 
-    def add(self, new_book_img: BookImg) -> None:
-        self.session.add(new_book_img)
+    def add(self, book_img: BookImg) -> None:
+        self.session.add(book_img)
         self.session.commit()
 
     def delete(self, book_img: BookImg) -> None:
