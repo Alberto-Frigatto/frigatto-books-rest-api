@@ -26,7 +26,6 @@ class AuthView:
 
     @staticmethod
     @auth_bp.post('/logout')
-    @jwt_required()
     def logout() -> Response:
         response = ResponseSuccess().json()
 
