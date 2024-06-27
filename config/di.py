@@ -23,7 +23,8 @@ from controller.impl import (
     SearchController,
     UserController,
 )
-from db import db
+from db import IDbSession, db
+from db.impl import DbSession
 from repository import (
     IBookGenreRepository,
     IBookImgRepository,
@@ -70,6 +71,7 @@ from service.impl import (
 
 def di_config(binder: Binder) -> None:
     binder.bind(scoped_session, to=db.session, scope=singleton)
+    binder.bind(IDbSession, to=DbSession, scope=singleton)
 
     binder.bind(IBookGenreRepository, to=BookGenreRepository, scope=singleton)
     binder.bind(IBookImgRepository, to=BookImgRepository, scope=singleton)
