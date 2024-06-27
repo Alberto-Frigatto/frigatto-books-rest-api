@@ -2,8 +2,8 @@ from typing import Sequence
 
 from injector import inject
 from sqlalchemy import select
-from sqlalchemy.orm import scoped_session
 
+from db import IDbSession
 from exception import BookException
 from image_uploader import BookImageUploader
 from model import Book
@@ -13,16 +13,16 @@ from .. import IBookRepository
 
 @inject
 class BookRepository(IBookRepository):
-    def __init__(self, session: scoped_session) -> None:
+    def __init__(self, session: IDbSession) -> None:
         self.session = session
 
     def get_all(self) -> Sequence[Book]:
         query = select(Book).order_by(Book.id)
 
-        return self.session.execute(query).scalars().all()
+        return self.session.get_many(query)
 
-    def get_by_id(self, id: str | int) -> Book:
-        book = self.session.get(Book, id)
+    def get_by_id(self, id: str) -> Book:
+        book = self.session.get_by_id(Book, id)
 
         if book is None:
             raise BookException.BookDoesntExists(str(id))
@@ -34,13 +34,11 @@ class BookRepository(IBookRepository):
             raise BookException.BookAlreadyExists(book.name)
 
         self.session.add(book)
-        self.session.commit()
 
     def _book_already_exists(self, name: str) -> bool:
-        with self.session.no_autoflush:
-            query = select(Book).where(Book.name.ilike(name))
+        query = select(Book).where(Book.name.ilike(name))
 
-            return bool(self.session.execute(query).scalar())
+        return bool(self.session.get_one(query))
 
     def delete(self, id: str) -> None:
         book = self.get_by_id(id)
@@ -49,17 +47,15 @@ class BookRepository(IBookRepository):
             BookImageUploader.delete(book_img.img_url)
 
         self.session.delete(book)
-        self.session.commit()
 
     def update(self, book: Book) -> None:
         if self._was_name_modified(book) and self._book_already_exists(book.name):
             raise BookException.BookAlreadyExists(book.name)
 
-        self.session.commit()
+        self.session.update()
 
     def _was_name_modified(self, updated_book: Book) -> bool:
-        with self.session.no_autoflush:
-            query = select(Book.name).filter_by(id=updated_book.id)
-            old_name = self.session.execute(query).scalar()
+        query = select(Book.name).filter_by(id=updated_book.id)
+        old_name = self.session.get_one(query)
 
-            return updated_book.name != old_name
+        return updated_book.name != old_name

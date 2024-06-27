@@ -3,8 +3,8 @@ from typing import Sequence
 
 from injector import inject
 from sqlalchemy import Select, select
-from sqlalchemy.orm import scoped_session
 
+from db import IDbSession
 from model import Book
 from repository import IBookGenreRepository, IBookKindRepository
 
@@ -19,7 +19,7 @@ class SearchRepository(ISearchRepository):
         self,
         book_kind_repository: IBookKindRepository,
         book_genre_repository: IBookGenreRepository,
-        session: scoped_session,
+        session: IDbSession,
     ) -> None:
         self.book_kind_repository = book_kind_repository
         self.book_genre_repository = book_genre_repository
@@ -39,7 +39,7 @@ class SearchRepository(ISearchRepository):
             query, id_book_kind, id_book_genre, release_year, min_price, max_price
         )
 
-        return self.session.execute(sql_query).scalars().all()
+        return self.session.get_many(sql_query)
 
     def _build_query(
         self,
