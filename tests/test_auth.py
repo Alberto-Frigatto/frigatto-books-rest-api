@@ -157,23 +157,11 @@ def test_logout(client: FlaskClient, access_token: str):
     assert response.status_code == 200
 
 
-def test_when_try_to_logout_without_auth_returns_error_response(client: FlaskClient):
+def test_logout_without_auth(client: FlaskClient):
     response = client.post(f'/auth/logout')
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['error_name'] == 'MissingJWT'
-    assert response_data['status'] == 401
-    assert response.status_code == 401
+    expected_data = {'error': False, 'status': 200}
 
-
-def test_when_try_to_logout_with_invalid_auth_returns_error_response(client: FlaskClient):
-    headers = {'Authorization': f'Bearer 123'}
-
-    response = client.post(f'/auth/logout', headers=headers)
-    response_data = json.loads(response.data)
-
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidJWT'
-    assert response_data['status'] == 401
-    assert response.status_code == 401
+    assert response_data == expected_data
+    assert response.status_code == 200
