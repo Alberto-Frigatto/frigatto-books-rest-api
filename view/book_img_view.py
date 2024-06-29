@@ -5,7 +5,7 @@ from controller import IBookImgController
 from dto.input import BookImgInputDTO
 from dto.output import BookImgOutputDTO
 from request import Request
-from response import ResponseSuccess
+from response import SuccessResponse
 
 book_img_bp = Blueprint('book_img_bp', __name__)
 
@@ -24,7 +24,7 @@ class BookImgView:
     def delete_book_img(id_book: str, id_img: str, controller: IBookImgController) -> Response:
         controller.delete_book_img(id_book, id_img)
 
-        return ResponseSuccess().json()
+        return SuccessResponse().json()
 
     @staticmethod
     @book_img_bp.patch('/<id_book>/photos/<id_img>')
@@ -35,7 +35,7 @@ class BookImgView:
         updated_book_img = controller.update_book_img(id_book, id_img, input_dto)
         data = BookImgOutputDTO.dump(updated_book_img)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
 
     @staticmethod
     @book_img_bp.post('/<id_book>/photos')
@@ -46,4 +46,4 @@ class BookImgView:
         new_book_img = controller.create_book_img(id_book, input_dto)
         data = BookImgOutputDTO.dump(new_book_img)
 
-        return ResponseSuccess(data, 201).json()
+        return SuccessResponse(data, 201).json()
