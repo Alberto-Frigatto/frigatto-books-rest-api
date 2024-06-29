@@ -6,7 +6,7 @@ class BookKeywordException:
         def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'A palavra chave {id} não existe',
+                message=f'The keyword {id} does not exist',
                 status=404,
             )
 
@@ -14,7 +14,7 @@ class BookKeywordException:
         def __init__(self, id_keyword: str, id_book: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'A palavra chave {id_keyword} não pertence ao livro {id_book}',
+                message=f'The keyword {id_keyword} does not belong to the book {id_book}',
                 status=401,
             )
 
@@ -22,6 +22,6 @@ class BookKeywordException:
         def __init__(self, id_book: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'O livro {id_book} deve ter pelo menos uma palavra chave',
+                message=f'The book {id_book} must have at least one keyword',
                 status=400,
             )
