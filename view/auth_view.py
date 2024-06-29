@@ -5,7 +5,7 @@ from controller import IAuthController
 from dto.input import LoginInputDTO
 from dto.output import UserOutputDTO
 from request import Request
-from response import ResponseSuccess
+from response import SuccessResponse
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -19,7 +19,7 @@ class AuthView:
         user, access_token = controller.login(input_dto)
         data = UserOutputDTO.dump(user)
 
-        response = ResponseSuccess(data).json()
+        response = SuccessResponse(data).json()
         set_access_cookies(response, access_token)
 
         return response
@@ -27,7 +27,7 @@ class AuthView:
     @staticmethod
     @auth_bp.post('/logout')
     def logout() -> Response:
-        response = ResponseSuccess().json()
+        response = SuccessResponse().json()
 
         unset_jwt_cookies(response)
 
