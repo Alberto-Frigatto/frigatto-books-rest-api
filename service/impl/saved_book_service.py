@@ -1,6 +1,5 @@
-from typing import Sequence
-
 from flask_jwt_extended import current_user
+from flask_sqlalchemy.pagination import Pagination
 from injector import inject
 
 from model import Book, SavedBook
@@ -17,8 +16,8 @@ class SavedBookService(ISavedBookService):
         self.book_repository = book_repository
         self.saved_book_repository = saved_book_repository
 
-    def get_all_saved_books(self) -> Sequence[Book]:
-        return self.saved_book_repository.get_all()
+    def get_all_saved_books(self, page: int) -> Pagination:
+        return self.saved_book_repository.get_all(page)
 
     def save_book(self, id: str) -> Book:
         book = self.book_repository.get_by_id(id)
