@@ -1,5 +1,4 @@
-from typing import Sequence
-
+from flask_sqlalchemy.pagination import Pagination
 from injector import inject
 from sqlalchemy import select
 
@@ -15,10 +14,10 @@ class BookKindRepository(IBookKindRepository):
     def __init__(self, session: IDbSession) -> None:
         self.session = session
 
-    def get_all(self) -> Sequence[BookKind]:
+    def get_all(self, page: int) -> Pagination:
         query = select(BookKind).order_by(BookKind.id)
 
-        return self.session.get_many(query)
+        return self.session.paginate(query, page=page)
 
     def get_by_id(self, id: str) -> BookKind:
         book_kind = self.session.get_by_id(BookKind, id)
