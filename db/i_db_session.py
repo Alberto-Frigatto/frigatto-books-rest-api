@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Sequence, TypeVar
 
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy import Select
 
 from .database import db
@@ -10,6 +11,10 @@ Model = db.Model
 
 
 class IDbSession(ABC):
+    @abstractmethod
+    def paginate(self, query: Select[tuple[type[TModel]]], *, page: int) -> Pagination:
+        pass
+
     @abstractmethod
     def get_by_id(self, model: type[TModel], id: str) -> type[TModel] | None:
         pass
