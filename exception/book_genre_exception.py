@@ -6,7 +6,7 @@ class BookGenreException:
         def __init__(self, genre: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'O gênero de livro "{genre}" já existe',
+                message=f'The book genre "{genre}" already exists',
                 status=409,
             )
 
@@ -14,7 +14,7 @@ class BookGenreException:
         def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'O gênero de livro {id} não existe',
+                message=f'The book genre {id} does not exist',
                 status=404,
             )
 
@@ -22,6 +22,6 @@ class BookGenreException:
         def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'O gênero de livro {id} não pode ser excluído, pois há livros desse gênero',
+                message=f'The book genre {id} cannot be deleted because there are books linked to this genre',
                 status=409,
             )
