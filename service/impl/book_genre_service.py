@@ -1,5 +1,4 @@
-from typing import Sequence
-
+from flask_sqlalchemy.pagination import Pagination
 from injector import inject
 
 from dto.input import BookGenreInputDTO
@@ -14,8 +13,8 @@ class BookGenreService(IBookGenreService):
     def __init__(self, repository: IBookGenreRepository) -> None:
         self.repository = repository
 
-    def get_all_book_genres(self) -> Sequence[BookGenre]:
-        return self.repository.get_all()
+    def get_all_book_genres(self, page: int) -> Pagination:
+        return self.repository.get_all(page)
 
     def get_book_genre_by_id(self, id: str) -> BookGenre:
         return self.repository.get_by_id(id)
