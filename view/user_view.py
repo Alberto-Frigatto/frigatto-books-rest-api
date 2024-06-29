@@ -5,7 +5,7 @@ from controller import IUserController
 from dto.input import CreateUserInputDTO, UpdateUserInputDTO
 from dto.output import UserOutputDTO
 from request import Request
-from response import ResponseSuccess
+from response import SuccessResponse
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -18,7 +18,7 @@ class UserView:
         current_user = controller.get_current_user()
         data = UserOutputDTO.dump(current_user)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
 
     @staticmethod
     @user_bp.post('')
@@ -29,7 +29,7 @@ class UserView:
         new_user = controller.create_user(input_dto)
         data = UserOutputDTO.dump(new_user)
 
-        return ResponseSuccess(data, 201).json()
+        return SuccessResponse(data, 201).json()
 
     @staticmethod
     @user_bp.patch('')
@@ -40,7 +40,7 @@ class UserView:
         updated_user = controller.update_user(input_dto)
         data = UserOutputDTO.dump(updated_user)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
 
     @staticmethod
     @user_bp.get('/photos/<filename>')
