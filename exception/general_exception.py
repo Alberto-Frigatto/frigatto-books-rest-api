@@ -8,7 +8,7 @@ class GeneralException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Não foi possível se conectar ao banco de dados',
+                message='Unable to connect to the database',
                 status=500,
             )
 
@@ -16,7 +16,7 @@ class GeneralException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Método HTTP não permitido',
+                message='HTTP method not allowed',
                 status=405,
             )
 
@@ -24,7 +24,7 @@ class GeneralException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Cabeçalho Content-Type inválido',
+                message='Invalid Content-Type header',
                 status=415,
             )
 
@@ -32,12 +32,12 @@ class GeneralException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Não foi enviado nenhum dado',
+                message='No data sent',
                 status=400,
             )
 
     class InvalidDataSent(ApiException):
-        def __init__(self, message: Any = 'Os dados enviados são inválidos') -> None:
+        def __init__(self, message: Any = 'Invalid data sent') -> None:
             super().__init__(
                 name=self.__class__.__name__,
                 message=message,
@@ -48,6 +48,14 @@ class GeneralException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='O endpoint não existe',
+                message='The endpoint does not exist',
+                status=400,
+            )
+
+    class PaginationPageDoesNotExists(ApiException):
+        def __init__(self, page: int) -> None:
+            super().__init__(
+                name=self.__class__.__name__,
+                message=f'The page {page} does not exist',
                 status=400,
             )
