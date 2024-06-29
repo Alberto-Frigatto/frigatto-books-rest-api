@@ -1,12 +1,16 @@
 from typing import Any
 
 from flask import request
-from werkzeug.datastructures import FileStorage, ImmutableMultiDict
+from werkzeug.datastructures import FileStorage, ImmutableMultiDict, MultiDict
 
 from exception import GeneralException
 
 
 class Request:
+    @classmethod
+    def get_int_arg(cls, arg_name: str, default: int) -> int:
+        return request.args.get(arg_name, default=default, type=int)
+
     @classmethod
     def get_json(cls) -> dict[str, Any]:
         if not cls._are_there_data():
