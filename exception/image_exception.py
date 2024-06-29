@@ -6,6 +6,6 @@ class ImageException:
         def __init__(self, filename: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'A imagem {filename} não encontrada',
+                message=f'The image {filename} was not found',
                 status=404,
             )
