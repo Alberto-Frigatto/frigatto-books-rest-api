@@ -5,7 +5,7 @@ from controller import IBookKindController
 from dto.input import BookKindInputDTO
 from dto.output import BookKindOutputDTO
 from request import Request
-from response import ResponseSuccess
+from response import PaginationResponse, SuccessResponse
 
 book_kind_bp = Blueprint('book_kind_bp', __name__)
 
@@ -14,10 +14,11 @@ class BookKindView:
     @staticmethod
     @book_kind_bp.get('')
     def get_all_book_kinds(controller: IBookKindController) -> Response:
-        book_kinds = controller.get_all_book_kinds()
-        data = BookKindOutputDTO.dump_many(book_kinds)
+        page = Request.get_int_arg('page', default=1)
+        pagination = controller.get_all_book_kinds(page)
+        data = BookKindOutputDTO.dump_many(pagination.items)
 
-        return ResponseSuccess(data).json()
+        return PaginationResponse(data, pagination).json()
 
     @staticmethod
     @book_kind_bp.get('/<id>')
@@ -25,7 +26,7 @@ class BookKindView:
         book_kind = controller.get_book_kind_by_id(id)
         data = BookKindOutputDTO.dump(book_kind)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
 
     @staticmethod
     @book_kind_bp.post('')
@@ -36,7 +37,7 @@ class BookKindView:
         new_book_kind = controller.create_book_kind(input_dto)
         data = BookKindOutputDTO.dump(new_book_kind)
 
-        return ResponseSuccess(data, 201).json()
+        return SuccessResponse(data, 201).json()
 
     @staticmethod
     @book_kind_bp.delete('/<id>')
@@ -44,7 +45,7 @@ class BookKindView:
     def delete_book_kind(id: str, controller: IBookKindController) -> Response:
         controller.delete_book_kind(id)
 
-        return ResponseSuccess().json()
+        return SuccessResponse().json()
 
     @staticmethod
     @book_kind_bp.patch('/<id>')
@@ -55,4 +56,4 @@ class BookKindView:
         updated_book_kind = controller.update_book_kind(id, input_dto)
         data = BookKindOutputDTO.dump(updated_book_kind)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
