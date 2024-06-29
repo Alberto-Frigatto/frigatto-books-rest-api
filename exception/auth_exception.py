@@ -6,7 +6,7 @@ class AuthException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='username ou password inválidos',
+                message='Invalid username or password',
                 status=401,
             )
 
@@ -14,6 +14,6 @@ class AuthException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='O usuário já está logado',
+                message='The user is already logged in',
                 status=400,
             )
