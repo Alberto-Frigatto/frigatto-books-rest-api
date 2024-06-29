@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Sequence
+
+from flask_sqlalchemy.pagination import Pagination
 
 from dto.input import SearchInputDTO
-from model import Book
 
 
 class ISearchService(ABC):
     @abstractmethod
-    def search_books(self, input_dto: SearchInputDTO) -> Sequence[Book]:
+    def search_books(self, page: int, input_dto: SearchInputDTO) -> Pagination:
         pass
