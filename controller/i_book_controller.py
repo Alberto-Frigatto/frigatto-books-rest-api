@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Sequence
+
+from flask_sqlalchemy.pagination import Pagination
 
 from dto.input import CreateBookInputDTO, UpdateBookInputDTO
 from model import Book
@@ -7,7 +8,7 @@ from model import Book
 
 class IBookController(ABC):
     @abstractmethod
-    def get_all_books(self) -> Sequence[Book]:
+    def get_all_books(self, page: int) -> Pagination:
         pass
 
     @abstractmethod
