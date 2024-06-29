@@ -6,6 +6,6 @@ class UserException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Esse usuário já existe',
+                message='This user already exists',
                 status=409,
             )
