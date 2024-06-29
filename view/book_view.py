@@ -5,7 +5,7 @@ from controller import IBookController
 from dto.input import CreateBookInputDTO, UpdateBookInputDTO
 from dto.output import BookOutputDTO
 from request import Request
-from response import ResponseSuccess
+from response import PaginationResponse, SuccessResponse
 
 book_bp = Blueprint('book_bp', __name__)
 
@@ -14,10 +14,11 @@ class BookView:
     @staticmethod
     @book_bp.get('')
     def get_all_books(controller: IBookController) -> Response:
-        books = controller.get_all_books()
-        data = BookOutputDTO.dump_many(books)
+        page = Request.get_int_arg('page', default=1)
+        paginate = controller.get_all_books(page)
+        data = BookOutputDTO.dump_many(paginate.items)
 
-        return ResponseSuccess(data).json()
+        return PaginationResponse(data, paginate).json()
 
     @staticmethod
     @book_bp.get('/<id>')
@@ -25,7 +26,7 @@ class BookView:
         book = controller.get_book_by_id(id)
         data = BookOutputDTO.dump(book)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
 
     @staticmethod
     @book_bp.post('')
@@ -37,7 +38,7 @@ class BookView:
         new_book = controller.create_book(input_dto)
         data = BookOutputDTO.dump(new_book)
 
-        return ResponseSuccess(data, 201).json()
+        return SuccessResponse(data, 201).json()
 
     @staticmethod
     @book_bp.delete('/<id>')
@@ -45,7 +46,7 @@ class BookView:
     def delete_book(id: str, controller: IBookController) -> Response:
         controller.delete_book(id)
 
-        return ResponseSuccess().json()
+        return SuccessResponse().json()
 
     @staticmethod
     @book_bp.patch('/<id>')
@@ -56,4 +57,4 @@ class BookView:
         updated_book = controller.update_book(id, input_book)
         data = BookOutputDTO.dump(updated_book)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
