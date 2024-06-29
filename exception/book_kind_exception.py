@@ -6,7 +6,7 @@ class BookKindException:
         def __init__(self, kind: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'O tipo de livro "{kind}" já existe',
+                message=f'The book kind "{kind}" already exists',
                 status=409,
             )
 
@@ -14,7 +14,7 @@ class BookKindException:
         def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'O tipo de livro {id} não existe',
+                message=f'The book kind {id} does not exist',
                 status=404,
             )
 
@@ -22,6 +22,6 @@ class BookKindException:
         def __init__(self, id: str) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message=f'O tipo de livro {id} não pode ser excluído, pois há livros desse tipo',
+                message=f'The book genre {id} cannot be deleted because there are books linked to this kind',
                 status=409,
             )
