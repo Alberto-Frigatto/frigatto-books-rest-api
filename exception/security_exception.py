@@ -6,7 +6,7 @@ class SecurityException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Token JWT inválido',
+                message='Invalid JWT token',
                 status=401,
             )
 
@@ -14,7 +14,7 @@ class SecurityException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='O token JWT não foi enviado',
+                message='JWT token not provided',
                 status=401,
             )
 
@@ -22,7 +22,7 @@ class SecurityException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='O token CSFR não foi enviado',
+                message='CSRF token not provided',
                 status=400,
             )
 
@@ -30,6 +30,6 @@ class SecurityException:
         def __init__(self) -> None:
             super().__init__(
                 name=self.__class__.__name__,
-                message='Token CSFR inválido',
+                message='Invalid CSRF token',
                 status=400,
             )
