@@ -1,6 +1,5 @@
-from typing import Sequence
-
 from flask_jwt_extended import current_user
+from flask_sqlalchemy.pagination import Pagination
 from injector import inject
 from sqlalchemy import select
 
@@ -16,11 +15,12 @@ class SavedBookRepository(ISavedBookRepository):
     def __init__(self, session: IDbSession) -> None:
         self.session = session
 
-    def get_all(self) -> list[Book]:
+    def get_all(self, page: int) -> Pagination:
         query = select(SavedBook).filter_by(id_user=current_user.id).order_by(SavedBook.id)
-        saved_books: Sequence[SavedBook] = self.session.get_many(query)
+        pagination = self.session.paginate(query, page=page)
+        pagination.items = [saved_book.book for saved_book in pagination.items]
 
-        return [saved_book.book for saved_book in saved_books]
+        return pagination
 
     def add(self, saved_book: SavedBook) -> None:
         if self._saved_book_already_exists(saved_book.book):
@@ -29,7 +29,9 @@ class SavedBookRepository(ISavedBookRepository):
         self.session.add(saved_book)
 
     def _saved_book_already_exists(self, saved_book: Book) -> bool:
-        return saved_book in self.get_all()
+        query = select(SavedBook).filter_by(id_user=current_user.id)
+
+        return saved_book in [saved_book.book for saved_book in self.session.get_many(query)]
 
     def delete(self, saved_book: SavedBook) -> None:
         self.session.delete(saved_book)
