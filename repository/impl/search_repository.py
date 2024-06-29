@@ -1,6 +1,6 @@
 from decimal import Decimal
-from typing import Sequence
 
+from flask_sqlalchemy.pagination import Pagination
 from injector import inject
 from sqlalchemy import Select, select
 
@@ -28,18 +28,19 @@ class SearchRepository(ISearchRepository):
     def search(
         self,
         *,
+        page: int,
         query: str | None,
         id_book_kind: int | None,
         id_book_genre: int | None,
         release_year: int | None,
         min_price: Decimal | None,
         max_price: Decimal | None,
-    ) -> Sequence[Book]:
+    ) -> Pagination:
         sql_query = self._build_query(
             query, id_book_kind, id_book_genre, release_year, min_price, max_price
         )
 
-        return self.session.get_many(sql_query)
+        return self.session.paginate(sql_query, page=page)
 
     def _build_query(
         self,
