@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Sequence
+
+from flask_sqlalchemy.pagination import Pagination
 
 from dto.input import BookKindInputDTO
 from model import BookKind
@@ -7,7 +8,7 @@ from model import BookKind
 
 class IBookKindService(ABC):
     @abstractmethod
-    def get_all_book_kinds(self) -> Sequence[BookKind]:
+    def get_all_book_kinds(self, page: int) -> Pagination:
         pass
 
     @abstractmethod
