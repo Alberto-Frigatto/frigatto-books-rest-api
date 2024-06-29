@@ -3,7 +3,8 @@ from flask_jwt_extended import jwt_required
 
 from controller import ISavedBookController
 from dto.output import BookOutputDTO
-from response import ResponseSuccess
+from request import Request
+from response import PaginationResponse, SuccessResponse
 
 saved_book_bp = Blueprint('saved_book_bp', __name__)
 
@@ -16,16 +17,17 @@ class SavedBookView:
         saved_book = controller.save_book(id)
         data = BookOutputDTO.dump(saved_book)
 
-        return ResponseSuccess(data, 201).json()
+        return SuccessResponse(data, 201).json()
 
     @staticmethod
     @saved_book_bp.get('/saved')
     @jwt_required()
     def get_all_saved_books(controller: ISavedBookController) -> Response:
-        saved_books = controller.get_all_saved_books()
-        data = BookOutputDTO.dump_many(saved_books)
+        page = Request.get_int_arg('page', default=1)
+        pagination = controller.get_all_saved_books(page)
+        data = BookOutputDTO.dump_many(pagination.items)
 
-        return ResponseSuccess(data).json()
+        return PaginationResponse(data, pagination).json()
 
     @staticmethod
     @saved_book_bp.delete('/saved/<id_book>')
@@ -33,4 +35,4 @@ class SavedBookView:
     def delete_saved_book(id_book: str, controller: ISavedBookController) -> Response:
         controller.delete_saved_book(id_book)
 
-        return ResponseSuccess().json()
+        return SuccessResponse().json()
