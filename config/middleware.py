@@ -4,7 +4,7 @@ from werkzeug.exceptions import MethodNotAllowed, NotFound
 
 from db import db
 from exception import GeneralException
-from response import ResponseError, ResponseSuccess
+from response import ErrorResponse, SuccessResponse
 
 
 def add_middlewares(app: Flask) -> None:
@@ -14,7 +14,7 @@ def add_middlewares(app: Flask) -> None:
             db.session.execute(text('SELECT 1'))
             db.session.commit()
         except Exception:
-            return ResponseError(GeneralException.DatabaseConnection()).json()
+            return ErrorResponse(GeneralException.DatabaseConnection()).json()
 
     @app.before_request
     def check_http_endpoint_and_method() -> Response | None:
@@ -25,9 +25,9 @@ def add_middlewares(app: Flask) -> None:
         try:
             adapter.match(route, method)
         except MethodNotAllowed:
-            return ResponseError(GeneralException.MethodNotAllowed()).json()
+            return ErrorResponse(GeneralException.MethodNotAllowed()).json()
         except NotFound:
-            return ResponseError((GeneralException.EnpointNotFound())).json()
+            return ErrorResponse((GeneralException.EnpointNotFound())).json()
 
     @app.before_request
     def check_content_type() -> Response | None:
@@ -37,9 +37,9 @@ def add_middlewares(app: Flask) -> None:
             allowed_content_type not in request.content_type
             for allowed_content_type in allowed_content_types
         ):
-            return ResponseError(GeneralException.InvalidContentType()).json()
+            return ErrorResponse(GeneralException.InvalidContentType()).json()
 
     @app.before_request
     def check_options_request() -> Response | None:
         if request.method == 'OPTIONS':
-            return ResponseSuccess().json()
+            return SuccessResponse().json()
