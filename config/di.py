@@ -1,5 +1,5 @@
+from flask_sqlalchemy import SQLAlchemy
 from injector import Binder, singleton
-from sqlalchemy.orm import scoped_session
 
 from controller import (
     IAuthController,
@@ -70,7 +70,7 @@ from service.impl import (
 
 
 def di_config(binder: Binder) -> None:
-    binder.bind(scoped_session, to=db.session, scope=singleton)
+    binder.bind(SQLAlchemy, to=db, scope=singleton)
     binder.bind(IDbSession, to=DbSession, scope=singleton)
 
     binder.bind(IBookGenreRepository, to=BookGenreRepository, scope=singleton)
