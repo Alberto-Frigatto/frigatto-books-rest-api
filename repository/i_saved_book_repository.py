@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Sequence
+
+from flask_sqlalchemy.pagination import Pagination
 
 from model import Book, SavedBook
 
 
 class ISavedBookRepository(ABC):
     @abstractmethod
-    def get_all(self) -> Sequence[Book]:
+    def get_all(self, page: int) -> Pagination:
         pass
 
     @abstractmethod
