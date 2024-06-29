@@ -5,7 +5,7 @@ from controller import IBookGenreController
 from dto.input import BookGenreInputDTO
 from dto.output import BookGenreOutputDTO
 from request import Request
-from response import ResponseSuccess
+from response import PaginationResponse, SuccessResponse
 
 book_genre_bp = Blueprint('book_genre_bp', __name__)
 
@@ -14,10 +14,11 @@ class BookGenreView:
     @staticmethod
     @book_genre_bp.get('')
     def get_all_book_genres(controller: IBookGenreController) -> Response:
-        book_genres = controller.get_all_book_genres()
-        data = BookGenreOutputDTO.dump_many(book_genres)
+        page = Request.get_int_arg('page', default=1)
+        pagination = controller.get_all_book_genres(page)
+        data = BookGenreOutputDTO.dump_many(pagination.items)
 
-        return ResponseSuccess(data).json()
+        return PaginationResponse(data, pagination).json()
 
     @staticmethod
     @book_genre_bp.get('/<id>')
@@ -25,7 +26,7 @@ class BookGenreView:
         book_genre = controller.get_book_genre_by_id(id)
         data = BookGenreOutputDTO.dump(book_genre)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
 
     @staticmethod
     @book_genre_bp.post('')
@@ -35,14 +36,14 @@ class BookGenreView:
         new_book_genre = controller.create_book_genre(input_dto)
         data = BookGenreOutputDTO.dump(new_book_genre)
 
-        return ResponseSuccess(data, 201).json()
+        return SuccessResponse(data, 201).json()
 
     @staticmethod
     @book_genre_bp.delete('/<id>')
     @jwt_required()
     def delete_book_genre(id: str, controller: IBookGenreController) -> Response:
         controller.delete_book_genre(id)
-        return ResponseSuccess().json()
+        return SuccessResponse().json()
 
     @staticmethod
     @book_genre_bp.patch('/<id>')
@@ -52,4 +53,4 @@ class BookGenreView:
         updated_book_genre = controller.update_book_genre(id, input_dto)
         data = BookGenreOutputDTO.dump(updated_book_genre)
 
-        return ResponseSuccess(data).json()
+        return SuccessResponse(data).json()
