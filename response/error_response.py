@@ -2,10 +2,10 @@ import flask
 
 from exception.base import ApiException
 
-from .response import Response
+from .base import Response
 
 
-class ResponseError(Response):
+class ErrorResponse(Response):
     def __init__(self, exception: ApiException) -> None:
         self._exception = exception
 
@@ -19,4 +19,4 @@ class ResponseError(Response):
             'status': status,
         }
 
-        return self._make_response(response, status)
+        return super()._make_response(response, status)
