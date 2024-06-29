@@ -1,9 +1,7 @@
-from typing import Sequence
-
+from flask_sqlalchemy.pagination import Pagination
 from injector import inject
 
 from dto.input import SearchInputDTO
-from model import Book
 from repository import ISearchRepository
 
 from .. import ISearchService
@@ -14,8 +12,9 @@ class SearchService(ISearchService):
     def __init__(self, repository: ISearchRepository) -> None:
         self.repository = repository
 
-    def search_books(self, input_dto: SearchInputDTO) -> Sequence[Book]:
+    def search_books(self, page: int, input_dto: SearchInputDTO) -> Pagination:
         return self.repository.search(
+            page=page,
             query=input_dto.query,
             id_book_genre=input_dto.id_book_genre,
             id_book_kind=input_dto.id_book_kind,
