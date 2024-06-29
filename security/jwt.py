@@ -5,7 +5,7 @@ from db import db
 from exception import SecurityException
 from exception.base import ApiException
 from model import User
-from response import ResponseError
+from response import ErrorResponse
 
 jwt = JWTManager()
 
@@ -24,7 +24,7 @@ def user_lookup_callback(_jwt_header: dict, jwt_data: dict) -> User | None:
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error_string: str) -> Response:
-    return ResponseError(SecurityException.InvalidJWT()).json()
+    return ErrorResponse(SecurityException.InvalidJWT()).json()
 
 
 @jwt.unauthorized_loader
@@ -38,4 +38,4 @@ def unauthorized_callback(error_string: str) -> Response:
 
     exception: ApiException = getattr(SecurityException, error_map[error_string])()
 
-    return ResponseError(exception).json()
+    return ErrorResponse(exception).json()
