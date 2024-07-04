@@ -1,11 +1,10 @@
-from abc import ABCMeta
 from typing import Any
 
 
-class ApiException(Exception, metaclass=ABCMeta):
-    def __init__(self, *, name: str, message: str | Any, status: int) -> None:
-        self.name = name
+class ApiException(Exception):
+    def __init__(self, *, message: Any, status: int) -> None:
+        self.name = self.__class__.__name__
         self.message = message
         self.status = status
 
-        super().__init__(message)
+        super().__init__()
