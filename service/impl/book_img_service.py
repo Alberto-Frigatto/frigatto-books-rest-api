@@ -4,10 +4,10 @@ from flask import current_app
 from injector import inject
 
 from dto.input import BookImgInputDTO
-from exception import BookImgException, ImageException
-from image_uploader import BookImageUploader
+from exception import BookException, BookImgException, ImageException
 from model import Book, BookImg
 from repository import IBookImgRepository, IBookRepository
+from utils.file.uploader import BookImageUploader
 
 from .. import IBookImgService
 
@@ -38,18 +38,23 @@ class BookImgService(IBookImgService):
 
     def create_book_img(self, id_book: str, input_dto: BookImgInputDTO) -> BookImg:
         book = self.book_repository.get_by_id(id_book)
+
+        if self._does_book_already_have_max_qty_imgs(book):
+            raise BookException.BookAlreadyHaveImageMaxQty(book.name)
+
         book_img = BookImg(input_dto.img.get_url())
         book_img.id_book = book.id
 
         self.book_img_repository.add(book_img)
-
         input_dto.img.save()
 
         return book_img
 
+    def _does_book_already_have_max_qty_imgs(self, book: Book) -> bool:
+        return len(book.book_imgs) == current_app.config['BOOK_IMG_MAX_QTY']
+
     def delete_book_img(self, id_book: str, id_img: str) -> None:
         book = self.book_repository.get_by_id(id_book)
-
         book_img = self.book_img_repository.get_by_id(id_img)
 
         if book_img.id_book != book.id:
@@ -70,15 +75,12 @@ class BookImgService(IBookImgService):
         if book_img.id_book != book.id:
             raise BookImgException.BookDoesntOwnThisImg(id_img, id_book)
 
-        self._swap_book_img(book_img, input_dto.img)
+        old_img_url = book_img.img_url
+        book_img.update_img_url(input_dto.img.get_url())
 
         self.book_img_repository.update()
 
+        BookImageUploader.delete(old_img_url)
+        input_dto.img.save()
+
         return book_img
-
-    def _swap_book_img(self, old_img: BookImg, new_img: BookImageUploader) -> None:
-        BookImageUploader.delete(old_img.img_url)
-
-        old_img.update_img_url(new_img.get_url())
-
-        new_img.save()
