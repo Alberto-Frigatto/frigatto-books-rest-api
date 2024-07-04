@@ -29,13 +29,13 @@ class BookRepository(IBookRepository):
         return book
 
     def add(self, book: Book) -> None:
-        if self._book_already_exists(book.name):
+        if self._book_already_exists(book):
             raise BookException.BookAlreadyExists(book.name)
 
         self.session.add(book)
 
-    def _book_already_exists(self, name: str) -> bool:
-        query = select(Book).where(Book.name.ilike(name))
+    def _book_already_exists(self, book: Book) -> bool:
+        query = select(Book).where(Book.name.ilike(book.name.lower())).where((Book.id != book.id))
 
         return bool(self.session.get_one(query))
 
@@ -48,7 +48,7 @@ class BookRepository(IBookRepository):
         self.session.delete(book)
 
     def update(self, book: Book) -> None:
-        if self._was_name_modified(book) and self._book_already_exists(book.name):
+        if self._was_name_modified(book) and self._book_already_exists(book):
             raise BookException.BookAlreadyExists(book.name)
 
         self.session.update()
