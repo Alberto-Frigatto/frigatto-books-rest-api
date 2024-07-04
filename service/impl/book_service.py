@@ -59,7 +59,7 @@ class BookService(IBookService):
     def update_book(self, id: str, input_dto: UpdateBookInputDTO) -> Book:
         book = self.get_book_by_id(id)
 
-        for key, value in input_dto.__dict__.items():
+        for key, value in input_dto.items:
             if value is not None:
                 self._update_book_attrs(book, key, value)
 
