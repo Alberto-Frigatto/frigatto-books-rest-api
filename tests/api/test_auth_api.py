@@ -1,6 +1,4 @@
 import json
-import os
-import shutil
 
 import pytest
 from flask import Flask
@@ -23,13 +21,20 @@ def app():
 
         db.session.execute(
             text(
-                f"""
-                INSERT INTO users (username, password, img_url)
-                    VALUES
-                        ('test', '{generate_password_hash('Senha@123')}', 'http://localhost:5000/users/photos/test.jpg'),
-                        ('lopes', '{generate_password_hash('Senha@123')}', 'http://localhost:5000/users/photos/test2.jpg')
-                """
-            )
+                "INSERT INTO users (username, password, img_url) VALUES (:username, :password, :img_url)"
+            ),
+            [
+                {
+                    'username': 'test',
+                    'password': generate_password_hash('Senha@123'),
+                    'img_url': 'http://localhost:5000/users/photos/test.jpg',
+                },
+                {
+                    'username': 'lopes',
+                    'password': generate_password_hash('Senha@123'),
+                    'img_url': 'http://localhost:5000/users/photos/test2.jpg',
+                },
+            ],
         )
         db.session.commit()
 
@@ -72,15 +77,19 @@ def test_when_try_to_login_with_content_type_multipart_form_data_returns_error_r
     client: FlaskClient,
 ):
     headers = {'Content-Type': 'multipart/form-data'}
-
     credentials = {'username': 'test', 'password': 'Senha@123'}
 
     response = client.post(f'/auth/login', headers=headers, data=credentials)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidContentType'
-    assert response_data['status'] == 415
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidContentType',
+        'message': 'Invalid Content-Type header',
+        'status': 415,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 415
 
 
@@ -94,9 +103,14 @@ def test_when_try_to_login_with_already_authenticated_returns_error_response(
     response = client.post(f'/auth/login', headers=headers, json=credentials)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['error_name'] == 'UserAlreadyAuthenticated'
-    assert response_data['status'] == 400
+    expected_data = {
+        'error': True,
+        'error_name': 'UserAlreadyAuthenticated',
+        'message': 'The user is already logged in',
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
@@ -106,9 +120,14 @@ def test_when_try_to_login_with_invalid_username_returns_error_response(client: 
     response = client.post(f'/auth/login', json=credentials)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidLogin'
-    assert response_data['status'] == 401
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidLogin',
+        'message': 'Invalid username or password',
+        'status': 401,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 401
 
 
@@ -117,9 +136,15 @@ def test_when_try_to_login_with_invalid_password_returns_error_response(client: 
 
     response = client.post(f'/auth/login', json=credentials)
     response_data = json.loads(response.data)
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidLogin'
-    assert response_data['status'] == 401
+
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidLogin',
+        'message': 'Invalid username or password',
+        'status': 401,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 401
 
 
@@ -129,9 +154,27 @@ def test_when_try_to_login_with_invalid_data_returns_error_response(client: Flas
     response = client.post(f'/auth/login', json=credentials)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidDataSent'
-    assert response_data['status'] == 400
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {'loc': ['username'], 'msg': 'Field required', 'type': 'missing'},
+            {'loc': ['password'], 'msg': 'Field required', 'type': 'missing'},
+            {
+                'loc': ['passwords'],
+                'msg': 'Extra inputs are not permitted',
+                'type': 'extra_forbidden',
+            },
+            {
+                'loc': ['usernames'],
+                'msg': 'Extra inputs are not permitted',
+                'type': 'extra_forbidden',
+            },
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
@@ -139,9 +182,14 @@ def test_when_try_to_login_without_data_returns_error_response(client: FlaskClie
     response = client.post(f'/auth/login')
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['error_name'] == 'NoDataSent'
-    assert response_data['status'] == 400
+    expected_data = {
+        'error': True,
+        'error_name': 'NoDataSent',
+        'message': 'No data sent',
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
@@ -151,7 +199,10 @@ def test_logout(client: FlaskClient, access_token: str):
     response = client.post('/auth/logout', headers=headers)
     response_data = json.loads(response.data)
 
-    expected_data = {'error': False, 'status': 200}
+    expected_data = {
+        'error': False,
+        'status': 200,
+    }
 
     assert response_data == expected_data
     assert response.status_code == 200
@@ -161,7 +212,10 @@ def test_logout_without_auth(client: FlaskClient):
     response = client.post(f'/auth/logout')
     response_data = json.loads(response.data)
 
-    expected_data = {'error': False, 'status': 200}
+    expected_data = {
+        'error': False,
+        'status': 200,
+    }
 
     assert response_data == expected_data
     assert response.status_code == 200
