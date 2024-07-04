@@ -4,8 +4,8 @@ from flask_jwt_extended import jwt_required
 from controller import IBookKeywordController
 from dto.input import BookKeywordInputDTO
 from dto.output import BookKeywordOutputDTO
-from request import Request
-from response import SuccessResponse
+from utils.request import Request
+from utils.response import SuccessResponse
 
 book_keyword_bp = Blueprint('book_keyword_bp', __name__)
 

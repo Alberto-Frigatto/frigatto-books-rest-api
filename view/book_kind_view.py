@@ -4,8 +4,8 @@ from flask_jwt_extended import jwt_required
 from controller import IBookKindController
 from dto.input import BookKindInputDTO
 from dto.output import BookKindOutputDTO
-from request import Request
-from response import PaginationResponse, SuccessResponse
+from utils.request import Request
+from utils.response import PaginationResponse, SuccessResponse
 
 book_kind_bp = Blueprint('book_kind_bp', __name__)
 

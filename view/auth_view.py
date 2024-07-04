@@ -4,8 +4,8 @@ from flask_jwt_extended import jwt_required, set_access_cookies, unset_jwt_cooki
 from controller import IAuthController
 from dto.input import LoginInputDTO
 from dto.output import UserOutputDTO
-from request import Request
-from response import SuccessResponse
+from utils.request import Request
+from utils.response import SuccessResponse
 
 auth_bp = Blueprint('auth_bp', __name__)
 

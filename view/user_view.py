@@ -4,8 +4,8 @@ from flask_jwt_extended import jwt_required
 from controller import IUserController
 from dto.input import CreateUserInputDTO, UpdateUserInputDTO
 from dto.output import UserOutputDTO
-from request import Request
-from response import SuccessResponse
+from utils.request import Request
+from utils.response import SuccessResponse
 
 user_bp = Blueprint('user_bp', __name__)
 

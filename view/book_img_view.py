@@ -4,8 +4,8 @@ from flask_jwt_extended import jwt_required
 from controller import IBookImgController
 from dto.input import BookImgInputDTO
 from dto.output import BookImgOutputDTO
-from request import Request
-from response import SuccessResponse
+from utils.request import Request
+from utils.response import SuccessResponse
 
 book_img_bp = Blueprint('book_img_bp', __name__)
 

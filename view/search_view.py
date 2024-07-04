@@ -3,8 +3,8 @@ from flask import Blueprint, Response
 from controller import ISearchController
 from dto.input import SearchInputDTO
 from dto.output import BookOutputDTO
-from request import Request
-from response import PaginationResponse
+from utils.request import Request
+from utils.response import PaginationResponse
 
 search_bp = Blueprint('search_bp', __name__)
 
