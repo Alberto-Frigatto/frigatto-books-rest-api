@@ -4,7 +4,7 @@ from werkzeug.exceptions import MethodNotAllowed, NotFound
 
 from db import db
 from exception import GeneralException
-from response import ErrorResponse, SuccessResponse
+from utils.response import ErrorResponse, SuccessResponse
 
 
 def add_middlewares(app: Flask) -> None:
