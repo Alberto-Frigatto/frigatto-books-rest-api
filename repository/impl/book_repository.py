@@ -4,8 +4,8 @@ from sqlalchemy import select
 
 from db import IDbSession
 from exception import BookException
-from image_uploader import BookImageUploader
 from model import Book
+from utils.file.uploader import BookImageUploader
 
 from .. import IBookRepository
 
