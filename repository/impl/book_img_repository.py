@@ -2,8 +2,8 @@ from injector import inject
 
 from db import IDbSession
 from exception import BookImgException
-from image_uploader import BookImageUploader
 from model import BookImg
+from utils.file.uploader import BookImageUploader
 
 from .. import IBookImgRepository
 
