@@ -22,3 +22,10 @@ class BookImgException:
                 message=f'The book {id_book} must have at least one image',
                 status=400,
             )
+
+    class BookAlreadyHaveImageMaxQty(ApiException):
+        def __init__(self, name: str) -> None:
+            super().__init__(
+                message=f'The book "{name}" already have the max quantity of images',
+                status=400,
+            )
