@@ -1,5 +1,6 @@
 from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required
+from werkzeug.datastructures import FileStorage
 
 from controller import IBookController
 from dto.input import CreateBookInputDTO, UpdateBookInputDTO
@@ -32,7 +33,11 @@ class BookView:
     @book_bp.post('')
     @jwt_required()
     def create_book(controller: IBookController) -> Response:
-        request_data = {**Request.get_form(), 'imgs': Request.get_files().getlist('imgs')}
+        request_data: dict[str, str | list[FileStorage]] = {**Request.get_form()}
+
+        if 'imgs' not in request_data:
+            request_data['imgs'] = Request.get_files().getlist('imgs')
+
         input_dto = CreateBookInputDTO(**request_data)
 
         new_book = controller.create_book(input_dto)
