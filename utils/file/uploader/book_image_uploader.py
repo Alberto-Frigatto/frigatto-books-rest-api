@@ -1,9 +1,8 @@
 import os
 
 from flask import current_app
-from werkzeug.datastructures import FileStorage
 
-from .image_uploader import ImageUploader
+from .base import ImageUploader
 
 
 class BookImageUploader(ImageUploader):
@@ -13,13 +12,6 @@ class BookImageUploader(ImageUploader):
     def save(self) -> None:
         filename = os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], self._new_filename)
         self._file.save(filename)
-
-    @classmethod
-    def validate_file(cls, file: FileStorage) -> bool:
-        max_size = current_app.config['BOOK_PHOTOS_MAX_SIZE']
-        file_size = cls._get_file_size(file)
-
-        return cls._has_valid_extensions(file.filename) and file_size <= max_size
 
     @classmethod
     def delete(cls, img_url: str) -> None:

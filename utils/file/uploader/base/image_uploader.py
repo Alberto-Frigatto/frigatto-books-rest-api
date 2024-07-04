@@ -24,18 +24,10 @@ class ImageUploader(metaclass=ABCMeta):
         pass
 
     @classmethod
-    def _has_valid_extensions(cls, filename: str | None) -> bool:
-        return isinstance(filename, str) and filename.lower().endswith(cls._allowed_extensions)
-
-    @classmethod
-    def _get_file_size(cls, file: FileStorage) -> int:
-        file.stream.seek(0, 2)
-        file_size = file.stream.tell()
-        file.stream.seek(0)
-
-        return file_size
-
-    @classmethod
     @abstractmethod
     def delete(cls, img_url: str) -> None:
         pass
+
+    @property
+    def file(self) -> FileStorage:
+        return self._file
