@@ -16,65 +16,91 @@ def app():
     with app.app_context():
         db.create_all()
         db.session.execute(
-            text(
-                """
-            INSERT INTO book_genres
-                (genre)
-                VALUES ('fantasia'),
-                        ('ficção científica'),
-                        ('suspense'),
-                        ('técnico'),
-                        ('terror')
-        """
-            )
+            text("INSERT INTO book_genres (genre) VALUES (:genre)"),
+            [
+                {'genre': 'fantasia'},
+                {'genre': 'ficção científica'},
+                {'genre': 'suspense'},
+                {'genre': 'técnico'},
+                {'genre': 'terror'},
+            ],
+        )
+        db.session.execute(
+            text("INSERT INTO book_kinds (kind) VALUES (:kind)"),
+            [{'kind': 'ebook'}, {'kind': 'físico'}, {'kind': 'kindle'}],
         )
         db.session.execute(
             text(
+                """--sql
+                INSERT INTO books
+                    (name, price, author, release_year, id_kind, id_genre)
+                    VALUES
+                        (:name, :price, :author, :release_year, :id_kind, :id_genre)
                 """
-            INSERT INTO book_kinds
-                (kind)
-                VALUES ('ebook'),
-                        ('físico'),
-                        ('kindle')
-        """
-            )
+            ),
+            [
+                {
+                    'name': 'O Poderoso Chefão',
+                    'price': 50,
+                    'author': 'Mario Puzo',
+                    'release_year': 1962,
+                    'id_kind': 1,
+                    'id_genre': 3,
+                },
+                {
+                    'name': 'O Pequeno Príncipe',
+                    'price': 9.99,
+                    'author': 'Antoine de Saint Exupéry',
+                    'release_year': 1943,
+                    'id_kind': 1,
+                    'id_genre': 1,
+                },
+                {
+                    'name': 'O Mundo Perdido',
+                    'price': 115.47,
+                    'author': 'Árthur Conan Doyle',
+                    'release_year': 1912,
+                    'id_kind': 3,
+                    'id_genre': 5,
+                },
+                {
+                    'name': '1984',
+                    'price': 45.99,
+                    'author': 'George Orwell',
+                    'release_year': 1949,
+                    'id_kind': 3,
+                    'id_genre': 3,
+                },
+                {
+                    'name': 'A Revolução dos Bichos',
+                    'price': 5,
+                    'author': 'George Orwell',
+                    'release_year': 1945,
+                    'id_kind': 2,
+                    'id_genre': 3,
+                },
+            ],
         )
         db.session.execute(
-            text(
-                """
-            INSERT INTO books
-                (name, price, author, release_year, id_kind, id_genre)
-                VALUES ('O Poderoso Chefão', 50.00, 'Mario Puzo', 1962, 1, 3),
-                        ('O Pequeno Príncipe', 9.99, 'Antoine de Saint Exupéry', 1943, 1, 1),
-                        ('O Mundo Perdido', 115.47, 'Árthur Conan Doyle', 1912, 3, 5),
-                        ('1984', 45.99, 'George Orwell', 1949, 3, 3),
-                        ('A Revolução dos Bichos', 5.00, 'George Orwell', 1945, 2, 3)
-        """
-            )
-        )
-        db.session.execute(
-            text(
-                """
-            INSERT INTO book_keywords
-                (keyword, id_book)
-                VALUES ('máfia', 1),
-                        ('tiro', 1),
-                        ('família', 1),
-                        ('itália', 1),
-                        ('filosófico', 2),
-                        ('infantil', 2),
-                        ('clássico', 2),
-                        ('fantástico', 3),
-                        ('animais', 3),
-                        ('ditadura', 4),
-                        ('comunismo', 4),
-                        ('governo', 4),
-                        ('ditadura', 5),
-                        ('comunismo', 5),
-                        ('governo', 5),
-                        ('animais', 5);
-        """
-            )
+            text("INSERT INTO book_keywords (keyword, id_book) VALUES (:keyword, :id_book)"),
+            [
+                {'keyword': 'máfia', 'id_book': 1},
+                {'keyword': 'tiro', 'id_book': 1},
+                {'keyword': 'família', 'id_book': 1},
+                {'keyword': 'itália', 'id_book': 1},
+                {'keyword': 'filosófico', 'id_book': 2},
+                {'keyword': 'infantil', 'id_book': 2},
+                {'keyword': 'clássico', 'id_book': 2},
+                {'keyword': 'fantástico', 'id_book': 3},
+                {'keyword': 'animais', 'id_book': 3},
+                {'keyword': 'ditadura', 'id_book': 4},
+                {'keyword': 'comunismo', 'id_book': 4},
+                {'keyword': 'governo', 'id_book': 4},
+                {'keyword': 'ditadura', 'id_book': 5},
+                {'keyword': 'comunismo', 'id_book': 5},
+                {'keyword': 'governo', 'id_book': 5},
+                {'keyword': 'animais', 'id_book': 5},
+            ],
         )
 
         db.session.commit()
@@ -88,9 +114,7 @@ def client(app: Flask) -> FlaskClient:
 
 
 def test_search_books_by_name_using_query(client: FlaskClient):
-    search = {
-        'query': 'príncipe',
-    }
+    search = {'query': 'príncipe'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -115,14 +139,20 @@ def test_search_books_by_name_using_query(client: FlaskClient):
                 ],
             }
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 1,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
     assert response.status_code == 200
 
-    search = {
-        'query': ' biCHo ',
-    }
+    search = {'query': ' biCHo '}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -148,6 +178,14 @@ def test_search_books_by_name_using_query(client: FlaskClient):
                 ],
             }
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 1,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -155,9 +193,7 @@ def test_search_books_by_name_using_query(client: FlaskClient):
 
 
 def test_search_books_by_author_using_query(client: FlaskClient):
-    search = {
-        'query': 'orwell',
-    }
+    search = {'query': 'orwell'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -198,14 +234,20 @@ def test_search_books_by_author_using_query(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 2,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
     assert response.status_code == 200
 
-    search = {
-        'query': 'mario',
-    }
+    search = {'query': 'mario'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -231,6 +273,14 @@ def test_search_books_by_author_using_query(client: FlaskClient):
                 ],
             }
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 1,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -238,9 +288,7 @@ def test_search_books_by_author_using_query(client: FlaskClient):
 
 
 def test_search_books_by_keyword_using_query(client: FlaskClient):
-    search = {
-        'query': 'comunismo',
-    }
+    search = {'query': 'comunismo'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -281,14 +329,20 @@ def test_search_books_by_keyword_using_query(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 2,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
     assert response.status_code == 200
 
-    search = {
-        'query': 'animais',
-    }
+    search = {'query': 'animais'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -328,6 +382,14 @@ def test_search_books_by_keyword_using_query(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 2,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -337,9 +399,7 @@ def test_search_books_by_keyword_using_query(client: FlaskClient):
 def test_search_books_with_query_doesnt_match_any_book_returns_empty_data(
     client: FlaskClient,
 ):
-    search = {
-        'query': 'aaa',
-    }
+    search = {'query': 'aaa'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -348,6 +408,14 @@ def test_search_books_with_query_doesnt_match_any_book_returns_empty_data(
         'error': False,
         'status': 200,
         'data': [],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 0,
+        'total_pages': 0,
     }
 
     assert response_data == expected_data
@@ -357,35 +425,43 @@ def test_search_books_with_query_doesnt_match_any_book_returns_empty_data(
 def test_when_try_to_search_books_with_invalid_query_returns_error_response(
     client: FlaskClient,
 ):
-    search = {
-        'query': 123,
-    }
+    search = {'query': 123}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {'loc': ['query'], 'msg': 'Input should be a valid string', 'type': 'string_type'}
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
-    search = {
-        'query': [1, 2, 3],
-    }
+    search = {'query': [1, 2, 3]}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {'loc': ['query'], 'msg': 'Input should be a valid string', 'type': 'string_type'}
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
 def test_search_books_by_release_year_filter(client: FlaskClient):
-    search = {
-        'release_year': 1912,
-    }
+    search = {'release_year': 1912}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -409,14 +485,20 @@ def test_search_books_by_release_year_filter(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 1,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
     assert response.status_code == 200
 
-    search = {
-        'release_year': 1949,
-    }
+    search = {'release_year': 1949}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -441,6 +523,14 @@ def test_search_books_by_release_year_filter(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 1,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -450,9 +540,7 @@ def test_search_books_by_release_year_filter(client: FlaskClient):
 def test_search_books_with_release_year_filter_doesnt_match_any_book_returns_empty_data(
     client: FlaskClient,
 ):
-    search = {
-        'release_year': 2015,
-    }
+    search = {'release_year': 2015}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -461,6 +549,14 @@ def test_search_books_with_release_year_filter_doesnt_match_any_book_returns_emp
         'error': False,
         'status': 200,
         'data': [],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 0,
+        'total_pages': 0,
     }
 
     assert response_data == expected_data
@@ -470,37 +566,47 @@ def test_search_books_with_release_year_filter_doesnt_match_any_book_returns_emp
 def test_when_try_to_search_books_with_invalid_release_year_filter_returns_error_response(
     client: FlaskClient,
 ):
-    search = {
-        'release_year': 'asd',
-    }
+    search = {'release_year': 'asd'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {
+                'loc': ['release_year'],
+                'msg': 'Input should be a valid integer, unable to parse string as an integer',
+                'type': 'int_parsing',
+            }
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
-    search = {
-        'filter': {
-            'release_year': [1, 2, 3],
-        }
-    }
+    search = {'release_year': [1, 2, 3]}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {'loc': ['release_year'], 'msg': 'Input should be a valid integer', 'type': 'int_type'}
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
 def test_search_books_by_kind_using_id_book_kind_filter(client: FlaskClient):
-    search = {
-        'id_book_kind': 1,
-    }
+    search = {'id_book_kind': 1}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -541,14 +647,20 @@ def test_search_books_by_kind_using_id_book_kind_filter(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 2,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
     assert response.status_code == 200
 
-    search = {
-        'id_book_kind': 3,
-    }
+    search = {'id_book_kind': 3}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -587,6 +699,14 @@ def test_search_books_by_kind_using_id_book_kind_filter(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 2,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -596,51 +716,66 @@ def test_search_books_by_kind_using_id_book_kind_filter(client: FlaskClient):
 def test_when_try_to_search_books_with_invalid_id_book_kind_filter_returns_error_response(
     client: FlaskClient,
 ):
-    search = {
-        'id_book_kind': 'asd',
-    }
+    search = {'id_book_kind': 'asd'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {
+                'loc': ['id_book_kind'],
+                'msg': 'Input should be a valid integer, unable to parse string as an integer',
+                'type': 'int_parsing',
+            }
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
-    search = {
-        'id_book_kind': [1, 2, 3],
-    }
+    search = {'id_book_kind': [1, 2, 3]}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {'loc': ['id_book_kind'], 'msg': 'Input should be a valid integer', 'type': 'int_type'}
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
 def test_when_try_to_search_books_with_id_book_kind_filter_doesnt_exists_returns_error_response(
     client: FlaskClient,
 ):
-    search = {
-        'id_book_kind': 100,
-    }
+    search = {'id_book_kind': 100}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 404
-    assert response_data['error_name'] == 'BookKindDoesntExists'
+    expected_data = {
+        'error': True,
+        'error_name': 'BookKindDoesntExists',
+        'message': f'The book kind {search["id_book_kind"]} does not exist',
+        'status': 404,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 404
 
 
 def test_search_books_by_genre_using_id_book_genre_filter(client: FlaskClient):
-    search = {
-        'id_book_genre': 3,
-    }
+    search = {'id_book_genre': 3}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
@@ -697,6 +832,14 @@ def test_search_books_by_genre_using_id_book_genre_filter(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 3,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -706,44 +849,61 @@ def test_search_books_by_genre_using_id_book_genre_filter(client: FlaskClient):
 def test_when_try_to_search_books_with_invalid_id_book_genre_filter_returns_error_response(
     client: FlaskClient,
 ):
-    search = {
-        'id_book_genre': 'asd',
-    }
+    search = {'id_book_genre': 'asd'}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {
+                'loc': ['id_book_genre'],
+                'msg': 'Input should be a valid integer, unable to parse string as an integer',
+                'type': 'int_parsing',
+            }
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
-    search = {
-        'id_book_genre': [1, 2, 3],
-    }
+    search = {'id_book_genre': [1, 2, 3]}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {'loc': ['id_book_genre'], 'msg': 'Input should be a valid integer', 'type': 'int_type'}
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
 def test_when_try_to_search_books_with_id_book_genre_filter_doesnt_exists_returns_error_response(
     client: FlaskClient,
 ):
-    search = {
-        'id_book_genre': 100,
-    }
+    search = {'id_book_genre': 100}
 
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 404
-    assert response_data['error_name'] == 'BookGenreDoesntExists'
+    expected_data = {
+        'error': True,
+        'error_name': 'BookGenreDoesntExists',
+        'message': f'The book genre {search["id_book_genre"]} does not exist',
+        'status': 404,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 404
 
 
@@ -788,6 +948,14 @@ def test_search_books_by_min_price_using_min_price_filter(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 2,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -802,9 +970,20 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {
+                'loc': ['min_price'],
+                'msg': 'Input should be a valid decimal',
+                'type': 'decimal_parsing',
+            }
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
     search = {'min_price': [1, 2, 3]}
@@ -812,9 +991,20 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {
+                'loc': ['min_price'],
+                'msg': 'Decimal input should be an integer, float, string or Decimal object',
+                'type': 'decimal_type',
+            }
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
@@ -875,6 +1065,14 @@ def test_search_books_by_max_price_using_max_price_filter(client: FlaskClient):
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 3,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -889,9 +1087,20 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {
+                'loc': ['max_price'],
+                'msg': 'Input should be a valid decimal',
+                'type': 'decimal_parsing',
+            }
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
     search = {'max_price': [1, 2, 3]}
@@ -899,9 +1108,20 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {
+                'loc': ['max_price'],
+                'msg': 'Decimal input should be an integer, float, string or Decimal object',
+                'type': 'decimal_type',
+            }
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
@@ -947,6 +1167,14 @@ def test_search_books_by_min_and_max_price_using_min_and_max_price_filter(client
                 ],
             },
         ],
+        'has_next': False,
+        'has_prev': False,
+        'next_page': None,
+        'page': 1,
+        'per_page': 20,
+        'prev_page': None,
+        'total_items': 2,
+        'total_pages': 1,
     }
 
     assert response_data == expected_data
@@ -961,9 +1189,16 @@ def test_when_try_to_search_books_with_invalid_data_returns_error_response(
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': [
+            {'loc': ['key'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'}
+        ],
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
     search = 123
@@ -971,9 +1206,14 @@ def test_when_try_to_search_books_with_invalid_data_returns_error_response(
     response = client.get('/search', json=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'InvalidDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
@@ -983,9 +1223,14 @@ def test_when_try_to_search_books_without_data_returns_error_response(
     response = client.get('/search')
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['status'] == 400
-    assert response_data['error_name'] == 'NoDataSent'
+    expected_data = {
+        'error': True,
+        'error_name': 'NoDataSent',
+        'message': 'No data sent',
+        'status': 400,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 400
 
 
@@ -1001,7 +1246,12 @@ def test_when_try_to_search_books_with_content_type_multipart_form_data_returns_
     response = client.get('/search', headers=headers, data=search)
     response_data = json.loads(response.data)
 
-    assert response_data['error']
-    assert response_data['error_name'] == 'InvalidContentType'
-    assert response_data['status'] == 415
+    expected_data = {
+        'error': True,
+        'error_name': 'InvalidContentType',
+        'message': 'Invalid Content-Type header',
+        'status': 415,
+    }
+
+    assert response_data == expected_data
     assert response.status_code == 415
