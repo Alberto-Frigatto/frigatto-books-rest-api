@@ -4,7 +4,7 @@ from flask import current_app
 from injector import inject
 
 from dto.input import BookImgInputDTO
-from exception import BookException, BookImgException, ImageException
+from exception import BookImgException, ImageException
 from model import Book, BookImg
 from repository import IBookImgRepository, IBookRepository
 from utils.file.uploader import BookImageUploader
@@ -40,7 +40,7 @@ class BookImgService(IBookImgService):
         book = self.book_repository.get_by_id(id_book)
 
         if self._does_book_already_have_max_qty_imgs(book):
-            raise BookException.BookAlreadyHaveImageMaxQty(book.name)
+            raise BookImgException.BookAlreadyHaveImageMaxQty(book.name)
 
         book_img = BookImg(input_dto.img.get_url())
         book_img.id_book = book.id
