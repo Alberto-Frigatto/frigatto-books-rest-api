@@ -28,13 +28,17 @@ class BookGenreRepository(IBookGenreRepository):
         return book_genre
 
     def add(self, book_genre: BookGenre) -> None:
-        if self._book_genre_already_exists(book_genre.genre):
+        if self._book_genre_already_exists(book_genre):
             raise BookGenreException.BookGenreAlreadyExists(book_genre.genre)
 
         self.session.add(book_genre)
 
-    def _book_genre_already_exists(self, book_genre_name: str) -> bool:
-        query = select(BookGenre).filter_by(genre=book_genre_name)
+    def _book_genre_already_exists(self, book_genre: BookGenre) -> bool:
+        query = (
+            select(BookGenre)
+            .filter_by(genre=book_genre.genre)
+            .where((BookGenre.id != book_genre.id))
+        )
 
         return bool(self.session.get_one(query))
 
@@ -52,7 +56,7 @@ class BookGenreRepository(IBookGenreRepository):
         return bool(self.session.get_many(query))
 
     def update(self, book_genre: BookGenre) -> None:
-        if self._book_genre_already_exists(book_genre.genre):
+        if self._book_genre_already_exists(book_genre):
             raise BookGenreException.BookGenreAlreadyExists(book_genre.genre)
 
         self.session.update()
