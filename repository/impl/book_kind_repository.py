@@ -28,13 +28,13 @@ class BookKindRepository(IBookKindRepository):
         return book_kind
 
     def add(self, book_kind: BookKind) -> None:
-        if self._book_kind_already_exists(book_kind.kind):
+        if self._book_kind_already_exists(book_kind):
             raise BookKindException.BookKindAlreadyExists(book_kind.kind)
 
         self.session.add(book_kind)
 
-    def _book_kind_already_exists(self, book_kind_name: str) -> bool:
-        query = select(BookKind).filter_by(kind=book_kind_name)
+    def _book_kind_already_exists(self, book_kind: BookKind) -> bool:
+        query = select(BookKind).filter_by(kind=book_kind.kind).where((BookKind.id != book_kind.id))
 
         return bool(self.session.get_one(query))
 
@@ -51,7 +51,7 @@ class BookKindRepository(IBookKindRepository):
         return bool(self.session.get_many(query))
 
     def update(self, book_kind: BookKind) -> None:
-        if self._book_kind_already_exists(book_kind.kind):
+        if self._book_kind_already_exists(book_kind):
             raise BookKindException.BookKindAlreadyExists(book_kind.kind)
 
         self.session.update()
