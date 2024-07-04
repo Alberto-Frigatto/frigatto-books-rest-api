@@ -13,5 +13,13 @@ class InputDTO(BaseModel):
             super().__init__(**data)
         except ValidationError as e:
             raise GeneralException.InvalidDataSent(
-                e.errors(include_url=False, include_context=False, include_input=False)
+                e.errors(
+                    include_url=False,
+                    include_context=False,
+                    include_input=False,
+                )
             )
+
+    @property
+    def items(self) -> list[tuple[str, Any]]:
+        return list(self.__dict__.items())
