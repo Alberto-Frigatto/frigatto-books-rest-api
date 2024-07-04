@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, Optional
 
-from pydantic import ConfigDict, Field, PositiveInt, StringConstraints
+from pydantic import ConfigDict, Field, StringConstraints
 from werkzeug.datastructures import FileStorage
 
 from dto.base import InputDTO
@@ -35,8 +35,8 @@ class UpdateBookInputDTO(InputDTO):
         ]
     ] = None
     release_year: Optional[Annotated[int, Field(ge=1000, le=datetime.now().year)]] = None
-    id_book_kind: Optional[Annotated[int, PositiveInt]] = None
-    id_book_genre: Optional[Annotated[int, PositiveInt]] = None
+    id_book_kind: Optional[Annotated[int, Field(gt=0)]] = None
+    id_book_genre: Optional[Annotated[int, Field(gt=0)]] = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra='forbid')
 
