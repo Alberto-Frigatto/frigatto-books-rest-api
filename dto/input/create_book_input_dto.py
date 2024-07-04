@@ -2,11 +2,27 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Annotated
 
-from pydantic import ConfigDict, Field, PositiveInt, StringConstraints, field_validator
+from flask import current_app
+from pydantic import ConfigDict, Field, StringConstraints, field_validator
+from pydantic.functional_validators import AfterValidator
 from werkzeug.datastructures import FileStorage
 
 from dto.base import InputDTO
-from image_uploader import BookImageUploader
+from exception import BookException, BookKeywordException, ImageException
+from utils.file.uploader import BookImageUploader
+from utils.file.validator import BookImageValidator
+
+
+def validate_img(img_uploader: BookImageUploader) -> BookImageUploader:
+    if not BookImageValidator.has_valid_extension(img_uploader.file):
+        raise ImageException.FileIsNotAnImage()
+
+    if not BookImageValidator.has_valid_size(img_uploader.file):
+        max_file_size: int = current_app.config["BOOK_PHOTOS_MAX_SIZE"] // int(1e6)
+
+        raise ImageException.ImageIsTooLarge(max_file_size)
+
+    return img_uploader
 
 
 class CreateBookInputDTO(InputDTO):
@@ -44,28 +60,35 @@ class CreateBookInputDTO(InputDTO):
             ),
         ]
     ]
-    id_book_kind: Annotated[int, PositiveInt]
-    id_book_genre: Annotated[int, PositiveInt]
-    imgs: list[BookImageUploader]
+    id_book_kind: Annotated[int, Field(gt=0)]
+    id_book_genre: Annotated[int, Field(gt=0)]
+    imgs: list[Annotated[BookImageUploader, AfterValidator(validate_img)]]
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra='forbid')
 
     @field_validator('keywords', mode='before')
+    @classmethod
     def cast_keywords_to_list_str(cls, keywords: str) -> list[str]:
         if not keywords:
-            raise ValueError('Book must contains at least 1 keyword')
+            raise BookKeywordException.BookMustContainsAtLeastOneKeywordOnCreation()
 
         return [keyword.strip() for keyword in keywords.strip().split(';') if keyword]
 
-    @field_validator('imgs', mode='plain')
+    @field_validator('imgs', mode='before')
+    @classmethod
     def cast_imgs_to_list_UserImageUploader(
-        cls, imgs: list[FileStorage]
+        cls, imgs: list[FileStorage] | str
     ) -> list[BookImageUploader]:
-        if not 1 <= len(imgs) <= 5:
-            raise ValueError('Book must contains at least 1 and a maximum 5 images')
+        if not isinstance(imgs, list) or not all(BookImageValidator.is_a_file(img) for img in imgs):
+            raise ImageException.ImagesArentFiles()
 
-        if not all(BookImageUploader.validate_file(img) for img in imgs):
-            raise ValueError('img is larger than 7MB or is not a image')
+        min_qty = 1
+        if len(imgs) < min_qty:
+            raise BookException.BookImageListTooShort(min_qty)
+
+        max_qty = current_app.config['BOOK_IMG_MAX_QTY']
+        if len(imgs) > max_qty:
+            raise BookException.BookImageListTooLong(max_qty)
 
         return [BookImageUploader(img) for img in imgs]
 
