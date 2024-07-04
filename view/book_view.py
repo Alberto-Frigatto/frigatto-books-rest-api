@@ -57,9 +57,9 @@ class BookView:
     @book_bp.patch('/<id>')
     @jwt_required()
     def update_book(id: str, controller: IBookController) -> Response:
-        input_book = UpdateBookInputDTO(**Request.get_form())
+        input_dto = UpdateBookInputDTO(**Request.get_form())
 
-        updated_book = controller.update_book(id, input_book)
+        updated_book = controller.update_book(id, input_dto)
         data = BookOutputDTO.dump(updated_book)
 
         return SuccessResponse(data).json()
