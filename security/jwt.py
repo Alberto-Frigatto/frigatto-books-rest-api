@@ -5,7 +5,7 @@ from db import db
 from exception import SecurityException
 from exception.base import ApiException
 from model import User
-from response import ErrorResponse
+from utils.response import ErrorResponse
 
 jwt = JWTManager()
 
