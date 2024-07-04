@@ -6,9 +6,9 @@ from injector import inject
 
 from dto.input import CreateUserInputDTO, UpdateUserInputDTO
 from exception import AuthException, ImageException
-from image_uploader import UserImageUploader
 from model import User
 from repository import IUserRepository
+from utils.file.uploader import UserImageUploader
 
 from .. import IUserService
 
@@ -51,20 +51,19 @@ class UserService(IUserService):
         )
 
     def update_user(self, input_dto: UpdateUserInputDTO) -> User:
-        for key, value in input_dto.__dict__.items():
+        for key, value in input_dto.items:
             if value is not None and key != 'img':
                 getattr(current_user, f'update_{key.strip()}')(value)
 
+        old_img_url: str | None = None
         if input_dto.img is not None:
-            self._swap_book_img(current_user.img_url, input_dto.img)
+            old_img_url = current_user.img_url
+            current_user.update_img_url(input_dto.img.get_url())
 
         self.repository.update(current_user)
 
+        if old_img_url is not None and input_dto.img is not None:
+            UserImageUploader.delete(old_img_url)
+            input_dto.img.save()
+
         return current_user
-
-    def _swap_book_img(self, old_img_url: str, new_img: UserImageUploader) -> None:
-        UserImageUploader.delete(old_img_url)
-
-        current_user.update_img_url(new_img.get_url())
-
-        new_img.save()
