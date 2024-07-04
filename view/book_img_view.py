@@ -30,7 +30,7 @@ class BookImgView:
     @book_img_bp.patch('/<id_book>/photos/<id_img>')
     @jwt_required()
     def update_book_img(id_book: str, id_img: str, controller: IBookImgController) -> Response:
-        input_dto = BookImgInputDTO(**Request.get_files())
+        input_dto = BookImgInputDTO(**Request.get_form(), **Request.get_files())
 
         updated_book_img = controller.update_book_img(id_book, id_img, input_dto)
         data = BookImgOutputDTO.dump(updated_book_img)
@@ -41,7 +41,7 @@ class BookImgView:
     @book_img_bp.post('/<id_book>/photos')
     @jwt_required()
     def add_book_img(id_book: str, controller: IBookImgController) -> Response:
-        input_dto = BookImgInputDTO(**Request.get_files())
+        input_dto = BookImgInputDTO(**Request.get_form(), **Request.get_files())
 
         new_book_img = controller.create_book_img(id_book, input_dto)
         data = BookImgOutputDTO.dump(new_book_img)
