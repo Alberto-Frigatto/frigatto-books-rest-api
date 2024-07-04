@@ -33,9 +33,6 @@ class Request:
 
     @classmethod
     def get_files(cls) -> ImmutableMultiDict[str, FileStorage]:
-        if not cls._are_there_data():
-            raise GeneralException.NoDataSent()
-
         return request.files
 
     @classmethod
