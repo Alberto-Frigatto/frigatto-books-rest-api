@@ -9,13 +9,6 @@ class BookException:
                 status=409,
             )
 
-    class BookAlreadyHaveImageMaxQty(ApiException):
-        def __init__(self, name: str) -> None:
-            super().__init__(
-                message=f'The book "{name}" already have the max quantity of images',
-                status=400,
-            )
-
     class BookDoesntExists(ApiException):
         def __init__(self, id: str) -> None:
             super().__init__(
