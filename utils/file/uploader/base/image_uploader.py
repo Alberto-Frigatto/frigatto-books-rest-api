@@ -6,7 +6,6 @@ from werkzeug.datastructures import FileStorage
 
 class ImageUploader(metaclass=ABCMeta):
     _base_url = 'http://localhost:5000'
-    _allowed_extensions = '.png', '.jpg', '.jpeg'
 
     def __init__(self, image: FileStorage) -> None:
         self._file = image
