@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 from flask import Flask
@@ -106,11 +107,7 @@ def test_add_book_keyword_in_lowercase(client: FlaskClient, access_token: str, a
     response_data = json.loads(response.data)
 
     new_keyword_id = 4
-    expected_data = {
-        'error': False,
-        'status': 201,
-        'data': {'id': new_keyword_id, 'keyword': data['keyword']},
-    }
+    expected_data = {'id': new_keyword_id, 'keyword': data['keyword']}
 
     assert response_data == expected_data
     assert response.status_code == 201
@@ -136,11 +133,7 @@ def test_add_book_keyword_with_space_and_in_uppercase(
     response_data = json.loads(response.data)
 
     new_keyword_id = 4
-    expected_data = {
-        'error': False,
-        'status': 201,
-        'data': {'id': new_keyword_id, 'keyword': data['keyword'].lower().strip()},
-    }
+    expected_data = {'id': new_keyword_id, 'keyword': data['keyword'].lower().strip()}
 
     assert response_data == expected_data
     assert response.status_code == 201
@@ -154,6 +147,31 @@ def test_add_book_keyword_with_space_and_in_uppercase(
         assert book_keyword.id_book == book_id
 
 
+def test_when_try_to_add_book_keyword_in_book_does_not_exists_returns_error_response(
+    client: FlaskClient, access_token: str
+):
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    data = {'keyword': 'emocionante'}
+    book_id = 100
+
+    response = client.post(f'/books/{book_id}/keywords', headers=headers, json=data)
+    response_data = json.loads(response.data)
+
+    expected_data = {
+        'scope': 'BookException',
+        'code': 'BookDoesntExists',
+        'message': f'The book {book_id} does not exist',
+        'status': 404,
+    }
+
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
+    assert response.status_code == 404
+
+
 def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, access_token: str):
     headers = {'Authorization': f'Bearer {access_token}'}
 
@@ -165,9 +183,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['keyword'],
                 'msg': 'String should have at least 3 characters',
@@ -177,7 +196,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'keyword': '  '}
@@ -186,9 +208,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['keyword'],
                 'msg': 'String should have at least 3 characters',
@@ -198,7 +221,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'keyword': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
@@ -207,9 +233,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['keyword'],
                 'msg': 'String should have at most 20 characters',
@@ -219,7 +246,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'keyword': 'adwa234@#$@#$as'}
@@ -228,9 +258,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['keyword'],
                 'msg': "String should match pattern '^[a-zA-ZÀ-ÿç\\s\\d]+$'",
@@ -240,7 +271,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'keyword': 456}
@@ -249,15 +283,19 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['keyword'], 'msg': 'Input should be a valid string', 'type': 'string_type'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'keywords': 'teste'}
@@ -266,9 +304,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['keyword'], 'msg': 'Field required', 'type': 'missing'},
             {
                 'loc': ['keywords'],
@@ -279,7 +318,10 @@ def test_when_try_to_add_book_keyword_with_invalid_data(client: FlaskClient, acc
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -292,13 +334,16 @@ def test_when_try_to_add_book_keyword_without_data(client: FlaskClient, access_t
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'NoDataSent',
+        'scope': 'GeneralException',
+        'code': 'NoDataSent',
         'message': 'No data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -317,13 +362,16 @@ def test_when_try_to_add_book_keyword_with_content_type_multipart_form_data_retu
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidContentType',
+        'scope': 'GeneralException',
+        'code': 'InvalidContentType',
         'message': 'Invalid Content-Type header',
         'status': 415,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 415
 
 
@@ -335,13 +383,16 @@ def test_when_try_to_add_book_keyword_without_auth_return_error_response(client:
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -355,13 +406,16 @@ def test_when_try_to_add_book_keyword_with_invalid_auth_return_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -372,12 +426,9 @@ def test_delete_book_keyword(client: FlaskClient, access_token: str, app: Flask)
     book_keyword_id = 2
 
     response = client.delete(f'/books/{book_id}/keywords/{book_keyword_id}', headers=headers)
-    response_data = json.loads(response.data)
 
-    expected_data = {'error': False, 'status': 200}
-
-    assert response_data == expected_data
-    assert response.status_code == 200
+    assert not response.data
+    assert response.status_code == 204
 
     with app.app_context():
         book_keyword = db.session.get(BookKeyword, book_keyword_id)
@@ -395,13 +446,16 @@ def test_when_try_to_delete_book_keyword_without_auth_return_error_response(clie
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -420,13 +474,16 @@ def test_when_try_to_delete_book_keyword_with_invalid_auth_return_error_response
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -442,13 +499,16 @@ def test_when_try_to_delete_last_book_keyword_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookMustHaveAtLeastOneKeyword',
+        'scope': 'BookKeywordException',
+        'code': 'BookMustHaveAtLeastOneKeyword',
         'message': f'The book {book_id} must have at least one keyword',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -464,13 +524,16 @@ def test_when_try_to_delete_book_keyword_does_not_exists_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookKeywordDoesntExists',
+        'scope': 'BookKeywordException',
+        'code': 'BookKeywordDoesntExists',
         'message': f'The keyword {book_keyword_id} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -486,13 +549,16 @@ def test_when_try_to_delete_book_keyword_from_book_does_not_exists_returns_error
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookDoesntExists',
+        'scope': 'BookException',
+        'code': 'BookDoesntExists',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -508,11 +574,14 @@ def test_when_try_to_delete_book_keyword_from_book_does_not_own_it_returns_error
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookDoesntOwnThisKeyword',
+        'scope': 'BookKeywordException',
+        'code': 'BookDoesntOwnThisKeyword',
         'message': f'The keyword {book_keyword_id} does not belong to the book {book_id}',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401

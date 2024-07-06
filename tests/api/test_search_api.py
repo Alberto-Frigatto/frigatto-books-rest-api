@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 from flask import Flask
@@ -120,8 +121,6 @@ def test_search_books_by_name_using_query(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 2,
@@ -158,8 +157,6 @@ def test_search_books_by_name_using_query(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 5,
@@ -199,8 +196,6 @@ def test_search_books_by_author_using_query(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 4,
@@ -253,8 +248,6 @@ def test_search_books_by_author_using_query(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 1,
@@ -294,8 +287,6 @@ def test_search_books_by_keyword_using_query(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 4,
@@ -348,8 +339,6 @@ def test_search_books_by_keyword_using_query(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 3,
@@ -405,8 +394,6 @@ def test_search_books_with_query_doesnt_match_any_book_returns_empty_data(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [],
         'has_next': False,
         'has_prev': False,
@@ -431,15 +418,19 @@ def test_when_try_to_search_books_with_invalid_query_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['query'], 'msg': 'Input should be a valid string', 'type': 'string_type'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     search = {'query': [1, 2, 3]}
@@ -448,15 +439,19 @@ def test_when_try_to_search_books_with_invalid_query_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['query'], 'msg': 'Input should be a valid string', 'type': 'string_type'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -467,8 +462,6 @@ def test_search_books_by_release_year_filter(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 3,
@@ -504,8 +497,6 @@ def test_search_books_by_release_year_filter(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 4,
@@ -546,8 +537,6 @@ def test_search_books_with_release_year_filter_doesnt_match_any_book_returns_emp
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [],
         'has_next': False,
         'has_prev': False,
@@ -572,9 +561,10 @@ def test_when_try_to_search_books_with_invalid_release_year_filter_returns_error
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['release_year'],
                 'msg': 'Input should be a valid integer, unable to parse string as an integer',
@@ -584,7 +574,10 @@ def test_when_try_to_search_books_with_invalid_release_year_filter_returns_error
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     search = {'release_year': [1, 2, 3]}
@@ -593,15 +586,19 @@ def test_when_try_to_search_books_with_invalid_release_year_filter_returns_error
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['release_year'], 'msg': 'Input should be a valid integer', 'type': 'int_type'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -612,8 +609,6 @@ def test_search_books_by_kind_using_id_book_kind_filter(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 1,
@@ -666,8 +661,6 @@ def test_search_books_by_kind_using_id_book_kind_filter(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 3,
@@ -722,9 +715,10 @@ def test_when_try_to_search_books_with_invalid_id_book_kind_filter_returns_error
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['id_book_kind'],
                 'msg': 'Input should be a valid integer, unable to parse string as an integer',
@@ -734,7 +728,10 @@ def test_when_try_to_search_books_with_invalid_id_book_kind_filter_returns_error
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     search = {'id_book_kind': [1, 2, 3]}
@@ -743,15 +740,19 @@ def test_when_try_to_search_books_with_invalid_id_book_kind_filter_returns_error
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['id_book_kind'], 'msg': 'Input should be a valid integer', 'type': 'int_type'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -764,13 +765,16 @@ def test_when_try_to_search_books_with_id_book_kind_filter_doesnt_exists_returns
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookKindDoesntExists',
+        'scope': 'BookKindException',
+        'code': 'BookKindDoesntExists',
         'message': f'The book kind {search["id_book_kind"]} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -781,8 +785,6 @@ def test_search_books_by_genre_using_id_book_genre_filter(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 1,
@@ -855,9 +857,10 @@ def test_when_try_to_search_books_with_invalid_id_book_genre_filter_returns_erro
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['id_book_genre'],
                 'msg': 'Input should be a valid integer, unable to parse string as an integer',
@@ -867,7 +870,10 @@ def test_when_try_to_search_books_with_invalid_id_book_genre_filter_returns_erro
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     search = {'id_book_genre': [1, 2, 3]}
@@ -876,15 +882,19 @@ def test_when_try_to_search_books_with_invalid_id_book_genre_filter_returns_erro
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['id_book_genre'], 'msg': 'Input should be a valid integer', 'type': 'int_type'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -897,13 +907,16 @@ def test_when_try_to_search_books_with_id_book_genre_filter_doesnt_exists_return
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookGenreDoesntExists',
+        'scope': 'BookGenreException',
+        'code': 'BookGenreDoesntExists',
         'message': f'The book genre {search["id_book_genre"]} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -914,8 +927,6 @@ def test_search_books_by_min_price_using_min_price_filter(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 1,
@@ -971,9 +982,10 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['min_price'],
                 'msg': 'Input should be a valid decimal',
@@ -983,7 +995,10 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     search = {'min_price': [1, 2, 3]}
@@ -992,9 +1007,10 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['min_price'],
                 'msg': 'Decimal input should be an integer, float, string or Decimal object',
@@ -1004,7 +1020,10 @@ def test_when_try_to_search_books_with_invalid_min_price_filter_returns_error_re
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -1015,8 +1034,6 @@ def test_search_books_by_max_price_using_max_price_filter(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 2,
@@ -1088,9 +1105,10 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['max_price'],
                 'msg': 'Input should be a valid decimal',
@@ -1100,7 +1118,10 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     search = {'max_price': [1, 2, 3]}
@@ -1109,9 +1130,10 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['max_price'],
                 'msg': 'Decimal input should be an integer, float, string or Decimal object',
@@ -1121,7 +1143,10 @@ def test_when_try_to_search_books_with_invalid_max_price_filter_returns_error_re
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -1132,8 +1157,6 @@ def test_search_books_by_min_and_max_price_using_min_and_max_price_filter(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': 1,
@@ -1190,15 +1213,19 @@ def test_when_try_to_search_books_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['key'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     search = 123
@@ -1207,13 +1234,16 @@ def test_when_try_to_search_books_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
         'message': 'Invalid data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -1224,13 +1254,16 @@ def test_when_try_to_search_books_without_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'NoDataSent',
+        'scope': 'GeneralException',
+        'code': 'NoDataSent',
         'message': 'No data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -1247,11 +1280,14 @@ def test_when_try_to_search_books_with_content_type_multipart_form_data_returns_
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidContentType',
+        'scope': 'GeneralException',
+        'code': 'InvalidContentType',
         'message': 'Invalid Content-Type header',
         'status': 415,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 415

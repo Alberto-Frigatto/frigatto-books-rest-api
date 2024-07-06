@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+from datetime import datetime
 
 import pytest
 from flask import Flask
@@ -93,22 +94,14 @@ def test_create_user(client: FlaskClient, app: Flask):
     response_data: dict = json.loads(response.data)
 
     new_user_id = 3
-    expected_data = {
-        'error': False,
-        'status': 201,
-        'data': {'id': new_user_id, 'username': 'frigatto'},
-    }
+    expected_data = {'id': new_user_id, 'username': 'frigatto'}
 
-    assert response_data['error'] == expected_data['error']
-    assert response_data['status'] == expected_data['status']
-    assert response_data.get('data')
-    assert isinstance(response_data['data'], dict)
-    assert response_data['data']['id'] == new_user_id
-    assert response_data['data']['username'] == expected_data['data']['username']
-    assert response_data['data']['img_url']
-    assert isinstance(response_data['data']['img_url'], str)
-    assert response_data['data']['img_url'].startswith('http://localhost:5000/users/photos/')
-    assert response_data['data']['img_url'].endswith('.jpg')
+    assert response_data['id'] == new_user_id
+    assert response_data['username'] == expected_data['username']
+    assert response_data['img_url']
+    assert isinstance(response_data['img_url'], str)
+    assert response_data['img_url'].startswith('http://localhost:5000/users/photos/')
+    assert response_data['img_url'].endswith('.jpg')
     assert response.status_code == 201
 
     with app.app_context():
@@ -116,7 +109,7 @@ def test_create_user(client: FlaskClient, app: Flask):
 
         assert new_user is not None
         assert new_user.id == new_user_id
-        assert new_user.username == expected_data['data']['username']
+        assert new_user.username == expected_data['username']
         assert new_user.password != data_for_create['password']
         assert new_user.img_url.startswith('http://localhost:5000/users/photos/')
         assert new_user.img_url.endswith('.jpg')
@@ -142,13 +135,16 @@ def test_when_try_to_create_user_already_authenticated_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'UserAlreadyAuthenticated',
+        'scope': 'AuthException',
+        'code': 'UserAlreadyAuthenticated',
         'message': 'The user is already logged in',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -157,13 +153,16 @@ def test_when_try_to_create_user_without_data_returns_error_response(client: Fla
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'NoDataSent',
+        'scope': 'GeneralException',
+        'code': 'NoDataSent',
         'message': 'No data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -178,9 +177,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': "String should match pattern '^[a-zA-Z\\d_-]+$'",
@@ -190,7 +190,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -203,9 +206,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': 'String should have at least 4 characters',
@@ -215,7 +219,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -228,9 +235,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': 'String should have at most 50 characters',
@@ -240,7 +248,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -253,9 +264,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': "String should match pattern '^[a-zA-Z\\d_-]+$'",
@@ -265,7 +277,10 @@ def test_when_try_to_create_user_with_invalid_username_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -280,9 +295,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password should have at least 8 characters',
@@ -292,7 +308,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -305,9 +324,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password has not the necessary chars',
@@ -317,7 +337,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -330,9 +353,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password should have at least 8 characters',
@@ -342,7 +366,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -355,9 +382,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password should have at most 255 characters',
@@ -367,7 +395,10 @@ def test_when_try_to_create_user_with_invalid_password_returns_error_response(cl
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -382,9 +413,10 @@ def test_when_try_to_create_user_with_invalid_img_returns_error_response(client:
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['img'],
                 'msg': 'Value error, The provided image is larger than 5MB',
@@ -394,7 +426,10 @@ def test_when_try_to_create_user_with_invalid_img_returns_error_response(client:
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -407,9 +442,10 @@ def test_when_try_to_create_user_with_invalid_img_returns_error_response(client:
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['img'],
                 'msg': 'Value error, The provided file is not an image',
@@ -419,7 +455,10 @@ def test_when_try_to_create_user_with_invalid_img_returns_error_response(client:
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {
@@ -434,9 +473,10 @@ def test_when_try_to_create_user_with_invalid_img_returns_error_response(client:
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['img'],
                 'msg': 'Value error, The provided image is not a file',
@@ -446,7 +486,10 @@ def test_when_try_to_create_user_with_invalid_img_returns_error_response(client:
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -459,16 +502,20 @@ def test_when_try_to_create_user_with_invalid_data_returns_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['password'], 'msg': 'Field required', 'type': 'missing'},
             {'loc': ['img'], 'msg': 'Field required', 'type': 'missing'},
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'username': 'frigatto', 'passwords': 'sss'}
@@ -479,9 +526,10 @@ def test_when_try_to_create_user_with_invalid_data_returns_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['password'], 'msg': 'Field required', 'type': 'missing'},
             {'loc': ['img'], 'msg': 'Field required', 'type': 'missing'},
             {
@@ -493,7 +541,10 @@ def test_when_try_to_create_user_with_invalid_data_returns_error_response(client
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -508,13 +559,16 @@ def test_when_try_to_create_user_already_exists_return_error_reponse(client: Fla
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'UserAlreadyExists',
+        'scope': 'UserException',
+        'code': 'UserAlreadyExists',
         'message': 'This user already exists',
         'status': 409,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
     data = {
@@ -526,7 +580,10 @@ def test_when_try_to_create_user_already_exists_return_error_reponse(client: Fla
     response = client.post(f'/users', data=data)
     response_data = json.loads(response.data)
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
 
@@ -550,13 +607,16 @@ def test_when_try_to_get_user_image_with_invalid_filename_returns_error_response
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'ImageNotFound',
+        'scope': 'ImageException',
+        'code': 'ImageNotFound',
         'message': f'The image {filename} was not found',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -567,13 +627,9 @@ def test_get_user_information(client: FlaskClient, access_token: str):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {
-            'id': 1,
-            'username': 'test',
-            'img_url': 'http://localhost:5000/users/photos/test.jpg',
-        },
+        'id': 1,
+        'username': 'test',
+        'img_url': 'http://localhost:5000/users/photos/test.jpg',
     }
 
     assert response_data == expected_data
@@ -585,13 +641,16 @@ def test_when_try_to_get_user_information_without_auth_returns_error_response(cl
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -604,13 +663,16 @@ def test_when_try_to_get_user_information_with_invalid_auth_returns_error_respon
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -627,13 +689,9 @@ def test_update_username(client: FlaskClient, access_token: str, app: Flask):
 
     updated_user_id = 1
     expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {
-            'id': updated_user_id,
-            'username': 'andrade',
-            'img_url': 'http://localhost:5000/users/photos/test.jpg',
-        },
+        'id': updated_user_id,
+        'username': 'andrade',
+        'img_url': 'http://localhost:5000/users/photos/test.jpg',
     }
 
     assert response_data == expected_data
@@ -644,11 +702,11 @@ def test_update_username(client: FlaskClient, access_token: str, app: Flask):
 
         assert updated_user is not None
         assert updated_user.id == updated_user_id
-        assert updated_user.username == expected_data['data']['username']
+        assert updated_user.username == expected_data['username']
 
         original_password = 'Senha@123'
         assert updated_user.password != original_password
-        assert updated_user.img_url == expected_data['data']['img_url']
+        assert updated_user.img_url == expected_data['img_url']
 
 
 def test_when_try_to_update_user_without_auth_returns_error_response(client: FlaskClient):
@@ -660,13 +718,16 @@ def test_when_try_to_update_user_without_auth_returns_error_response(client: Fla
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -682,13 +743,16 @@ def test_when_try_to_update_user_with_invalid_auth_returns_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -706,9 +770,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': "String should match pattern '^[a-zA-Z\\d_-]+$'",
@@ -718,7 +783,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'username': 'abc'}
@@ -727,9 +795,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': 'String should have at least 4 characters',
@@ -739,7 +808,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'username': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
@@ -748,9 +820,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': 'String should have at most 50 characters',
@@ -760,7 +833,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'username': 'frigatto(*&#@$)'}
@@ -769,9 +845,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['username'],
                 'msg': "String should match pattern '^[a-zA-Z\\d_-]+$'",
@@ -781,7 +858,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'usernames': 'andrade'}
@@ -790,9 +870,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['usernames'],
                 'msg': 'Extra inputs are not permitted',
@@ -802,7 +883,10 @@ def test_when_try_to_update_username_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -820,13 +904,16 @@ def test_when_try_to_update_username_to_username_already_exists_return_error_res
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'UserAlreadyExists',
+        'scope': 'UserException',
+        'code': 'UserAlreadyExists',
         'message': 'This user already exists',
         'status': 409,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
 
@@ -848,13 +935,9 @@ def test_update_password(client: FlaskClient, access_token: str, app: Flask):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {
-            'id': user_id,
-            'username': 'test',
-            'img_url': 'http://localhost:5000/users/photos/test.jpg',
-        },
+        'id': user_id,
+        'username': 'test',
+        'img_url': 'http://localhost:5000/users/photos/test.jpg',
     }
 
     assert response_data == expected_data
@@ -865,9 +948,9 @@ def test_update_password(client: FlaskClient, access_token: str, app: Flask):
 
         assert updated_user is not None
         assert updated_user.id == user_id
-        assert updated_user.username == expected_data['data']['username']
+        assert updated_user.username == expected_data['username']
         assert updated_user.password != old_user.password
-        assert updated_user.img_url == expected_data['data']['img_url']
+        assert updated_user.img_url == expected_data['img_url']
 
 
 def test_when_try_to_update_password_with_invalid_data_returns_error_response(
@@ -884,9 +967,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password has not the necessary chars',
@@ -896,7 +980,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'password': 'AndradeFerreira19'}
@@ -905,9 +992,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password has not the necessary chars',
@@ -917,7 +1005,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'passwords': 'Windows#456'}
@@ -926,9 +1017,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['passwords'],
                 'msg': 'Extra inputs are not permitted',
@@ -938,7 +1030,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'password': '456'}
@@ -947,9 +1042,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password should have at least 8 characters',
@@ -959,7 +1055,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {
@@ -970,9 +1069,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['password'],
                 'msg': 'Value error, The provided password should have at most 255 characters',
@@ -982,7 +1082,10 @@ def test_when_try_to_update_password_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -1006,25 +1109,17 @@ def test_update_image(client: FlaskClient, app: Flask):
     response = client.patch('/users', headers=headers, data=updates)
     response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {'id': user_id, 'username': 'lopes'},
-    }
+    expected_data = {'id': user_id, 'username': 'lopes'}
 
-    assert response_data['error'] == expected_data['error']
-    assert response_data['status'] == expected_data['status']
-    assert response_data.get('data')
-    assert isinstance(response_data['data'], dict)
-    assert response_data['data']['id'] == user_id
-    assert response_data['data']['username'] == expected_data['data']['username']
-    assert response_data['data']['img_url']
-    assert isinstance(response_data['data']['img_url'], str)
-    assert response_data['data']['img_url'].startswith('http://localhost:5000/users/photos/')
-    assert response_data['data']['img_url'].endswith('.jpg')
+    assert response_data['id'] == user_id
+    assert response_data['username'] == expected_data['username']
+    assert response_data['img_url']
+    assert isinstance(response_data['img_url'], str)
+    assert response_data['img_url'].startswith('http://localhost:5000/users/photos/')
+    assert response_data['img_url'].endswith('.jpg')
 
     original_img_url = 'http://localhost:5000/users/photos/test2.jpg'
-    assert response_data['data']['img_url'] != original_img_url
+    assert response_data['img_url'] != original_img_url
     assert response.status_code == 200
 
     with app.app_context():
@@ -1032,7 +1127,7 @@ def test_update_image(client: FlaskClient, app: Flask):
 
         assert updated_user is not None
         assert updated_user.id == user_id
-        assert updated_user.username == expected_data['data']['username']
+        assert updated_user.username == expected_data['username']
         original_password = 'Senha@123'
         assert updated_user.password != original_password
         assert updated_user.img_url != original_img_url
@@ -1062,9 +1157,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['img'],
                 'msg': 'Value error, The provided image is not a file',
@@ -1074,7 +1170,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'img': (open('tests/resources/img-11.3mb.png', 'rb'), 'image.png')}
@@ -1083,9 +1182,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['img'],
                 'msg': 'Value error, The provided image is larger than 5MB',
@@ -1095,7 +1195,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'img': 456}
@@ -1104,9 +1207,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['img'],
                 'msg': 'Value error, The provided image is not a file',
@@ -1116,7 +1220,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_updates = {'img': (open('tests/resources/pdf-2mb.pdf', 'rb'), 'pdf.pdf')}
@@ -1125,9 +1232,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['img'],
                 'msg': 'Value error, The provided file is not an image',
@@ -1137,7 +1245,10 @@ def test_when_try_to_update_image_with_invalid_data_returns_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -1159,16 +1270,20 @@ def test_when_try_to_update_user_with_invalid_data_returns_errror_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['aa'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'},
             {'loc': ['imgs'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'},
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -1181,11 +1296,14 @@ def test_when_try_to_update_user_without_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'NoDataSent',
+        'scope': 'GeneralException',
+        'code': 'NoDataSent',
         'message': 'No data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400

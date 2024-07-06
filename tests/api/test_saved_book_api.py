@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 from flask import Flask
@@ -89,8 +90,6 @@ def test_return_all_saved_books_without_page(client: FlaskClient, access_token: 
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': i + 1,
@@ -107,7 +106,7 @@ def test_return_all_saved_books_without_page(client: FlaskClient, access_token: 
         ],
         'has_next': True,
         'has_prev': False,
-        'next_page': 2,
+        'next_page': '/books/saved?page=2',
         'page': 1,
         'per_page': 20,
         'prev_page': None,
@@ -126,8 +125,6 @@ def test_return_all_saved_books_with_page_1(client: FlaskClient, access_token: s
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': i + 1,
@@ -144,7 +141,7 @@ def test_return_all_saved_books_with_page_1(client: FlaskClient, access_token: s
         ],
         'has_next': True,
         'has_prev': False,
-        'next_page': 2,
+        'next_page': '/books/saved?page=2',
         'page': 1,
         'per_page': 20,
         'prev_page': None,
@@ -163,8 +160,6 @@ def test_return_all_saved_books_with_page_2(client: FlaskClient, access_token: s
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
         'data': [
             {
                 'id': i + 1,
@@ -184,7 +179,7 @@ def test_return_all_saved_books_with_page_2(client: FlaskClient, access_token: s
         'next_page': None,
         'page': 2,
         'per_page': 20,
-        'prev_page': 1,
+        'prev_page': '/books/saved?page=1',
         'total_items': 25,
         'total_pages': 2,
     }
@@ -201,13 +196,16 @@ def test_when_try_to_get_all_saved_books_with_page_3_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'PaginationPageDoesNotExists',
+        'scope': 'GeneralException',
+        'code': 'PaginationPageDoesNotExists',
         'message': 'The page 3 does not exist',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -219,19 +217,15 @@ def test_save_book(client: FlaskClient, access_token: str, app: Flask):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 201,
-        'data': {
-            'id': book_id,
-            'name': f'Livro z',
-            'price': 20.0,
-            'author': 'Autor da Silva',
-            'release_year': 2000,
-            'book_kind': {'kind': 'físico', 'id': 1},
-            'book_genre': {'genre': 'fábula', 'id': 1},
-            'book_imgs': [],
-            'book_keywords': [],
-        },
+        'id': book_id,
+        'name': f'Livro z',
+        'price': 20.0,
+        'author': 'Autor da Silva',
+        'release_year': 2000,
+        'book_kind': {'kind': 'físico', 'id': 1},
+        'book_genre': {'genre': 'fábula', 'id': 1},
+        'book_imgs': [],
+        'book_keywords': [],
     }
 
     assert response_data == expected_data
@@ -257,13 +251,16 @@ def test_when_try_to_save_book_with_id_from_book_already_saved_return_error_resp
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookAlreadySaved',
+        'scope': 'SavedBookException',
+        'code': 'BookAlreadySaved',
         'message': f'The book {book_id} is already saved by the user',
         'status': 409,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
 
@@ -277,13 +274,16 @@ def test_when_try_to_save_book_with_id_from_book_doesnt_exists_return_error_resp
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookDoesntExists',
+        'scope': 'BookException',
+        'code': 'BookDoesntExists',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -292,13 +292,16 @@ def test_when_try_to_save_book_without_auth_return_error_response(client: FlaskC
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -309,13 +312,16 @@ def test_when_try_to_save_book_with_invalid_auth_return_error_response(client: F
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -324,15 +330,9 @@ def test_delete_saved_book(client: FlaskClient, access_token: str, app: Flask):
     book_id = 1
 
     response = client.delete(f'/books/saved/{book_id}', headers=headers)
-    response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': False,
-        'status': 200,
-    }
-
-    assert response_data == expected_data
-    assert response.status_code == 200
+    assert not response.data
+    assert response.status_code == 204
 
     with app.app_context():
         saved_book = db.session.get(SavedBook, book_id)
@@ -350,13 +350,16 @@ def test_when_try_to_delete_saved_book_with_id_from_book_arent_saved_return_erro
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookArentSaved',
+        'scope': 'SavedBookException',
+        'code': 'BookArentSaved',
         'message': f'The book {book_id} was not saved by the user',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -370,13 +373,16 @@ def test_when_try_to_delete_saved_book_with_id_from_book_doesnt_exists_return_er
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookDoesntExists',
+        'scope': 'BookException',
+        'code': 'BookDoesntExists',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -385,13 +391,16 @@ def test_when_try_to_delete_saved_book_without_auth_return_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -402,11 +411,14 @@ def test_when_try_to_delete_saved_book_with_invalid_auth_return_error_response(c
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401

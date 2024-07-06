@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 from flask import Flask
@@ -63,14 +64,12 @@ def test_get_all_book_genres_without_page(client: FlaskClient):
 
     expected_data = {
         'data': [{'genre': f'teste {chr(97 + i)}', 'id': i + 1} for i in range(20)],
-        'error': False,
         'has_next': True,
         'has_prev': False,
-        'next_page': 2,
+        'next_page': '/bookGenres?page=2',
         'page': 1,
         'per_page': 20,
         'prev_page': None,
-        'status': 200,
         'total_items': 26,
         'total_pages': 2,
     }
@@ -85,14 +84,12 @@ def test_get_all_book_genres_with_page_1(client: FlaskClient):
 
     expected_data = {
         'data': [{'genre': f'teste {chr(97 + i)}', 'id': i + 1} for i in range(20)],
-        'error': False,
         'has_next': True,
         'has_prev': False,
-        'next_page': 2,
+        'next_page': '/bookGenres?page=2',
         'page': 1,
         'per_page': 20,
         'prev_page': None,
-        'status': 200,
         'total_items': 26,
         'total_pages': 2,
     }
@@ -107,14 +104,12 @@ def test_get_all_book_genres_with_page_2(client: FlaskClient):
 
     expected_data = {
         'data': [{'genre': f'teste {chr(97 + i)}', 'id': i + 1} for i in range(20, 26)],
-        'error': False,
         'has_next': False,
         'has_prev': True,
         'next_page': None,
         'page': 2,
         'per_page': 20,
-        'prev_page': 1,
-        'status': 200,
+        'prev_page': '/bookGenres?page=1',
         'total_items': 26,
         'total_pages': 2,
     }
@@ -128,13 +123,16 @@ def test_when_try_to_get_all_book_genres_with_page_3_return_error_response(clien
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'PaginationPageDoesNotExists',
+        'scope': 'GeneralException',
+        'code': 'PaginationPageDoesNotExists',
         'message': 'The page 3 does not exist',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -144,11 +142,7 @@ def test_get_book_genre_by_id(client: FlaskClient):
     response = client.get(f'/bookGenres/{book_genre_id}')
     response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {'id': book_genre_id, 'genre': 'teste a'},
-    }
+    expected_data = {'id': book_genre_id, 'genre': 'teste a'}
 
     assert response_data == expected_data
     assert response.status_code == 200
@@ -161,13 +155,16 @@ def test_when_try_to_get_book_genre_does_not_exists_return_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookGenreDoesntExists',
+        'scope': 'BookGenreException',
+        'code': 'BookGenreDoesntExists',
         'message': f'The book genre {book_genre_id} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -181,11 +178,7 @@ def test_create_book_genre(client: FlaskClient, access_token: str, app: Flask):
     response_data = json.loads(response.data)
 
     id_new_book_genre = 27
-    expected_data = {
-        'error': False,
-        'status': 201,
-        'data': {'id': id_new_book_genre, 'genre': genre},
-    }
+    expected_data = {'id': id_new_book_genre, 'genre': genre}
 
     assert response_data == expected_data
     assert response.status_code == 201
@@ -212,13 +205,16 @@ def test_when_try_to_create_book_genre_with_content_type_multipart_form_data_ret
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidContentType',
+        'scope': 'GeneralException',
+        'code': 'InvalidContentType',
         'message': 'Invalid Content-Type header',
         'status': 415,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 415
 
 
@@ -233,13 +229,16 @@ def test_when_try_to_create_book_genre_already_exists_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookGenreAlreadyExists',
+        'scope': 'BookGenreException',
+        'code': 'BookGenreAlreadyExists',
         'message': 'The book genre "teste a" already exists',
         'status': 409,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
 
@@ -252,13 +251,16 @@ def test_when_try_to_create_book_genre_without_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'NoDataSent',
+        'scope': 'GeneralException',
+        'code': 'NoDataSent',
         'message': 'No data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -273,16 +275,20 @@ def test_when_try_to_create_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['genre'], 'msg': 'Field required', 'type': 'missing'},
             {'loc': ['genres'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'},
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = 456
@@ -291,13 +297,16 @@ def test_when_try_to_create_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
         'message': 'Invalid data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'genre': 456}
@@ -306,15 +315,19 @@ def test_when_try_to_create_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['genre'], 'msg': 'Input should be a valid string', 'type': 'string_type'},
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'genre': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
@@ -323,9 +336,10 @@ def test_when_try_to_create_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['genre'],
                 'msg': 'String should have at most 30 characters',
@@ -335,7 +349,10 @@ def test_when_try_to_create_book_genre_with_invalid_data_return_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'genres': 'ebook234@'}
@@ -344,16 +361,20 @@ def test_when_try_to_create_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['genre'], 'msg': 'Field required', 'type': 'missing'},
             {'loc': ['genres'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'},
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -362,13 +383,16 @@ def test_when_try_to_create_book_genre_without_auth_return_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -379,13 +403,16 @@ def test_when_try_to_create_book_genre_with_invalid_auth_return_error_response(c
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -400,11 +427,7 @@ def test_update_book_genre(client: FlaskClient, access_token: str, app: Flask):
     response = client.patch(f'/bookGenres/{book_genre_id}', headers=headers, json=updates)
     response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {'id': book_genre_id, 'genre': genre},
-    }
+    expected_data = {'id': book_genre_id, 'genre': genre}
 
     assert response_data == expected_data
     assert response.status_code == 200
@@ -430,11 +453,7 @@ def test_update_book_genre_with_the_same_name_but_UPPERCASE(
     response = client.patch(f'/bookGenres/{book_genre_id}', headers=headers, json=updates)
     response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {'id': book_genre_id, 'genre': genre.lower()},
-    }
+    expected_data = {'id': book_genre_id, 'genre': genre.lower()}
 
     assert response_data == expected_data
     assert response.status_code == 200
@@ -463,13 +482,16 @@ def test_when_try_to_update_book_genre_with_content_type_multipart_form_data_ret
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidContentType',
+        'scope': 'GeneralException',
+        'code': 'InvalidContentType',
         'message': 'Invalid Content-Type header',
         'status': 415,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 415
 
 
@@ -486,13 +508,16 @@ def test_when_try_to_update_book_genre_with_name_from_existing_book_genre_return
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookGenreAlreadyExists',
+        'scope': 'BookGenreException',
+        'code': 'BookGenreAlreadyExists',
         'message': 'The book genre "teste z" already exists',
         'status': 409,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
     book_genre_id = 1
@@ -503,13 +528,16 @@ def test_when_try_to_update_book_genre_with_name_from_existing_book_genre_return
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookGenreAlreadyExists',
+        'scope': 'BookGenreException',
+        'code': 'BookGenreAlreadyExists',
         'message': 'The book genre "teste b" already exists',
         'status': 409,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
 
@@ -524,13 +552,16 @@ def test_when_try_to_update_book_genre_without_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'NoDataSent',
+        'scope': 'GeneralException',
+        'code': 'NoDataSent',
         'message': 'No data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -547,16 +578,20 @@ def test_when_try_to_update_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['genre'], 'msg': 'Field required', 'type': 'missing'},
             {'loc': ['genres'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'},
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = 456
@@ -565,13 +600,16 @@ def test_when_try_to_update_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
         'message': 'Invalid data sent',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'genre': 456}
@@ -580,15 +618,19 @@ def test_when_try_to_update_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['genre'], 'msg': 'Input should be a valid string', 'type': 'string_type'}
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'genre': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
@@ -597,9 +639,10 @@ def test_when_try_to_update_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {
                 'loc': ['genre'],
                 'msg': 'String should have at most 30 characters',
@@ -609,7 +652,10 @@ def test_when_try_to_update_book_genre_with_invalid_data_return_error_response(
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
     invalid_data = {'genres': 'ebook234@'}
@@ -618,16 +664,20 @@ def test_when_try_to_update_book_genre_with_invalid_data_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'scope': 'GeneralException',
+        'code': 'InvalidDataSent',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['genre'], 'msg': 'Field required', 'type': 'missing'},
             {'loc': ['genres'], 'msg': 'Extra inputs are not permitted', 'type': 'extra_forbidden'},
         ],
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -636,13 +686,16 @@ def test_when_try_to_update_book_genre_without_auth_return_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -653,13 +706,16 @@ def test_when_try_to_update_book_genre_with_invalid_auth_return_error_response(c
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -669,12 +725,9 @@ def test_delete_book_genre(client: FlaskClient, access_token: str, app: Flask):
     book_genre_id = 2
 
     response = client.delete(f'/bookGenres/{book_genre_id}', headers=headers)
-    response_data = json.loads(response.data)
 
-    expected_data = {'error': False, 'status': 200}
-
-    assert response_data == expected_data
-    assert response.status_code == 200
+    assert not response.data
+    assert response.status_code == 204
 
     with app.app_context():
         deleted_book_genre = db.session.get(BookGenre, book_genre_id)
@@ -716,13 +769,16 @@ def test_when_try_to_delete_book_genre_have_linked_book_return_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'ThereAreLinkedBooksWithThisBookGenre',
+        'scope': 'BookGenreException',
+        'code': 'ThereAreLinkedBooksWithThisBookGenre',
         'message': f'The book genre {book_genre_id} cannot be deleted because there are books linked to this genre',
         'status': 409,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 409
 
 
@@ -737,13 +793,16 @@ def test_when_try_to_delete_book_genre_does_not_exists_return_error_message(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'BookGenreDoesntExists',
+        'scope': 'BookGenreException',
+        'code': 'BookGenreDoesntExists',
         'message': f'The book genre {book_genre_id} does not exist',
         'status': 404,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 404
 
 
@@ -752,13 +811,16 @@ def test_when_try_to_delete_book_genre_without_auth_return_error_response(client
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'MissingJWT',
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
         'message': 'JWT token not provided',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -769,11 +831,14 @@ def test_when_try_to_delete_book_genre_with_invalid_auth_return_error_response(c
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidJWT',
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
         'message': 'Invalid JWT token',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401

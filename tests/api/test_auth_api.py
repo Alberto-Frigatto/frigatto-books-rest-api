@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 from flask import Flask
@@ -60,13 +61,9 @@ def test_login_with_valid_credentials(client: FlaskClient):
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': False,
-        'status': 200,
-        'data': {
-            'id': 1,
-            'username': 'test',
-            'img_url': 'http://localhost:5000/users/photos/test.jpg',
-        },
+        'id': 1,
+        'username': 'test',
+        'img_url': 'http://localhost:5000/users/photos/test.jpg',
     }
 
     assert response_data == expected_data
@@ -83,13 +80,16 @@ def test_when_try_to_login_with_content_type_multipart_form_data_returns_error_r
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidContentType',
+        'code': 'InvalidContentType',
         'message': 'Invalid Content-Type header',
+        'scope': 'GeneralException',
         'status': 415,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 415
 
 
@@ -104,13 +104,16 @@ def test_when_try_to_login_with_already_authenticated_returns_error_response(
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'UserAlreadyAuthenticated',
+        'code': 'UserAlreadyAuthenticated',
         'message': 'The user is already logged in',
+        'scope': 'AuthException',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -121,13 +124,16 @@ def test_when_try_to_login_with_invalid_username_returns_error_response(client: 
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidLogin',
+        'code': 'InvalidLogin',
         'message': 'Invalid username or password',
+        'scope': 'AuthException',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -138,13 +144,16 @@ def test_when_try_to_login_with_invalid_password_returns_error_response(client: 
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidLogin',
+        'code': 'InvalidLogin',
         'message': 'Invalid username or password',
+        'scope': 'AuthException',
         'status': 401,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 401
 
 
@@ -155,9 +164,10 @@ def test_when_try_to_login_with_invalid_data_returns_error_response(client: Flas
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'InvalidDataSent',
-        'message': [
+        'code': 'InvalidDataSent',
+        'scope': 'GeneralException',
+        'message': 'Invalid data sent',
+        'detail': [
             {'loc': ['username'], 'msg': 'Field required', 'type': 'missing'},
             {'loc': ['password'], 'msg': 'Field required', 'type': 'missing'},
             {
@@ -174,7 +184,10 @@ def test_when_try_to_login_with_invalid_data_returns_error_response(client: Flas
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -183,13 +196,16 @@ def test_when_try_to_login_without_data_returns_error_response(client: FlaskClie
     response_data = json.loads(response.data)
 
     expected_data = {
-        'error': True,
-        'error_name': 'NoDataSent',
+        'code': 'NoDataSent',
         'message': 'No data sent',
+        'scope': 'GeneralException',
         'status': 400,
     }
 
-    assert response_data == expected_data
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
 
 
@@ -197,25 +213,13 @@ def test_logout(client: FlaskClient, access_token: str):
     headers = {'Authorization': f'Bearer {access_token}'}
 
     response = client.post('/auth/logout', headers=headers)
-    response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': False,
-        'status': 200,
-    }
-
-    assert response_data == expected_data
-    assert response.status_code == 200
+    assert not response.data
+    assert response.status_code == 204
 
 
 def test_logout_without_auth(client: FlaskClient):
     response = client.post(f'/auth/logout')
-    response_data = json.loads(response.data)
 
-    expected_data = {
-        'error': False,
-        'status': 200,
-    }
-
-    assert response_data == expected_data
-    assert response.status_code == 200
+    assert not response.data
+    assert response.status_code == 204
