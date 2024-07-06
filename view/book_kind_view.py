@@ -5,7 +5,7 @@ from controller import IBookKindController
 from dto.input import BookKindInputDTO
 from dto.output import BookKindOutputDTO
 from utils.request import Request
-from utils.response import PaginationResponse, SuccessResponse
+from utils.response import CreatedResponse, NoContentResponse, OkResponse, PaginationResponse
 
 book_kind_bp = Blueprint('book_kind_bp', __name__)
 
@@ -26,7 +26,7 @@ class BookKindView:
         book_kind = controller.get_book_kind_by_id(id)
         data = BookKindOutputDTO.dump(book_kind)
 
-        return SuccessResponse(data).json()
+        return OkResponse(data).json()
 
     @staticmethod
     @book_kind_bp.post('')
@@ -37,7 +37,7 @@ class BookKindView:
         new_book_kind = controller.create_book_kind(input_dto)
         data = BookKindOutputDTO.dump(new_book_kind)
 
-        return SuccessResponse(data, 201).json()
+        return CreatedResponse(data).json()
 
     @staticmethod
     @book_kind_bp.delete('/<id>')
@@ -45,7 +45,7 @@ class BookKindView:
     def delete_book_kind(id: str, controller: IBookKindController) -> Response:
         controller.delete_book_kind(id)
 
-        return SuccessResponse().json()
+        return NoContentResponse().json()
 
     @staticmethod
     @book_kind_bp.patch('/<id>')
@@ -56,4 +56,4 @@ class BookKindView:
         updated_book_kind = controller.update_book_kind(id, input_dto)
         data = BookKindOutputDTO.dump(updated_book_kind)
 
-        return SuccessResponse(data).json()
+        return OkResponse(data).json()

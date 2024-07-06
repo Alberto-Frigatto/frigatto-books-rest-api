@@ -5,7 +5,7 @@ from controller import IBookKeywordController
 from dto.input import BookKeywordInputDTO
 from dto.output import BookKeywordOutputDTO
 from utils.request import Request
-from utils.response import SuccessResponse
+from utils.response import CreatedResponse, NoContentResponse, OkResponse
 
 book_keyword_bp = Blueprint('book_keyword_bp', __name__)
 
@@ -20,7 +20,7 @@ class BookKeywordView:
         new_book_keyword = controller.create_book_keyword(id_book, input_dto)
         data = BookKeywordOutputDTO.dump(new_book_keyword)
 
-        return SuccessResponse(data, 201).json()
+        return CreatedResponse(data).json()
 
     @staticmethod
     @book_keyword_bp.delete('/<id_book>/keywords/<id_keyword>')
@@ -30,4 +30,4 @@ class BookKeywordView:
     ) -> Response:
         controller.delete_book_keyword(id_book, id_keyword)
 
-        return SuccessResponse().json()
+        return NoContentResponse().json()

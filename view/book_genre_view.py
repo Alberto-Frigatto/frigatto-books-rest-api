@@ -5,7 +5,7 @@ from controller import IBookGenreController
 from dto.input import BookGenreInputDTO
 from dto.output import BookGenreOutputDTO
 from utils.request import Request
-from utils.response import PaginationResponse, SuccessResponse
+from utils.response import CreatedResponse, NoContentResponse, OkResponse, PaginationResponse
 
 book_genre_bp = Blueprint('book_genre_bp', __name__)
 
@@ -26,7 +26,7 @@ class BookGenreView:
         book_genre = controller.get_book_genre_by_id(id)
         data = BookGenreOutputDTO.dump(book_genre)
 
-        return SuccessResponse(data).json()
+        return OkResponse(data).json()
 
     @staticmethod
     @book_genre_bp.post('')
@@ -36,14 +36,14 @@ class BookGenreView:
         new_book_genre = controller.create_book_genre(input_dto)
         data = BookGenreOutputDTO.dump(new_book_genre)
 
-        return SuccessResponse(data, 201).json()
+        return CreatedResponse(data).json()
 
     @staticmethod
     @book_genre_bp.delete('/<id>')
     @jwt_required()
     def delete_book_genre(id: str, controller: IBookGenreController) -> Response:
         controller.delete_book_genre(id)
-        return SuccessResponse().json()
+        return NoContentResponse().json()
 
     @staticmethod
     @book_genre_bp.patch('/<id>')
@@ -53,4 +53,4 @@ class BookGenreView:
         updated_book_genre = controller.update_book_genre(id, input_dto)
         data = BookGenreOutputDTO.dump(updated_book_genre)
 
-        return SuccessResponse(data).json()
+        return OkResponse(data).json()
