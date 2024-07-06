@@ -33,10 +33,11 @@ class GeneralException:
             )
 
     class InvalidDataSent(ApiException):
-        def __init__(self, message: Any = 'Invalid data sent') -> None:
+        def __init__(self, detail: Any | None = None) -> None:
             super().__init__(
-                message=message,
+                message='Invalid data sent',
                 status=400,
+                detail=detail,
             )
 
     class EnpointNotFound(ApiException):
