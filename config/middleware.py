@@ -4,7 +4,7 @@ from werkzeug.exceptions import MethodNotAllowed, NotFound
 
 from db import db
 from exception import GeneralException
-from utils.response import ErrorResponse, SuccessResponse
+from utils.response import ErrorResponse, NoContentResponse
 
 
 def add_middlewares(app: Flask) -> None:
@@ -42,4 +42,4 @@ def add_middlewares(app: Flask) -> None:
     @app.before_request
     def check_options_request() -> Response | None:
         if request.method == 'OPTIONS':
-            return SuccessResponse().json()
+            return NoContentResponse().json()
