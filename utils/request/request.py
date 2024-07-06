@@ -1,7 +1,7 @@
 from typing import Any
 
 from flask import request
-from werkzeug.datastructures import FileStorage, ImmutableMultiDict, MultiDict
+from werkzeug.datastructures import FileStorage, ImmutableMultiDict
 
 from exception import GeneralException
 
