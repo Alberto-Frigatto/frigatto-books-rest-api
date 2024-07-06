@@ -10,8 +10,8 @@ class Response(metaclass=ABCMeta):
     def json(self) -> flask.Response:
         pass
 
-    def _make_response(self, response_data: dict[str, Any], status: int) -> flask.Response:
-        response = jsonify(response_data)
+    def _make_response(self, *, payload: dict[str, Any] | None, status: int) -> flask.Response:
+        response = jsonify(payload)
 
         self._add_headers(response)
         response.status = str(status)
