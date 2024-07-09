@@ -69,7 +69,7 @@ class BookService(IBookService):
 
     def _update_book_attrs(self, book: Book, key: str, value: Any):
         if key not in ('id_book_kind', 'id_book_genre'):
-            getattr(book, f'update_{key.strip()}')(value)
+            getattr(book, f'update_{key}')(value)
         else:
             if key == 'id_book_kind':
                 book_kind = self.book_kind_repository.get_by_id(value)
