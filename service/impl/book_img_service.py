@@ -24,17 +24,15 @@ class BookImgService(IBookImgService):
         self.book_img_repository = book_img_repository
 
     def get_book_photo(self, filename: str) -> tuple[file_path, mimetype]:
-        if not self._is_file_name_valid(filename):
+        file_path = os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], filename)
+
+        if not self._is_file_path_valid(file_path):
             raise ImageException.ImageNotFound(filename)
 
-        return os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], filename), 'image/jpeg'
+        return file_path, 'image/jpeg'
 
-    def _is_file_name_valid(self, filename: str) -> bool:
-        return (
-            isinstance(filename, str)
-            and filename.endswith('.jpg')
-            and os.path.isfile(os.path.join(current_app.config['BOOK_PHOTOS_UPLOAD_DIR'], filename))
-        )
+    def _is_file_path_valid(self, file_path: str) -> bool:
+        return os.path.isfile(file_path)
 
     def create_book_img(self, id_book: str, input_dto: BookImgInputDTO) -> BookImg:
         book = self.book_repository.get_by_id(id_book)
