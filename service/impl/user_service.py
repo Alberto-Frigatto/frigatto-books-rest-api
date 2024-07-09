@@ -28,27 +28,26 @@ class UserService(IUserService):
         new_user = User(input_dto.username, input_dto.password, input_dto.img.get_url())
 
         self.repository.add(new_user)
-
         input_dto.img.save()
 
         return new_user
 
     def _user_already_authenticated(self) -> bool:
-        return bool(current_user)
+        return bool(self.get_current_user())
 
     def get_current_user(self) -> User:
         return current_user
 
     def get_user_photo(self, filename: str) -> tuple[file_path, mimetype]:
-        if not self._is_file_name_valid(filename):
+        file_path = os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename)
+
+        if not self._is_file_path_valid(file_path):
             raise ImageException.ImageNotFound(filename)
 
-        return os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename), 'image/jpeg'
+        return file_path, 'image/jpeg'
 
-    def _is_file_name_valid(self, filename: str) -> bool:
-        return filename.endswith('.jpg') and os.path.isfile(
-            os.path.join(current_app.config['USER_PHOTOS_UPLOAD_DIR'], filename)
-        )
+    def _is_file_path_valid(self, file_path: str) -> bool:
+        return os.path.isfile(file_path)
 
     def update_user(self, input_dto: UpdateUserInputDTO) -> User:
         for key, value in input_dto.items:
