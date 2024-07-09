@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from flask_sqlalchemy.pagination import Pagination
 
-from model import Book, SavedBook
+from model import SavedBook
 
 
 class ISavedBookRepository(ABC):
