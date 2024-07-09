@@ -27,7 +27,6 @@ class BookKeywordService(IBookKeywordService):
 
     def delete_book_keyword(self, id_book: str, id_keyword: str) -> None:
         book = self.book_repository.get_by_id(id_book)
-
         book_keyword = self.book_keyword_repository.get_by_id(id_keyword)
 
         if book_keyword.id_book != book.id:
