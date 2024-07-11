@@ -351,7 +351,7 @@ def test_when_try_to_delete_saved_book_with_id_from_book_arent_saved_return_erro
 
     expected_data = {
         'scope': 'SavedBookException',
-        'code': 'BookArentSaved',
+        'code': 'BookIsNotSaved',
         'message': f'The book {book_id} was not saved by the user',
         'status': 404,
     }
