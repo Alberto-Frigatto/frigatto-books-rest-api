@@ -91,8 +91,8 @@ class SearchRepository(ISearchRepository):
 
         return sql_query
 
-    def _book_kind_exists(self, id: int | None) -> bool:
-        return bool(self.book_kind_repository.get_by_id(str(id) if id is not None else ''))
+    def _book_kind_exists(self, id: int) -> bool:
+        return bool(self.book_kind_repository.get_by_id(str(id)))
 
     def _apply_genre(self, sql_query: select_book, id_genre: int) -> select_book:
         if self._book_genre_exists(id_genre):
@@ -100,8 +100,8 @@ class SearchRepository(ISearchRepository):
 
         return sql_query
 
-    def _book_genre_exists(self, id: int | None) -> bool:
-        return bool(self.book_genre_repository.get_by_id(str(id) if id is not None else ''))
+    def _book_genre_exists(self, id: int) -> bool:
+        return bool(self.book_genre_repository.get_by_id(str(id)))
 
     def _apply_release_year(self, sql_query: select_book, release_year: int) -> select_book:
         sql_query = sql_query.filter_by(release_year=release_year)
