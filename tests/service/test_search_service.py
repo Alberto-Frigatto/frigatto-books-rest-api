@@ -26,7 +26,7 @@ def search_service(mock_repository: Mock) -> SearchService:
     return SearchService(mock_repository)
 
 
-def test_get_all_book_genres(search_service: SearchService, app: Flask, mock_repository: Mock):
+def test_search_all_books(search_service: SearchService, app: Flask, mock_repository: Mock):
     with app.app_context():
         mock_pagination = Mock(Pagination)
         mock_pagination.items = [Mock(Book) for _ in range(5)]
