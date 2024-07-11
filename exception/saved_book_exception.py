@@ -2,7 +2,7 @@ from .base import ApiException
 
 
 class SavedBookException:
-    class BookArentSaved(ApiException):
+    class BookIsNotSaved(ApiException):
         def __init__(self, id: str) -> None:
             super().__init__(
                 message=f'The book {id} was not saved by the user',
