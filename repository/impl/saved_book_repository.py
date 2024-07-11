@@ -41,6 +41,6 @@ class SavedBookRepository(ISavedBookRepository):
         saved_book = self.session.get_one(query)
 
         if saved_book is None:
-            raise SavedBookException.BookArentSaved(str(id_book))
+            raise SavedBookException.BookIsNotSaved(str(id_book))
 
         return saved_book
