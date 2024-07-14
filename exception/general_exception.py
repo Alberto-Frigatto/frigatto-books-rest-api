@@ -40,7 +40,7 @@ class GeneralException:
                 detail=detail,
             )
 
-    class EnpointNotFound(ApiException):
+    class EndpointNotFound(ApiException):
         def __init__(self) -> None:
             super().__init__(
                 message='The endpoint does not exist',
