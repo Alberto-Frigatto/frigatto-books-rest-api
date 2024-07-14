@@ -27,7 +27,7 @@ def add_middlewares(app: Flask) -> None:
         except MethodNotAllowed:
             return ErrorResponse(GeneralException.MethodNotAllowed()).json()
         except NotFound:
-            return ErrorResponse((GeneralException.EnpointNotFound())).json()
+            return ErrorResponse(GeneralException.EndpointNotFound()).json()
 
     @app.before_request
     def check_content_type() -> Response | None:
