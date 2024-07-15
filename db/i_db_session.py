@@ -1,30 +1,29 @@
 from abc import ABC, abstractmethod
-from typing import Any, Sequence, TypeVar
+from typing import Sequence, TypeVar
 
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy import Select
 
-from .database import db
+from model.base import Model
 
-TModel = TypeVar("TModel", db.Model, Any)
-Model = db.Model
+TModel = TypeVar('TModel')
 
 
 class IDbSession(ABC):
     @abstractmethod
-    def paginate(self, query: Select[tuple[type[TModel]]], *, page: int) -> Pagination:
+    def paginate(self, query: Select[tuple[TModel]], *, page: int) -> Pagination:
         pass
 
     @abstractmethod
-    def get_by_id(self, model: type[TModel], id: str) -> type[TModel] | None:
+    def get_by_id(self, model: type[TModel], id: str) -> TModel | None:
         pass
 
     @abstractmethod
-    def get_one(self, query: Select[tuple[type[TModel]]]) -> type[TModel] | None:
+    def get_one(self, query: Select[tuple[TModel]]) -> TModel | None:
         pass
 
     @abstractmethod
-    def get_many(self, query: Select[tuple[type[TModel]]]) -> Sequence[type[TModel]]:
+    def get_many(self, query: Select[tuple[TModel]]) -> Sequence[TModel]:
         pass
 
     @abstractmethod
