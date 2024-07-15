@@ -2,9 +2,7 @@ from typing import Any, Sequence
 
 from pydantic import BaseModel, ConfigDict
 
-from db import db
-
-Model = db.Model
+from model.base import Model
 
 
 class OutputDTO(BaseModel):
