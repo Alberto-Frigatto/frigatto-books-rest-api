@@ -4,11 +4,13 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.mysql import DECIMAL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db import db, int_pk
+from db import int_pk
 from model import BookGenre, BookImg, BookKeyword, BookKind
 
+from .base import Model
 
-class Book(db.Model):
+
+class Book(Model):
     __tablename__ = 'books'
 
     id: Mapped[int_pk]

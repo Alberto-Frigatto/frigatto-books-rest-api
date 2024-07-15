@@ -2,10 +2,12 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from db import db, int_pk
+from db import int_pk
+
+from .base import Model
 
 
-class User(db.Model):
+class User(Model):
     __tablename__ = 'users'
 
     id: Mapped[int_pk]

@@ -1,10 +1,12 @@
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db import db, int_pk
+from db import int_pk
+
+from .base import Model
 
 
-class BookGenre(db.Model):
+class BookGenre(Model):
     __tablename__ = 'book_genres'
 
     id: Mapped[int_pk]

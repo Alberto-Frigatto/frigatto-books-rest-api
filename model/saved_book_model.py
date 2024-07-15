@@ -1,11 +1,13 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db import db, int_pk
+from db import int_pk
 from model import Book
 
+from .base import Model
 
-class SavedBook(db.Model):
+
+class SavedBook(Model):
     __tablename__ = 'saved_books'
 
     id: Mapped[int_pk]

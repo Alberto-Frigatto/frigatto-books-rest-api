@@ -1,10 +1,12 @@
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db import db, int_pk
+from db import int_pk
+
+from .base import Model
 
 
-class BookImg(db.Model):
+class BookImg(Model):
     __tablename__ = 'book_imgs'
 
     id: Mapped[int_pk]
