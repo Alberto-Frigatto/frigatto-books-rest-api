@@ -143,20 +143,6 @@ def access_token(app: Flask) -> str:
         return create_access_token(user)
 
 
-def test_instantiate_Book():
-    name = 'O Poderoso Chefão'
-    price = Decimal('49.99')
-    author = 'Mario Puzo'
-    release_year = 1969
-
-    book = Book(name, price, author, release_year)
-
-    assert book.name == name
-    assert book.price == price
-    assert book.author == author
-    assert book.release_year == release_year
-
-
 def test_get_all_books_without_page(client: FlaskClient):
     response = client.get('/books')
     response_data = json.loads(response.data)

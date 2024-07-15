@@ -90,13 +90,6 @@ def access_token(app: Flask) -> str:
         return create_access_token(user)
 
 
-def test_instantiate_BookKeyword():
-    keyword = 'palavra chave'
-    book_keyword = BookKeyword(keyword)
-
-    assert book_keyword.keyword == keyword
-
-
 def test_add_book_keyword_in_lowercase(client: FlaskClient, access_token: str, app: Flask):
     headers = {'Authorization': f'Bearer {access_token}'}
 

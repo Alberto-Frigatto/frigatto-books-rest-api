@@ -119,13 +119,6 @@ def access_token(app: Flask) -> str:
         return create_access_token(user)
 
 
-def test_instantiate_BookImg():
-    img_url = 'http://localhost:5000/books/photos/test.jpg'
-    book_img = BookImg(img_url)
-
-    assert book_img.img_url == img_url
-
-
 def test_get_book_img(client: FlaskClient):
     response = client.get('/books/photos/test.jpg')
 

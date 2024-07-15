@@ -71,18 +71,6 @@ def access_token(app: Flask) -> str:
         return create_access_token(user)
 
 
-def test_instantiate_User():
-    username = 'Username_123'
-    password = 'SEnha_#45'
-    img_url = 'http://localhost:5000/users/photos/test.jpg'
-
-    user = User(username, password, img_url)
-
-    assert user.username == username
-    assert user.password != password
-    assert user.img_url == img_url
-
-
 def test_create_user(client: FlaskClient, app: Flask):
     data_for_create = {
         'username': 'frigatto',

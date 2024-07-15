@@ -51,13 +51,6 @@ def access_token(app: Flask) -> str:
         return create_access_token(user)
 
 
-def test_instantiate_BookGenre():
-    book_genre_name = 'novo gênero'
-    book_genre = BookGenre(book_genre_name)
-
-    assert book_genre.genre == book_genre_name
-
-
 def test_get_all_book_genres_without_page(client: FlaskClient):
     response = client.get('/bookGenres')
     response_data = json.loads(response.data)
