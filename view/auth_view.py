@@ -25,7 +25,7 @@ class AuthView:
         return response
 
     @staticmethod
-    @auth_bp.post('/logout')
+    @auth_bp.get('/logout')
     def logout() -> Response:
         response = NoContentResponse().json()
         unset_jwt_cookies(response)
