@@ -21,7 +21,7 @@ def mock_db_session() -> Mock:
 
 
 @pytest.fixture
-def user_book_repository(mock_db_session: Mock) -> UserRepository:
+def user_repository(mock_db_session: Mock) -> UserRepository:
     return UserRepository(mock_db_session)
 
 
@@ -35,13 +35,13 @@ def user(app: Flask) -> User:
         )
 
 
-def test_create_user(user_book_repository: UserRepository, app: Flask, mock_db_session: Mock):
+def test_create_user(user_repository: UserRepository, app: Flask, mock_db_session: Mock):
     with app.app_context(), patch(
         'repository.impl.user_repository.UserRepository._user_already_exists',
         return_value=False,
     ):
         mock_user = Mock(User)
-        result = user_book_repository.add(mock_user)
+        result = user_repository.add(mock_user)
 
         assert result is None
 
@@ -49,17 +49,17 @@ def test_create_user(user_book_repository: UserRepository, app: Flask, mock_db_s
 
 
 def test_when_try_to_create_user_already_exists_raises_UserAlreadyExists(
-    user_book_repository: UserRepository, app: Flask, mock_db_session: Mock, user: User
+    user_repository: UserRepository, app: Flask, mock_db_session: Mock, user: User
 ):
     with app.app_context(), pytest.raises(UserException.UserAlreadyExists):
         mock_db_session.get_one = Mock(return_value=user)
 
         mock_user = Mock(User)
-        user_book_repository.add(mock_user)
+        user_repository.add(mock_user)
 
 
 def test_update_user_username(
-    user_book_repository: UserRepository, app: Flask, mock_db_session: Mock, user: User
+    user_repository: UserRepository, app: Flask, mock_db_session: Mock, user: User
 ):
     with app.app_context(), patch(
         'repository.impl.user_repository.UserRepository._user_already_exists',
@@ -70,7 +70,7 @@ def test_update_user_username(
         mock_user = Mock(User)
         mock_user.username = 'new_username'
 
-        result = user_book_repository.update(mock_user)
+        result = user_repository.update(mock_user)
 
         assert result is None
 
@@ -78,7 +78,7 @@ def test_update_user_username(
 
 
 def test_when_try_to_update_user_username_to_already_existing_username_raises_UserAlreadyExists(
-    user_book_repository: UserRepository, app: Flask, mock_db_session: Mock
+    user_repository: UserRepository, app: Flask, mock_db_session: Mock
 ):
     with pytest.raises(UserException.UserAlreadyExists), app.app_context():
         with patch(
@@ -90,16 +90,16 @@ def test_when_try_to_update_user_username_to_already_existing_username_raises_Us
             mock_user = Mock(User)
             mock_user.username = 'frigatto'
 
-            user_book_repository.update(mock_user)
+            user_repository.update(mock_user)
 
 
 def test_get_user_by_username_returns_User(
-    user_book_repository: UserRepository, app: Flask, mock_db_session: Mock, user: User
+    user_repository: UserRepository, app: Flask, mock_db_session: Mock, user: User
 ):
     with app.app_context():
         mock_db_session.get_one = Mock(return_value=user)
 
-        result = user_book_repository.get_by_username(Mock())
+        result = user_repository.get_by_username(Mock())
 
         assert isinstance(result, User)
         assert result == user
@@ -108,13 +108,26 @@ def test_get_user_by_username_returns_User(
 
 
 def test_get_user_by_username_returns_None(
-    user_book_repository: UserRepository, app: Flask, mock_db_session: Mock
+    user_repository: UserRepository, app: Flask, mock_db_session: Mock
 ):
     with app.app_context():
         mock_db_session.get_one = Mock(return_value=None)
 
-        result = user_book_repository.get_by_username(Mock())
+        result = user_repository.get_by_username(Mock())
 
         assert result is None
 
         mock_db_session.get_one.assert_called_once()
+
+
+def test_delete_user(user_repository: UserRepository, app: Flask, mock_db_session: Mock):
+    with app.app_context(), patch(
+        'utils.file.uploader.UserImageUploader.delete', new_callable=Mock()
+    ) as mock_UserImageUploader_delete:
+        mock_user = Mock(User)
+        result = user_repository.delete(mock_user)
+
+        assert result is None
+
+        mock_db_session.delete.assert_called_once_with(mock_user)
+        mock_UserImageUploader_delete.assert_called_once_with(mock_user.img_url)
