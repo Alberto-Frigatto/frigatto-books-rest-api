@@ -1295,3 +1295,104 @@ def test_when_try_to_update_user_without_data_return_error_response(
 
     assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
+
+
+def test_delete_user(client: FlaskClient, app: Flask):
+    user_id = 2
+
+    with app.app_context():
+        user = db.session.get(User, user_id)
+        access_token = create_access_token(user)
+        assert user is not None
+
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    response = client.delete('/users', headers=headers)
+
+    assert response.status_code == 302
+    assert response.location == '/auth/logout'
+
+    with app.app_context():
+        deleted_user = db.session.get(User, user_id)
+
+        assert deleted_user is None
+
+    assert 'test2.jpg' not in os.listdir('tests/uploads')
+
+
+def test_delete_user_with_saved_books(client: FlaskClient, app: Flask):
+    user_id = 2
+
+    with app.app_context():
+        db.session.execute(
+            text("INSERT INTO saved_books (id_user, id_book) VALUES (:id_user, :id_book)"),
+            {'id_user': user_id, 'id_book': 1},
+        )
+        db.session.commit()
+
+        user = db.session.get(User, user_id)
+        access_token = create_access_token(user)
+        assert user is not None
+
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    response = client.delete('/users', headers=headers)
+
+    assert response.status_code == 302
+    assert response.location == '/auth/logout'
+
+    with app.app_context():
+        deleted_user = db.session.get(User, user_id)
+
+        assert deleted_user is None
+
+        result = (
+            db.session.execute(
+                text("SELECT * FROM saved_books WHERE id_user = :id_user"), {'id_user': user_id}
+            )
+            .scalars()
+            .all()
+        )
+        assert result == []
+
+    assert 'test2.jpg' not in os.listdir('tests/uploads')
+
+
+def test_when_try_to_delete_user_without_auth_returns_error_response(client: FlaskClient):
+    response = client.delete(f'/users')
+    response_data = json.loads(response.data)
+
+    expected_data = {
+        'scope': 'SecurityException',
+        'code': 'MissingJWT',
+        'message': 'JWT token not provided',
+        'status': 401,
+    }
+
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
+    assert response.status_code == 401
+
+
+def test_when_try_to_delete_user_with_invalid_auth_returns_error_response(
+    client: FlaskClient,
+):
+    headers = {'Authorization': f'Bearer 123'}
+
+    response = client.delete(f'/users', headers=headers)
+    response_data = json.loads(response.data)
+
+    expected_data = {
+        'scope': 'SecurityException',
+        'code': 'InvalidJWT',
+        'message': 'Invalid JWT token',
+        'status': 401,
+    }
+
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
+    assert response.status_code == 401
