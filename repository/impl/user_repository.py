@@ -4,6 +4,7 @@ from sqlalchemy import select
 from db import IDbSession
 from exception import UserException
 from model import User
+from utils.file.uploader import UserImageUploader
 
 from .. import IUserRepository
 
@@ -19,7 +20,7 @@ class UserRepository(IUserRepository):
 
         self.session.add(user)
 
-    def _user_already_exists(self, username: str | None) -> bool:
+    def _user_already_exists(self, username: str) -> bool:
         query = select(User).where(User.username.ilike(username))
 
         return bool(self.session.get_one(query))
@@ -40,3 +41,8 @@ class UserRepository(IUserRepository):
         query = select(User).filter_by(username=username)
 
         return self.session.get_one(query)
+
+    def delete(self, user: User) -> None:
+        self.session.delete(user)
+
+        UserImageUploader.delete(user.img_url)
