@@ -8,14 +8,14 @@ from utils.response import ErrorResponse
 
 def add_error_handlers(app: Flask) -> None:
     @app.errorhandler(ApiException)
-    def handle_exceptions(e) -> Response:
+    def handle_exceptions(e: ApiException) -> Response:
         return ErrorResponse(e).json()
 
     @jwt.unauthorized_loader
     def unauthorized_callback(error_string: str) -> Response:
         error_map = {
-            'CSRF double submit tokens do not match': 'InvalidCSFR',
-            'Missing CSRF token': 'MissingCSFR',
+            'CSRF double submit tokens do not match': 'InvalidCSRF',
+            'Missing CSRF token': 'MissingCSRF',
             'Missing cookie "access_token_cookie"': 'MissingJWT',
             'Missing Authorization Header': 'MissingJWT',
         }
