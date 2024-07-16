@@ -191,3 +191,13 @@ def test_update_image(user_service: UserService, app: Flask, mock_repository: Mo
             assert result.username == user.username
             assert result.password == user.password
             assert result.img_url == mock_dto.img.get_url()
+
+
+def test_delete_user(user_service: UserService, app: Flask, user: User, mock_repository: Mock):
+    with app.app_context():
+        with patch('flask_jwt_extended.utils.get_current_user', return_value=user):
+            result = user_service.delete_user()
+
+            assert result is None
+
+            mock_repository.delete.assert_called_once_with(user)
