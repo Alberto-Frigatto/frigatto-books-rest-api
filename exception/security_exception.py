@@ -16,14 +16,14 @@ class SecurityException:
                 status=401,
             )
 
-    class MissingCSFR(ApiException):
+    class MissingCSRF(ApiException):
         def __init__(self) -> None:
             super().__init__(
                 message='CSRF token not provided',
                 status=400,
             )
 
-    class InvalidCSFR(ApiException):
+    class InvalidCSRF(ApiException):
         def __init__(self) -> None:
             super().__init__(
                 message='Invalid CSRF token',
