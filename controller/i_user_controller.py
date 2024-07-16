@@ -23,3 +23,7 @@ class IUserController(ABC):
     @abstractmethod
     def update_user(self, input_dto: UpdateUserInputDTO) -> User:
         pass
+
+    @abstractmethod
+    def delete_user(self) -> None:
+        pass
