@@ -87,3 +87,12 @@ def test_update_user(user_controller: UserController, app: Flask, mock_service: 
         assert result == mock_user
 
         mock_service.update_user.assert_called_once_with(mock_dto)
+
+
+def test_delete_user(user_controller: UserController, app: Flask, mock_service: Mock):
+    with app.app_context():
+        result = user_controller.delete_user()
+
+        assert result is None
+
+        mock_service.delete_user.assert_called_once()
