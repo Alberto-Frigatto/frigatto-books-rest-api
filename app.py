@@ -2,7 +2,13 @@ from flask import Flask
 from flask_cors import CORS
 from flask_injector import FlaskInjector
 
-from config import add_error_handlers, add_middlewares, add_routes, di_config
+from config import (
+    add_error_handlers,
+    add_middlewares,
+    add_routes,
+    create_upload_dirs_if_dont_exist,
+    di_config,
+)
 from db import db
 from security import jwt
 
@@ -21,6 +27,8 @@ def create_app(test_config: bool = False) -> Flask:
     add_middlewares(app)
     add_error_handlers(app)
     add_routes(app)
+
+    create_upload_dirs_if_dont_exist(app)
 
     FlaskInjector(app=app, modules=[di_config])
 
