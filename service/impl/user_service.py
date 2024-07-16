@@ -66,3 +66,6 @@ class UserService(IUserService):
             input_dto.img.save()
 
         return current_user
+
+    def delete_user(self) -> None:
+        self.repository.delete(current_user)
