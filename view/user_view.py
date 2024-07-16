@@ -1,5 +1,6 @@
-from flask import Blueprint, Response, send_file
+from flask import Blueprint, Response, redirect, send_file, url_for
 from flask_jwt_extended import jwt_required
+from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from controller import IUserController
 from dto.input import CreateUserInputDTO, UpdateUserInputDTO
@@ -48,3 +49,11 @@ class UserView:
         file_path, mimetype = controller.get_user_photo(filename)
 
         return send_file(file_path, mimetype)
+
+    @staticmethod
+    @user_bp.delete('')
+    @jwt_required()
+    def delete_user(controller: IUserController) -> WerkzeugResponse:
+        controller.delete_user()
+
+        return redirect(url_for('auth.logout'))
