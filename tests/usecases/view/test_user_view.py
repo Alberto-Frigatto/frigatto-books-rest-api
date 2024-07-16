@@ -137,3 +137,23 @@ def test_get_user_photo(app: Flask, mock_controller: Mock):
             assert result == mock_response
 
             mock_controller.get_user_photo.assert_called_once_with(filename)
+
+
+def test_delete_user(app: Flask, mock_controller: Mock):
+    mock_response = Mock(Response)
+
+    with app.app_context():
+        with patch(
+            'flask_jwt_extended.view_decorators.verify_jwt_in_request', return_value=Mock()
+        ), patch('view.user_view.redirect', return_value=mock_response) as mock_redirect, patch(
+            'view.user_view.url_for', return_value=Mock()
+        ):
+            mock_controller.delete_user = Mock(return_value=None)
+
+            result = UserView.delete_user(mock_controller)
+
+            assert isinstance(result, Response)
+            assert result == mock_response
+
+            mock_controller.delete_user.assert_called_once()
+            mock_redirect.assert_called_once()
