@@ -26,3 +26,6 @@ class UserController(IUserController):
 
     def update_user(self, input_dto: UpdateUserInputDTO) -> User:
         return self.service.update_user(input_dto)
+
+    def delete_user(self) -> None:
+        self.service.delete_user()
