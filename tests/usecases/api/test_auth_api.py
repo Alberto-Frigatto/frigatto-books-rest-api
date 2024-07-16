@@ -212,14 +212,14 @@ def test_when_try_to_login_without_data_returns_error_response(client: FlaskClie
 def test_logout(client: FlaskClient, access_token: str):
     headers = {'Authorization': f'Bearer {access_token}'}
 
-    response = client.post('/auth/logout', headers=headers)
+    response = client.get('/auth/logout', headers=headers)
 
     assert not response.data
     assert response.status_code == 204
 
 
 def test_logout_without_auth(client: FlaskClient):
-    response = client.post(f'/auth/logout')
+    response = client.get(f'/auth/logout')
 
     assert not response.data
     assert response.status_code == 204
