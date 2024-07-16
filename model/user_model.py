@@ -1,8 +1,9 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import int_pk
+from model import SavedBook
 
 from .base import Model
 
@@ -14,6 +15,8 @@ class User(Model):
     username: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     img_url: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+
+    book_keywords: Mapped[list[SavedBook]] = relationship(cascade='all, delete, delete-orphan')
 
     def __init__(self, username: str, password: str, img_url: str) -> None:
         self.username = username
