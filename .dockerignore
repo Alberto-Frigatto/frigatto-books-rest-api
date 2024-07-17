@@ -1,6 +1,11 @@
 /uploads
 .vscode
 tests/
+.coveragerc
+.gitignore
+pytest.ini
+README.md
+requirements-dev.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
