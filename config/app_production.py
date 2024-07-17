@@ -1,7 +1,7 @@
 import os
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{os.getenv("DB_USER", "root")}:{os.getenv("DB_PWD")}@localhost:3306/frigatto_books'
+SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{os.getenv("DB_USER", "root")}:{os.getenv("DB_PWD")}@{os.getenv("DB_HOST")}:3306/frigatto_books'
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 JWT_TOKEN_LOCATION = ['cookies']
 UPLOAD_DIR = 'uploads'
