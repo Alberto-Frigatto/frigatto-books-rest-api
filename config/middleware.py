@@ -1,5 +1,6 @@
 from flask import Flask, Response, request
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 
 from db import db
@@ -13,7 +14,7 @@ def add_middlewares(app: Flask) -> None:
         try:
             db.session.execute(text('SELECT 1'))
             db.session.commit()
-        except Exception:
+        except OperationalError:
             return ErrorResponse(GeneralException.DatabaseConnection()).json()
 
     @app.before_request
