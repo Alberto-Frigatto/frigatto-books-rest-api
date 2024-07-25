@@ -6,6 +6,8 @@ tests/
 pytest.ini
 README.md
 requirements-dev.txt
+LICENSE.md
+docs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
