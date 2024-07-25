@@ -9,7 +9,7 @@ class BookException:
                 status=409,
             )
 
-    class BookDoesntExists(ApiException):
+    class BookDoesntExist(ApiException):
         def __init__(self, id: str) -> None:
             super().__init__(
                 message=f'The book {id} does not exist',
