@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required
 from controller import ISavedBookController
 from dto.output import BookOutputDTO
 from utils.request import Request
-from utils.response import CreatedResponse, NoContentResponse, OkResponse, PaginationResponse
+from utils.response import CreatedResponse, NoContentResponse, PaginationResponse
 
 saved_book_bp = Blueprint('saved_book_bp', __name__)
 
