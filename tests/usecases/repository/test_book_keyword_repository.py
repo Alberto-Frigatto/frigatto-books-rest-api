@@ -44,7 +44,7 @@ def test_get_book_keyword_by_id(
 def test_when_try_to_get_book_keyword_does_not_exists_raises_BookKeywordDoesntExists(
     book_keyword_repository: BookKeywordRepository, app: Flask, mock_db_session: Mock
 ):
-    with app.app_context(), pytest.raises(BookKeywordException.BookKeywordDoesntExists):
+    with app.app_context(), pytest.raises(BookKeywordException.BookKeywordDoesntExist):
         mock_db_session.get_by_id = Mock(return_value=None)
 
         book_keyword_id = '1'
