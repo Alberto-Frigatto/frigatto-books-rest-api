@@ -79,7 +79,7 @@ def test_get_book_kind_by_id(
 def test_when_try_to_get_book_kind_by_id_from_book_kind_does_not_exists_raises_BookKindDoesntExists(
     book_kind_repository: BookKindRepository, app: Flask, mock_db_session: Mock
 ):
-    with pytest.raises(BookKindException.BookKindDoesntExists), app.app_context():
+    with pytest.raises(BookKindException.BookKindDoesntExist), app.app_context():
         mock_db_session.get_by_id = Mock(return_value=None)
 
         book_kind_id = '1'
