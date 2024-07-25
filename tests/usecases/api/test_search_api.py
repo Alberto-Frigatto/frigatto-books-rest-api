@@ -766,7 +766,7 @@ def test_when_try_to_search_books_with_id_book_kind_filter_doesnt_exists_returns
 
     expected_data = {
         'scope': 'BookKindException',
-        'code': 'BookKindDoesntExists',
+        'code': 'BookKindDoesntExist',
         'message': f'The book kind {search["id_book_kind"]} does not exist',
         'status': 404,
     }
@@ -908,7 +908,7 @@ def test_when_try_to_search_books_with_id_book_genre_filter_doesnt_exists_return
 
     expected_data = {
         'scope': 'BookGenreException',
-        'code': 'BookGenreDoesntExists',
+        'code': 'BookGenreDoesntExist',
         'message': f'The book genre {search["id_book_genre"]} does not exist',
         'status': 404,
     }
