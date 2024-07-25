@@ -44,7 +44,7 @@ def test_get_book_img_by_id(
 def test_when_try_to_get_book_img_does_not_exists_raises_BookImgDoesntExists(
     book_img_repository: BookImgRepository, app: Flask, mock_db_session: Mock
 ):
-    with app.app_context(), pytest.raises(BookImgException.BookImgDoesntExists):
+    with app.app_context(), pytest.raises(BookImgException.BookImgDoesntExist):
         mock_db_session.get_by_id = Mock(return_value=None)
 
         book_img_id = '1'
