@@ -197,7 +197,7 @@ def test_when_try_to_get_all_saved_books_with_page_3_return_error_response(
 
     expected_data = {
         'scope': 'GeneralException',
-        'code': 'PaginationPageDoesNotExists',
+        'code': 'PaginationPageDoesntExist',
         'message': 'The page 3 does not exist',
         'status': 400,
     }
@@ -275,7 +275,7 @@ def test_when_try_to_save_book_with_id_from_book_doesnt_exists_return_error_resp
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
@@ -374,7 +374,7 @@ def test_when_try_to_delete_saved_book_with_id_from_book_doesnt_exists_return_er
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
