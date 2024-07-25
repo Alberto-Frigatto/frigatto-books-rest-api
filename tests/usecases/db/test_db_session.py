@@ -85,10 +85,10 @@ def test_when_try_to_get_all_models_with_page_does_not_exists_raises_PaginationP
     mock_sql_alchemy: Mock,
     mock_query: Select,
 ):
-    with app.app_context(), pytest.raises(GeneralException.PaginationPageDoesNotExists):
+    with app.app_context(), pytest.raises(GeneralException.PaginationPageDoesntExist):
         page = 1
         mock_sql_alchemy.paginate = Mock(
-            side_effect=GeneralException.PaginationPageDoesNotExists(page)
+            side_effect=GeneralException.PaginationPageDoesntExist(page)
         )
 
         db_session.paginate(mock_query, page=page)
