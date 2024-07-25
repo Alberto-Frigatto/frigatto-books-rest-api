@@ -75,7 +75,7 @@ def test_get_book_by_id(book_repository: BookRepository, app: Flask, mock_db_ses
 def test_when_try_to_get_book_by_id_from_book_does_not_exists_raises_BookDoesntExists(
     book_repository: BookRepository, app: Flask, mock_db_session: Mock
 ):
-    with pytest.raises(BookException.BookDoesntExists), app.app_context():
+    with pytest.raises(BookException.BookDoesntExist), app.app_context():
         mock_db_session.get_by_id = Mock(return_value=None)
 
         book_id = '1'
