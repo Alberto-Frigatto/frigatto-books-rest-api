@@ -191,7 +191,7 @@ def test_when_try_to_delete_last_book_img_returns_error_response(
     assert response.status_code == 400
 
 
-def test_when_try_to_delete_book_img_does_not_exists_returns_error_response(
+def test_when_try_to_delete_book_img_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -204,7 +204,7 @@ def test_when_try_to_delete_book_img_does_not_exists_returns_error_response(
 
     expected_data = {
         'scope': 'BookImgException',
-        'code': 'BookImgDoesntExists',
+        'code': 'BookImgDoesntExist',
         'message': f'The image {img_id} does not exist',
         'status': 404,
     }
@@ -216,7 +216,7 @@ def test_when_try_to_delete_book_img_does_not_exists_returns_error_response(
     assert response.status_code == 404
 
 
-def test_when_try_to_delete_book_img_from_book_does_not_exists_returns_error_response(
+def test_when_try_to_delete_book_img_from_book_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -229,7 +229,7 @@ def test_when_try_to_delete_book_img_from_book_does_not_exists_returns_error_res
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
@@ -256,14 +256,14 @@ def test_when_try_to_delete_book_img_from_book_does_not_own_it_returns_error_res
         'scope': 'BookImgException',
         'code': 'BookDoesntOwnThisImg',
         'message': f'The image {img_id} does not belong to the book {book_id}',
-        'status': 401,
+        'status': 403,
     }
 
     for key, value in expected_data.items():
         assert response_data[key] == value
 
     assert datetime.fromisoformat(response_data['timestamp'])
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 
 def test_when_try_to_delete_book_img_without_auth_returns_error_response(client: FlaskClient):
@@ -355,7 +355,7 @@ def test_update_book_img(client: FlaskClient, access_token: str, app: Flask):
         assert book_img.id_book == book_id
 
 
-def test_when_try_to_update_book_img_does_not_exists_returns_error_response(
+def test_when_try_to_update_book_img_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {
@@ -373,7 +373,7 @@ def test_when_try_to_update_book_img_does_not_exists_returns_error_response(
 
     expected_data = {
         'scope': 'BookImgException',
-        'code': 'BookImgDoesntExists',
+        'code': 'BookImgDoesntExist',
         'message': f'The image {img_id} does not exist',
         'status': 404,
     }
@@ -385,7 +385,7 @@ def test_when_try_to_update_book_img_does_not_exists_returns_error_response(
     assert response.status_code == 404
 
 
-def test_when_try_to_update_book_img_from_book_does_not_exists_returns_error_response(
+def test_when_try_to_update_book_img_from_book_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {
@@ -403,7 +403,7 @@ def test_when_try_to_update_book_img_from_book_does_not_exists_returns_error_res
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
@@ -572,14 +572,14 @@ def test_when_try_to_update_book_img_from_book_does_not_own_it_returns_error_res
         'scope': 'BookImgException',
         'code': 'BookDoesntOwnThisImg',
         'message': f'The image {img_id} does not belong to the book {book_id}',
-        'status': 401,
+        'status': 403,
     }
 
     for key, value in expected_data.items():
         assert response_data[key] == value
 
     assert datetime.fromisoformat(response_data['timestamp'])
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 
 def test_when_try_to_update_book_img_without_auth_returns_error_response(client: FlaskClient):
@@ -683,7 +683,7 @@ def test_when_try_to_add_an_image_to_a_book_with_5_images_returns_error_response
     expected_data = {
         'scope': 'BookImgException',
         'code': 'BookAlreadyHaveImageMaxQty',
-        'message': 'The book "Livro" already have the max quantity of images',
+        'message': 'The book "Livro" already has the max quantity of images',
         'status': 400,
     }
 
@@ -694,7 +694,7 @@ def test_when_try_to_add_an_image_to_a_book_with_5_images_returns_error_response
     assert response.status_code == 400
 
 
-def test_when_try_to_create_book_img_from_book_does_not_exists_returns_error_response(
+def test_when_try_to_create_book_img_from_book_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {
@@ -711,7 +711,7 @@ def test_when_try_to_create_book_img_from_book_does_not_exists_returns_error_res
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
