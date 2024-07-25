@@ -54,6 +54,7 @@ class CreateBookInputDTO(InputDTO):
             StringConstraints(
                 strict=True,
                 strip_whitespace=True,
+                to_lower=True,
                 min_length=3,
                 max_length=20,
                 pattern=r'^[a-zA-ZÀ-ÿç\s\d]+$',
