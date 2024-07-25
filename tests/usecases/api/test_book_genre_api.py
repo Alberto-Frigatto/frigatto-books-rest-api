@@ -117,7 +117,7 @@ def test_when_try_to_get_all_book_genres_with_page_3_return_error_response(clien
 
     expected_data = {
         'scope': 'GeneralException',
-        'code': 'PaginationPageDoesNotExists',
+        'code': 'PaginationPageDoesntExist',
         'message': 'The page 3 does not exist',
         'status': 400,
     }
@@ -141,7 +141,7 @@ def test_get_book_genre_by_id(client: FlaskClient):
     assert response.status_code == 200
 
 
-def test_when_try_to_get_book_genre_does_not_exists_return_error_response(client: FlaskClient):
+def test_when_try_to_get_book_genre_does_not_exist_return_error_response(client: FlaskClient):
     book_genre_id = 100
 
     response = client.get(f'/bookGenres/{book_genre_id}')
@@ -149,7 +149,7 @@ def test_when_try_to_get_book_genre_does_not_exists_return_error_response(client
 
     expected_data = {
         'scope': 'BookGenreException',
-        'code': 'BookGenreDoesntExists',
+        'code': 'BookGenreDoesntExist',
         'message': f'The book genre {book_genre_id} does not exist',
         'status': 404,
     }
@@ -775,7 +775,7 @@ def test_when_try_to_delete_book_genre_have_linked_book_return_error_response(
     assert response.status_code == 409
 
 
-def test_when_try_to_delete_book_genre_does_not_exists_return_error_message(
+def test_when_try_to_delete_book_genre_does_not_exist_return_error_message(
     client: FlaskClient, access_token: str
 ):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -787,7 +787,7 @@ def test_when_try_to_delete_book_genre_does_not_exists_return_error_message(
 
     expected_data = {
         'scope': 'BookGenreException',
-        'code': 'BookGenreDoesntExists',
+        'code': 'BookGenreDoesntExist',
         'message': f'The book genre {book_genre_id} does not exist',
         'status': 404,
     }
