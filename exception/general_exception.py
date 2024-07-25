@@ -47,7 +47,7 @@ class GeneralException:
                 status=404,
             )
 
-    class PaginationPageDoesNotExists(ApiException):
+    class PaginationPageDoesntExist(ApiException):
         def __init__(self, page: int) -> None:
             super().__init__(
                 message=f'The page {page} does not exist',
