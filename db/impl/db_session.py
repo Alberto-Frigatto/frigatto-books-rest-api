@@ -27,7 +27,7 @@ class DbSession(IDbSession):
                     per_page=20,
                 )
             except Exception as e:
-                raise GeneralException.PaginationPageDoesNotExists(page)
+                raise GeneralException.PaginationPageDoesntExist(page)
 
     def get_by_id(self, model: type[TModel], id: str) -> TModel | None:
         with self.db.session.no_autoflush:
