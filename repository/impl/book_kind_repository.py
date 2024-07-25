@@ -23,7 +23,7 @@ class BookKindRepository(IBookKindRepository):
         book_kind = self.session.get_by_id(BookKind, id)
 
         if book_kind is None:
-            raise BookKindException.BookKindDoesntExists(str(id))
+            raise BookKindException.BookKindDoesntExist(str(id))
 
         return book_kind
 

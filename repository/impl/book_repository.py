@@ -24,7 +24,7 @@ class BookRepository(IBookRepository):
         book = self.session.get_by_id(Book, id)
 
         if book is None:
-            raise BookException.BookDoesntExists(str(id))
+            raise BookException.BookDoesntExist(str(id))
 
         return book
 

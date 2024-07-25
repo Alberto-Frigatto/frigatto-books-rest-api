@@ -23,7 +23,7 @@ class BookGenreRepository(IBookGenreRepository):
         book_genre = self.session.get_by_id(BookGenre, id)
 
         if book_genre is None:
-            raise BookGenreException.BookGenreDoesntExists(str(id))
+            raise BookGenreException.BookGenreDoesntExist(str(id))
 
         return book_genre
 

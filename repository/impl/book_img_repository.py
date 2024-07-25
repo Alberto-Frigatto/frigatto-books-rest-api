@@ -17,7 +17,7 @@ class BookImgRepository(IBookImgRepository):
         book_img = self.session.get_by_id(BookImg, id)
 
         if book_img is None:
-            raise BookImgException.BookImgDoesntExists(str(id))
+            raise BookImgException.BookImgDoesntExist(str(id))
 
         return book_img
 

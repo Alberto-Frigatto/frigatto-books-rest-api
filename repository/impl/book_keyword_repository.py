@@ -16,7 +16,7 @@ class BookKeywordRepository(IBookKeywordRepository):
         book_keyword = self.session.get_by_id(BookKeyword, id)
 
         if book_keyword is None:
-            raise BookKeywordException.BookKeywordDoesntExists(id)
+            raise BookKeywordException.BookKeywordDoesntExist(id)
 
         return book_keyword
 
