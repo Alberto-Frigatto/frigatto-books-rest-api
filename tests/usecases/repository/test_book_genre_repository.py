@@ -79,7 +79,7 @@ def test_get_book_genre_by_id(
 def test_when_try_to_get_book_genre_by_id_from_book_genre_does_not_exists_raises_BookGenreDoesntExists(
     book_genre_repository: BookGenreRepository, app: Flask, mock_db_session: Mock
 ):
-    with pytest.raises(BookGenreException.BookGenreDoesntExists), app.app_context():
+    with pytest.raises(BookGenreException.BookGenreDoesntExist), app.app_context():
         mock_db_session.get_by_id = Mock(return_value=None)
 
         book_genre_id = '1'
