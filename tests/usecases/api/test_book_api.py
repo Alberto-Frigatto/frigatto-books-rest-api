@@ -311,7 +311,7 @@ def test_get_all_books_with_page_2(client: FlaskClient):
         'next_page': None,
         'page': 2,
         'per_page': 20,
-        'prev_page':'/books?page=1',
+        'prev_page': '/books?page=1',
         'total_items': 26,
         'total_pages': 2,
     }
@@ -326,7 +326,7 @@ def test_when_try_to_get_all_books_with_page_3_return_error_response(client: Fla
 
     expected_data = {
         'scope': 'GeneralException',
-        'code': 'PaginationPageDoesNotExists',
+        'code': 'PaginationPageDoesntExist',
         'message': 'The page 3 does not exist',
         'status': 400,
     }
@@ -360,7 +360,7 @@ def test_get_book_by_id(client: FlaskClient):
     assert response.status_code == 200
 
 
-def test_when_try_to_get_book_does_not_exists_return_error_response(client: FlaskClient):
+def test_when_try_to_get_book_does_not_exist_return_error_response(client: FlaskClient):
     book_id = 100
 
     response = client.get(f'/books/{book_id}')
@@ -368,7 +368,7 @@ def test_when_try_to_get_book_does_not_exists_return_error_response(client: Flas
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
@@ -390,7 +390,7 @@ def test_create_book(client: FlaskClient, access_token: str, app: Flask):
         'release_year': 1969,
         'id_book_kind': 1,
         'id_book_genre': 1,
-        'keywords': 'drama;máfia;itália',
+        'keywords': 'Drama;Máfia;itália',
         'imgs': [
             (open('tests/resources/img-1.1mb.png', 'rb'), 'image.png'),
             (open('tests/resources/img-4.8mb.png', 'rb'), 'image2.png'),
@@ -1156,6 +1156,42 @@ def test_when_try_to_create_book_with_invalid_id_book_kind_returns_error_respons
     assert response.status_code == 400
 
 
+def test_when_try_to_create_book_with_id_book_kind_from_book_kind_does_not_exist(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    invalid_data = {
+        'name': 'O Poderoso Chefão',
+        'price': 49.99,
+        'author': 'Mario Puzo',
+        'release_year': 1969,
+        'id_book_kind': 100,
+        'id_book_genre': '1',
+        'keywords': 'drama;máfia;itália',
+        'imgs': [(open('tests/resources/img-417kb.png', 'rb'), 'image.png')],
+    }
+
+    response = client.post('/books', headers=headers, data=invalid_data)
+    response_data = json.loads(response.data)
+
+    expected_data = {
+        'scope': 'BookKindException',
+        'code': 'BookKindDoesntExist',
+        'message': f'The book kind {invalid_data["id_book_kind"]} does not exist',
+        'status': 404,
+    }
+
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
+    assert response.status_code == 404
+
+
 def test_when_try_to_create_book_with_invalid_id_book_genre_returns_error_response(
     client: FlaskClient, access_token: str
 ):
@@ -1295,6 +1331,42 @@ def test_when_try_to_create_book_with_invalid_id_book_genre_returns_error_respon
 
     assert datetime.fromisoformat(response_data['timestamp'])
     assert response.status_code == 400
+
+
+def test_when_try_to_create_book_with_id_book_genre_from_book_genre_does_not_exist(
+    client: FlaskClient, access_token: str
+):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'multipart/form-data',
+    }
+
+    invalid_data = {
+        'name': 'O Poderoso Chefão',
+        'price': 49.99,
+        'author': 'Mario Puzo',
+        'release_year': 1969,
+        'id_book_kind': '1',
+        'id_book_genre': 100,
+        'keywords': 'drama;máfia;itália',
+        'imgs': [(open('tests/resources/img-417kb.png', 'rb'), 'image.png')],
+    }
+
+    response = client.post('/books', headers=headers, data=invalid_data)
+    response_data = json.loads(response.data)
+
+    expected_data = {
+        'scope': 'BookGenreException',
+        'code': 'BookGenreDoesntExist',
+        'message': f'The book genre {invalid_data["id_book_genre"]} does not exist',
+        'status': 404,
+    }
+
+    for key, value in expected_data.items():
+        assert response_data[key] == value
+
+    assert datetime.fromisoformat(response_data['timestamp'])
+    assert response.status_code == 404
 
 
 def test_when_try_to_create_book_with_invalid_keywords_returns_error_response(
@@ -1724,7 +1796,7 @@ def test_delete_book(client: FlaskClient, access_token: str, app: Flask):
         ).scalar()
 
 
-def test_when_try_to_delete_book_does_not_exists_return_error_message(
+def test_when_try_to_delete_book_does_not_exist_return_error_message(
     client: FlaskClient, access_token: str
 ):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -1736,7 +1808,7 @@ def test_when_try_to_delete_book_does_not_exists_return_error_message(
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
@@ -2612,7 +2684,7 @@ def test_when_try_to_update_book_kind_with_invalid_data_returns_error_response(
     assert response.status_code == 400
 
 
-def test_when_try_to_update_book_kind_with_id_from_book_kind_does_not_exists(
+def test_when_try_to_update_book_kind_with_id_from_book_kind_does_not_exist(
     client: FlaskClient, access_token: str
 ):
     headers = {
@@ -2628,7 +2700,7 @@ def test_when_try_to_update_book_kind_with_id_from_book_kind_does_not_exists(
 
     expected_data = {
         'scope': 'BookKindException',
-        'code': 'BookKindDoesntExists',
+        'code': 'BookKindDoesntExist',
         'message': f'The book kind {update["id_book_kind"]} does not exist',
         'status': 404,
     }
@@ -2794,7 +2866,7 @@ def test_when_try_to_update_book_genre_with_invalid_data_returns_error_response(
     assert response.status_code == 400
 
 
-def test_when_try_to_update_book_genre_with_id_from_book_genre_does_not_exists(
+def test_when_try_to_update_book_genre_with_id_from_book_genre_does_not_exist(
     client: FlaskClient, access_token: str
 ):
     headers = {
@@ -2810,7 +2882,7 @@ def test_when_try_to_update_book_genre_with_id_from_book_genre_does_not_exists(
 
     expected_data = {
         'scope': 'BookGenreException',
-        'code': 'BookGenreDoesntExists',
+        'code': 'BookGenreDoesntExist',
         'message': f'The book genre {update["id_book_genre"]} does not exist',
         'status': 404,
     }
