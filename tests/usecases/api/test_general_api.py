@@ -69,7 +69,7 @@ def test_when_try_to_request_with_method_not_allowed_returns_error_response():
     assert response.status_code == 405
 
 
-def test_when_try_to_request_an_endpoint_does_not_exists_returns_error_response():
+def test_when_try_to_request_an_endpoint_does_not_exist_returns_error_response():
     app = create_app(True)
 
     client = app.test_client()
