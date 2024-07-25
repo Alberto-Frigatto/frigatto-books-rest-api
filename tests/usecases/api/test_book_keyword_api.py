@@ -140,7 +140,7 @@ def test_add_book_keyword_with_space_and_in_uppercase(
         assert book_keyword.id_book == book_id
 
 
-def test_when_try_to_add_book_keyword_in_book_does_not_exists_returns_error_response(
+def test_when_try_to_add_book_keyword_in_book_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -153,7 +153,7 @@ def test_when_try_to_add_book_keyword_in_book_does_not_exists_returns_error_resp
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
@@ -505,7 +505,7 @@ def test_when_try_to_delete_last_book_keyword_returns_error_response(
     assert response.status_code == 400
 
 
-def test_when_try_to_delete_book_keyword_does_not_exists_returns_error_response(
+def test_when_try_to_delete_book_keyword_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -518,7 +518,7 @@ def test_when_try_to_delete_book_keyword_does_not_exists_returns_error_response(
 
     expected_data = {
         'scope': 'BookKeywordException',
-        'code': 'BookKeywordDoesntExists',
+        'code': 'BookKeywordDoesntExist',
         'message': f'The keyword {book_keyword_id} does not exist',
         'status': 404,
     }
@@ -530,7 +530,7 @@ def test_when_try_to_delete_book_keyword_does_not_exists_returns_error_response(
     assert response.status_code == 404
 
 
-def test_when_try_to_delete_book_keyword_from_book_does_not_exists_returns_error_response(
+def test_when_try_to_delete_book_keyword_from_book_does_not_exist_returns_error_response(
     client: FlaskClient, access_token: str
 ):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -543,7 +543,7 @@ def test_when_try_to_delete_book_keyword_from_book_does_not_exists_returns_error
 
     expected_data = {
         'scope': 'BookException',
-        'code': 'BookDoesntExists',
+        'code': 'BookDoesntExist',
         'message': f'The book {book_id} does not exist',
         'status': 404,
     }
@@ -570,11 +570,11 @@ def test_when_try_to_delete_book_keyword_from_book_does_not_own_it_returns_error
         'scope': 'BookKeywordException',
         'code': 'BookDoesntOwnThisKeyword',
         'message': f'The keyword {book_keyword_id} does not belong to the book {book_id}',
-        'status': 401,
+        'status': 403,
     }
 
     for key, value in expected_data.items():
         assert response_data[key] == value
 
     assert datetime.fromisoformat(response_data['timestamp'])
-    assert response.status_code == 401
+    assert response.status_code == 403
