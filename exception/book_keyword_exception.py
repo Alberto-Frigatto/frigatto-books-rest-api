@@ -2,7 +2,7 @@ from .base import ApiException, ValidationException
 
 
 class BookKeywordException:
-    class BookKeywordDoesntExists(ApiException):
+    class BookKeywordDoesntExist(ApiException):
         def __init__(self, id: str) -> None:
             super().__init__(
                 message=f'The keyword {id} does not exist',
@@ -13,7 +13,7 @@ class BookKeywordException:
         def __init__(self, id_keyword: str, id_book: str) -> None:
             super().__init__(
                 message=f'The keyword {id_keyword} does not belong to the book {id_book}',
-                status=401,
+                status=403,
             )
 
     class BookMustHaveAtLeastOneKeyword(ApiException):
